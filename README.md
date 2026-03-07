@@ -22,20 +22,61 @@ solidity-dojo/
 └── docker-compose.yml  # Docker compose configuration
 ```
 
-## Quick Start
+## How to Run Tests
 
-### Option 1: Docker (Recommended)
+### Option 1: Docker (Recommended - No Local Install Needed)
+
+**Prerequisites:** Docker Desktop installed and running
 
 ```bash
-# Build and start the container
+# Step 1: Build and start the container (first time only)
 docker compose up -d
 
-# Enter the container
-docker compose exec dojo bash
+# Step 2: Run tests directly (no need to enter container)
+docker compose exec dojo forge test
 
-# Run tests
+# Or enter container shell for interactive use:
+docker compose exec dojo bash
+# Then inside container:
 forge test
 ```
+
+### Option 2: Local Foundry (If you have Foundry installed)
+
+```bash
+# Install dependencies
+forge install
+
+# Run all tests
+forge test
+```
+
+## Test Commands Quick Reference
+
+```bash
+# Run all tests
+forge test
+
+# Run with verbose output (shows console logs)
+forge test -v
+
+# Run specific test file
+forge test --match-path test/basic/Counter.t.sol
+
+# Run specific test function
+forge test --match-test test_inc_incrementsByOne
+
+# Run tests with gas report
+forge test --gas-report
+
+# Run only failed tests from previous run
+forge test --rerun
+
+# Increase fuzz runs (default is 256)
+forge test --fuzz-runs 1000
+```
+
+## Quick Start
 
 ### Option 2: Local Foundry
 
