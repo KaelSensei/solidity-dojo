@@ -13,6 +13,7 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] Initialize Foundry project structure
 - [x] Install forge-std library
 - [x] Create README.md with project overview
+- [x] Add banner image to README
 
 ### ✅ Phase 2: Basic Section (16/40 topics)
 - [x] HelloWorld - SPDX, pragma, state variables
@@ -38,14 +39,17 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] ReentrancySecure (Hacks) - CEI pattern, reentrancy guard
 - [x] AssemblyMath (EVM) - inline assembly
 
-### ✅ Phase 4: Testing
-- [x] Docker environment tested
+### ✅ Phase 4: Testing & Quality
+- [x] Docker environment tested and working
 - [x] Foundry 1.5.1 running in container
 - [x] **126/126 tests passing (100%)**
-- [x] Fuzz tests configured (256 runs)
-- [x] Invariant tests working
-- [x] Fixed Yul builtin name conflict (`exp` variable)
+- [x] Fuzz tests: 256 runs per test
+- [x] Invariant tests: 64 runs, 2048 calls
+- [x] Fixed Yul builtin name conflict (`exp` → `exponent`)
 - [x] Fixed EtherWallet test assertions
+- [x] All contracts have NatSpec documentation
+
+**Current Status: 20/73+ topics implemented (~27%)**
 
 ## In Progress
 
