@@ -38,20 +38,20 @@ contract AssemblyMath {
 
     /// @notice Calculates power using binary exponentiation in assembly
     /// @param base Base number
-    /// @param exp Exponent
-    /// @return result base^exp
-    function powAssembly(uint256 base, uint256 exp) external pure returns (uint256 result) {
+    /// @param exponent Exponent
+    /// @return result base^exponent
+    function powAssembly(uint256 base, uint256 exponent) external pure returns (uint256 result) {
         assembly {
             result := 1
-            for { } gt(exp, 0) { } {
-                // If exp is odd, multiply result by base
-                if and(exp, 1) {
+            for { } gt(exponent, 0) { } {
+                // If exponent is odd, multiply result by base
+                if and(exponent, 1) {
                     result := mul(result, base)
                 }
                 // Square the base
                 base := mul(base, base)
-                // Divide exp by 2
-                exp := shr(1, exp)
+                // Divide exponent by 2
+                exponent := shr(1, exponent)
             }
         }
     }

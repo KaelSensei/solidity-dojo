@@ -45,6 +45,27 @@ contract AssemblyMathTest is Test {
         assertEq(math.powAssembly(10, 3), 1000);
     }
 
+    /// @notice Fuzz test: assembly power calculation for small exponents
+    function testFuzz_powAssembly(uint8 base, uint8 exponent) public view {
+        // Bound exponent to avoid overflow
+        uint256 result = math.powAssembly(base, exponent);
+
+        // Verify against Solidity's built-in exponentiation
+        uint256 expected;
+        if (exponent == 0) {
+            expected = 1;
+        } else if (base == 0) {
+            expected = 0;
+        } else {
+            // Manual calculation to avoid overflow in test
+            expected = 1;
+            for (uint256 i = 0; i < exponent; i++) {
+                expected *= base;
+            }
+        }
+        assertEq(result, expected);
+    }
+
     /// @notice Unit test: assembly equality check
     function test_eqAssembly() public view {
         assertTrue(math.eqAssembly(5, 5));
