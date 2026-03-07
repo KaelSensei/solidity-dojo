@@ -1,3 +1,5 @@
+![Solidity Dojo Banner](assets/banner.png)
+
 # Solidity Dojo
 
 A hands-on Solidity training ground based on [solidity-by-example.org](https://solidity-by-example.org).
