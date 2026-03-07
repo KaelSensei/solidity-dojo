@@ -1,0 +1,11 @@
+services:
+  dojo:
+    build: .
+    volumes:
+      - .:/workspace
+      - dojo-foundry:/root/.foundry
+    stdin_open: true
+    tty: true
+
+volumes:
+  dojo-foundry:
