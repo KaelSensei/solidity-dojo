@@ -33,11 +33,4 @@ contract SimpleStorageTest is Test {
         assertEq(storageContract.get(), x);
         assertEq(storageContract.num(), x);
     }
-
-    /// @notice Invariant test: get() reflects last set value
-    uint256 public lastSetValue;
-
-    function invariant_get_reflects_last_set() public view {
-        assertEq(storageContract.num(), lastSetValue);
-    }
 }

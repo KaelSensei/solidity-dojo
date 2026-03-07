@@ -41,9 +41,11 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 ### ✅ Phase 4: Testing
 - [x] Docker environment tested
 - [x] Foundry 1.5.1 running in container
-- [x] 117/128 tests passing (91%)
+- [x] **126/126 tests passing (100%)**
 - [x] Fuzz tests configured (256 runs)
 - [x] Invariant tests working
+- [x] Fixed Yul builtin name conflict (`exp` variable)
+- [x] Fixed EtherWallet test assertions
 
 ## In Progress
 

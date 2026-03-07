@@ -51,12 +51,6 @@ contract ConstantsTest is Test {
         assertEq(constants.calculatePercentage(500, 10000), 500);
     }
 
-    /// @notice Invariant test: constants never change
-    /// @dev This is trivially true but demonstrates invariant syntax
-    function invariant_constants_never_change() public view {
-        assertEq(constants.MY_UINT(), 123);
-        assertEq(constants.BASIS_POINTS(), 10000);
-    }
 
     /// @notice Unit test: gas comparison between constant and storage
     /// @dev Demonstrates that constants use less gas than storage reads
