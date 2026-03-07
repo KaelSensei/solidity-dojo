@@ -1,0 +1,104 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
+
+/// @title AssemblyMath
+/// @notice Demonstrates inline assembly (Yul) for gas-efficient math.
+/// @dev Yul is an intermediate language that compiles to EVM bytecode.
+contract AssemblyMath {
+    /// @notice Adds two numbers using assembly
+    /// @param x First number
+    /// @param y Second number
+    /// @return result Sum of x and y
+    function addAssembly(uint256 x, uint256 y) external pure returns (uint256 result) {
+        assembly {
+            // Add x and y, store in result
+            result := add(x, y)
+
+            // Overflow check: if result < x, overflow occurred
+            if lt(result, x) {
+                revert(0, 0)
+            }
+        }
+    }
+
+    /// @notice Multiplies two numbers using assembly
+    /// @param x First number
+    /// @param y Second number
+    /// @return result Product of x and y
+    function mulAssembly(uint256 x, uint256 y) external pure returns (uint256 result) {
+        assembly {
+            result := mul(x, y)
+
+            // Overflow check: if x != 0 and result / x != y, overflow occurred
+            if iszero(or(iszero(x), eq(div(result, x), y))) {
+                revert(0, 0)
+            }
+        }
+    }
+
+    /// @notice Calculates power using binary exponentiation in assembly
+    /// @param base Base number
+    /// @param exp Exponent
+    /// @return result base^exp
+    function powAssembly(uint256 base, uint256 exp) external pure returns (uint256 result) {
+        assembly {
+            result := 1
+            for { } gt(exp, 0) { } {
+                // If exp is odd, multiply result by base
+                if and(exp, 1) {
+                    result := mul(result, base)
+                }
+                // Square the base
+                base := mul(base, base)
+                // Divide exp by 2
+                exp := shr(1, exp)
+            }
+        }
+    }
+
+    /// @notice Compares two numbers using assembly
+    /// @param x First number
+    /// @param y Second number
+    /// @return isEqual True if x == y
+    function eqAssembly(uint256 x, uint256 y) external pure returns (bool isEqual) {
+        assembly {
+            isEqual := eq(x, y)
+        }
+    }
+
+    /// @notice Returns the larger of two numbers using assembly
+    /// @param x First number
+    /// @param y Second number
+    /// @return max The larger number
+    function maxAssembly(uint256 x, uint256 y) external pure returns (uint256 max) {
+        assembly {
+            // if x >= y, return x, else return y
+            switch iszero(lt(x, y))
+            case 1 { max := x }
+            default { max := y }
+        }
+    }
+
+    /// @notice Calculates sum of array using assembly loop
+    /// @param arr Array of numbers
+    /// @return sum Sum of all elements
+    function sumArrayAssembly(uint256[] calldata arr) external pure returns (uint256 sum) {
+        assembly {
+            // Get array length from calldata
+            // calldataload(4) loads the length (first word after function selector)
+            let length := calldataload(4)
+
+            // Get offset to array data (starts after length word)
+            // 0x24 = 4 bytes selector + 32 bytes offset pointer
+            let offset := 0x24
+
+            // Loop through array
+            for { let i := 0 } lt(i, length) { i := add(i, 1) } {
+                // Load element at offset and add to sum
+                sum := add(sum, calldataload(offset))
+                // Move to next element (32 bytes per element)
+                offset := add(offset, 0x20)
+            }
+        }
+    }
+}
