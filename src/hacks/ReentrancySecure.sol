@@ -8,8 +8,12 @@ contract ReentrancySecure {
     /// @notice User balances in the vault
     mapping(address => uint256) public balances;
 
-    /// @notice Reentrancy guard lock
-    bool private locked;
+    /// @notice Reentrancy guard status (1 = not entered, 2 = entered)
+    /// @dev Using 1/2 instead of 0/1 avoids a zero-to-nonzero SSTORE (22,100 gas)
+    ///      in favor of nonzero-to-nonzero (5,000 gas), saving ~17,100 gas on first entry.
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+    uint256 private _status = _NOT_ENTERED;
 
     /// @notice Emitted when ether is deposited
     event Deposit(address indexed user, uint256 amount);
@@ -22,10 +26,10 @@ contract ReentrancySecure {
 
     /// @notice Modifier to prevent reentrancy
     modifier nonReentrant() {
-        if (locked) revert ReentrantCall();
-        locked = true;
+        if (_status == _ENTERED) revert ReentrantCall();
+        _status = _ENTERED;
         _;
-        locked = false;
+        _status = _NOT_ENTERED;
     }
 
     /// @notice Deposit ether into the vault

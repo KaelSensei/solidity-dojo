@@ -129,6 +129,9 @@ contract MockPoolManagerFlashLoan {
 
 /// @title Uniswap V4 Flash Loan Test Suite
 contract UniswapV4FlashLoanTest is Test {
+    event FlashLoanExecuted(address indexed borrower, address token, uint256 amount, uint256 fee);
+    event CallbackExecuted(address token, uint256 amount, bytes data);
+
     UniswapV4FlashLoan public flashLoan;
     MockPoolManagerFlashLoan public poolManager;
     MockERC20FlashLoan public token;

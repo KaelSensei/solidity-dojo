@@ -121,13 +121,14 @@ contract MultiSigWallet {
         if (_owners.length < _threshold) revert TooFewOwners(_owners.length);
         if (_owners.length > 10) revert TooManyOwners(_owners.length);
 
-        for (uint256 i = 0; i < _owners.length; i++) {
+        for (uint256 i = 0; i < _owners.length;) {
             address owner = _owners[i];
             if (owner == address(0)) revert ZeroAddress();
             if (isOwner[owner]) revert AlreadyOwner(owner);
 
             isOwner[owner] = true;
             owners.push(owner);
+            unchecked { ++i; }
         }
 
         threshold = _threshold;
@@ -148,7 +149,7 @@ contract MultiSigWallet {
     function submitTransaction(
         address _to,
         uint256 _value,
-        bytes memory _data
+        bytes calldata _data
     ) public onlyOwner returns (uint256 txIndex) {
         txIndex = txCount;
 
