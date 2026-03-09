@@ -10,5 +10,11 @@
       "name": "v5.6.1",
       "rev": "5fd1781b1454fd1ef8e722282f86f9293cacf256"
     }
+  },
+  "lib/v4-core": {
+    "tag": {
+      "name": "v4.0.0",
+      "rev": "e50237c43811bd9b526eff40f26772152a42daba"
+    }
   }
 }
