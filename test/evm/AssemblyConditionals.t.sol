@@ -126,6 +126,7 @@ contract AssemblyConditionalsTest is Test {
 
     /// @notice Fuzz test abs
     function testFuzz_Abs(int256 x) public {
+        vm.assume(x != type(int256).min); // -x overflows for min
         uint256 result = asmCond.abs(x);
         if (x >= 0) {
             assertEq(result, uint256(x));

@@ -169,9 +169,10 @@ contract BitwiseOperatorsTest is Test {
     /// @notice Fuzz test popCount
     function testFuzz_PopCount(uint256 a) public {
         uint256 count = 0;
-        while (a > 0) {
-            if (a & 1 == 1) count++;
-            a >>= 1;
+        uint256 x = a;
+        while (x > 0) {
+            if (x & 1 == 1) count++;
+            x >>= 1;
         }
         assertEq(bitwise.popCount(a), count);
     }

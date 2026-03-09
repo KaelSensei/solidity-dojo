@@ -161,6 +161,9 @@ contract AssemblyArrayTest is Test {
     /// @notice Fuzz test sum
     function testFuzz_Sum(uint256[] memory arr) public {
         vm.assume(arr.length <= 100);
+        for (uint256 i = 0; i < arr.length; i++) {
+            vm.assume(arr[i] <= type(uint256).max / 200);
+        }
         
         uint256 expected = 0;
         for (uint256 i = 0; i < arr.length; i++) {

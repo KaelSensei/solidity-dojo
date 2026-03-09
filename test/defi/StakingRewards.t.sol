@@ -141,9 +141,10 @@ contract StakingRewardsTest is Test {
         // Get reward before
         uint256 rewardBefore = rewardsToken.balanceOf(user1);
         
-        // Withdraw (should also claim)
+        // Withdraw and claim rewards (withdraw does not auto-claim; must call getReward)
         vm.startPrank(user1);
         staking.withdraw(500e18);
+        staking.getReward();
         vm.stopPrank();
         
         uint256 rewardAfter = rewardsToken.balanceOf(user1);
@@ -258,7 +259,7 @@ contract StakingRewardsTest is Test {
     /// @notice Test total supply updates correctly
     function test_TotalSupplyUpdates() public {
         vm.startPrank(user1);
-        stakingToken.approve(address(staking), 1000e18);
+        stakingToken.approve(address(staking), 1500e18); // enough for 1000 + 500
         staking.stake(1000e18);
         
         assertEq(staking.totalSupply(), 1000e18);

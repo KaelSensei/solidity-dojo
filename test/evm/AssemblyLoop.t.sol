@@ -23,14 +23,14 @@ contract AssemblyLoopTest is Test {
         assertEq(asmLoop.sumTo(100), 4950);
     }
 
-    /// @notice Test sumEvens function
+    /// @notice Test sumEvens function (sum of even numbers in [0, n) )
     function test_SumEvens() public {
         assertEq(asmLoop.sumEvens(0), 0);
         assertEq(asmLoop.sumEvens(1), 0);
         assertEq(asmLoop.sumEvens(2), 0);
         assertEq(asmLoop.sumEvens(3), 2);
-        assertEq(asmLoop.sumEvens(4), 6);
-        assertEq(asmLoop.sumEvens(10), 20);
+        assertEq(asmLoop.sumEvens(4), 2); // 0+2 (exclusive of 4)
+        assertEq(asmLoop.sumEvens(10), 20); // 0+2+4+6+8
     }
 
     /// @notice Test max function
@@ -153,7 +153,7 @@ contract AssemblyLoopTest is Test {
         // Cap at reasonable size to avoid overflow
         n = n % 1000;
         
-        uint256 expected = (n * (n - 1)) / 2;
+        uint256 expected = n == 0 ? 0 : (n * (n - 1)) / 2;
         assertEq(asmLoop.sumTo(n), expected);
     }
 
@@ -180,6 +180,10 @@ contract AssemblyLoopTest is Test {
     /// @notice Fuzz test sumArray
     function testFuzz_SumArray(uint256[] memory data) public {
         vm.assume(data.length <= 100);
+        // Bound elements to avoid overflow in expected sum
+        for (uint256 i = 0; i < data.length; i++) {
+            vm.assume(data[i] <= type(uint256).max / 200);
+        }
         
         uint256 expected = 0;
         for (uint256 i = 0; i < data.length; i++) {
@@ -189,8 +193,4 @@ contract AssemblyLoopTest is Test {
         assertEq(asmLoop.sumArray(data), expected);
     }
 
-    /// @notice Invariant: sumTo never overflows for reasonable inputs
-    function invariant_SumToBounded() public {
-        // This would be tested with invariant testing
-    }
 }

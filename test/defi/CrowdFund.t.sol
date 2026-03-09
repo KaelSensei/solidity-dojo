@@ -278,7 +278,7 @@ contract CrowdFundTest is Test {
 
     /// @notice Fuzz test for pledge amounts
     function testFuzz_pledge_refund(uint256 pledgeAmount) public {
-        pledgeAmount = bound(pledgeAmount, 1 ether, 100 ether);
+        pledgeAmount = bound(pledgeAmount, 1 ether, GOAL - 1); // Keep below goal to allow refund
         
         vm.startPrank(pledger1);
         token.approve(address(crowdFund), pledgeAmount);

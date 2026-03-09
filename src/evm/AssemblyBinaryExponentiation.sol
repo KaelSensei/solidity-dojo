@@ -106,31 +106,32 @@ contract AssemblyBinaryExponentiation {
     /// @return result Next power of 2
     function nextPowerOfTwo(uint256 x) public pure returns (uint256 result) {
         if (x == 0) return 1;
+        if (x > (type(uint256).max >> 1) + 1) return 0; // Overflow, return 0 for values that would overflow
         
         assembly {
-            result := x
-            // Subtract 1 to handle exact powers of 2
-            result := sub(result, 1)
-            // Fill in all bits below the highest set bit
-            for { let i := 1 } lt(i, 256) { i := shl(i, result) } {
-                result := or(result, shr(i, result))
-            }
-            // Add 1 to get next power of 2
+            result := sub(x, 1)
+            result := or(result, shr(1, result))
+            result := or(result, shr(2, result))
+            result := or(result, shr(4, result))
+            result := or(result, shr(8, result))
+            result := or(result, shr(16, result))
+            result := or(result, shr(32, result))
+            result := or(result, shr(64, result))
+            result := or(result, shr(128, result))
             result := add(result, 1)
         }
     }
 
-    /// @notice Integer square root using binary search
+    /// @notice Integer square root using Newton's method
     /// @param x Value
     /// @return result Floor(sqrt(x))
     function sqrt(uint256 x) public pure returns (uint256 result) {
-        require(x >= 0, "Negative");
+        if (x == 0) return 0;
         
         assembly {
-            // Newton's method for integer sqrt
-            result := x
-            let z := add(div(x, 2), 1)
-            for { } lt(result, z) { } {
+            result := add(div(x, 2), 1)
+            let z := div(add(div(x, result), result), 2)
+            for { } lt(z, result) { } {
                 result := z
                 z := div(add(div(x, z), z), 2)
             }

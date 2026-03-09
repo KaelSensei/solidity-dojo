@@ -24,9 +24,8 @@ contract AssemblyArray {
         require(index < arr.length, "Out of bounds");
         
         assembly {
-            // Calldata layout: offset (32 bytes) + length (32 bytes) + data
-            // 0x04 + index * 0x20
-            value := calldataload(add(0x24, mul(index, 0x20)))
+            let base := add(0x04, calldataload(0x04))
+            value := calldataload(add(base, add(0x20, mul(index, 0x20))))
         }
     }
 
@@ -36,10 +35,11 @@ contract AssemblyArray {
     /// @return index Index or length if not found
     function indexOf(uint256[] calldata arr, uint256 target) external pure returns (uint256 index) {
         assembly {
+            let base := add(0x04, calldataload(0x04))
             index := arr.length // Default "not found"
             
             for { let i := 0 } lt(i, arr.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x24, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 if eq(elem, target) {
                     index := i
                     break
@@ -68,8 +68,9 @@ contract AssemblyArray {
     /// @return total Sum
     function sum(uint256[] calldata arr) external pure returns (uint256 total) {
         assembly {
+            let base := add(0x04, calldataload(0x04))
             for { let i := 0 } lt(i, arr.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x24, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 total := add(total, elem)
             }
         }
@@ -82,10 +83,11 @@ contract AssemblyArray {
         require(arr.length > 0, "Empty array");
         
         assembly {
-            maxValue := calldataload(0x24) // First element
+            let base := add(0x04, calldataload(0x04))
+            maxValue := calldataload(add(base, 0x20))
             
             for { let i := 1 } lt(i, arr.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x24, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 if gt(elem, maxValue) {
                     maxValue := elem
                 }
@@ -100,10 +102,11 @@ contract AssemblyArray {
         require(arr.length > 0, "Empty array");
         
         assembly {
-            minValue := calldataload(0x24)
+            let base := add(0x04, calldataload(0x04))
+            minValue := calldataload(add(base, 0x20))
             
             for { let i := 1 } lt(i, arr.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x24, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 if lt(elem, minValue) {
                     minValue := elem
                 }
@@ -117,8 +120,9 @@ contract AssemblyArray {
     /// @return count Occurrences
     function count(uint256[] calldata arr, uint256 value) external pure returns (uint256 count) {
         assembly {
+            let base := add(0x04, calldataload(0x04))
             for { let i := 0 } lt(i, arr.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x24, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 if eq(elem, value) {
                     count := add(count, 1)
                 }
@@ -133,7 +137,8 @@ contract AssemblyArray {
         require(arr.length > 0, "Empty array");
         
         assembly {
-            value := calldataload(0x24)
+            let base := add(0x04, calldataload(0x04))
+            value := calldataload(add(base, 0x20))
         }
     }
 
@@ -144,8 +149,9 @@ contract AssemblyArray {
         require(arr.length > 0, "Empty array");
         
         assembly {
+            let base := add(0x04, calldataload(0x04))
             let lastIdx := sub(arr.length, 1)
-            value := calldataload(add(0x24, mul(lastIdx, 0x20)))
+            value := calldataload(add(base, add(0x20, mul(lastIdx, 0x20))))
         }
     }
 

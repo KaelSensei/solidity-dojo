@@ -36,9 +36,10 @@ contract AssemblyLoop {
         if (data.length == 0) return 0;
         
         assembly {
-            max := calldataload(0x04) // First element
+            let base := add(0x04, calldataload(0x04))
+            max := calldataload(add(base, 0x20))
             for { let i := 1 } lt(i, data.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x04, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 if gt(elem, max) {
                     max := elem
                 }
@@ -53,9 +54,10 @@ contract AssemblyLoop {
         if (data.length == 0) return 0;
         
         assembly {
-            min := calldataload(0x04)
+            let base := add(0x04, calldataload(0x04))
+            min := calldataload(add(base, 0x20))
             for { let i := 1 } lt(i, data.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x04, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 if lt(elem, min) {
                     min := elem
                 }
@@ -69,8 +71,9 @@ contract AssemblyLoop {
     /// @return count Number of occurrences
     function countInArray(uint256[] calldata data, uint256 value) external pure returns (uint256 count) {
         assembly {
+            let base := add(0x04, calldataload(0x04))
             for { let i := 0 } lt(i, data.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x04, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 if eq(elem, value) {
                     count := add(count, 1)
                 }
@@ -84,9 +87,10 @@ contract AssemblyLoop {
     /// @return index Index of target, or length if not found
     function findIndex(uint256[] calldata data, uint256 target) external pure returns (uint256 index) {
         assembly {
+            let base := add(0x04, calldataload(0x04))
             index := data.length // Default to "not found"
             for { let i := 0 } lt(i, data.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x04, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 if eq(elem, target) {
                     index := i
                     break
@@ -127,8 +131,9 @@ contract AssemblyLoop {
     /// @return total Sum of all elements
     function sumArray(uint256[] calldata data) external pure returns (uint256 total) {
         assembly {
+            let base := add(0x04, calldataload(0x04))
             for { let i := 0 } lt(i, data.length) { i := add(i, 1) } {
-                let elem := calldataload(add(0x04, mul(i, 0x20)))
+                let elem := calldataload(add(base, add(0x20, mul(i, 0x20))))
                 total := add(total, elem)
             }
         }
@@ -139,12 +144,11 @@ contract AssemblyLoop {
     /// @return sum Sum of reversed indices
     function reverseSum(uint256[] calldata data) external pure returns (uint256 sum) {
         assembly {
+            let base := add(0x04, calldataload(0x04))
             let len := data.length
             for { let i := 0 } lt(i, len) { i := add(i, 1) } {
-                let elem := calldataload(add(0x04, mul(i, 0x20)))
-                // Add element at position (len - 1 - i)
                 let revIdx := sub(sub(len, 1), i)
-                let revElem := calldataload(add(0x04, mul(revIdx, 0x20)))
+                let revElem := calldataload(add(base, add(0x20, mul(revIdx, 0x20))))
                 sum := add(sum, revElem)
             }
         }
