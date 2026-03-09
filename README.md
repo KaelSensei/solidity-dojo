@@ -113,6 +113,10 @@ forge test --match-test test_inc_incrementsByOne
 forge test --fuzz-runs 1000
 ```
 
+## 📖 Concepts Guide
+
+See **[CONCEPTS.md](CONCEPTS.md)** for a Solidity by Example-style reference covering all 79 topics in this dojo. Each entry explains the concept, shows a code snippet, and links directly to the contract and its tests.
+
 ## Implemented Contracts
 
 ### Basic Section

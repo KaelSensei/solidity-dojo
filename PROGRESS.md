@@ -147,6 +147,10 @@ Failing tests breakdown:
 - All Basic, Applications, and Hacks sections: 100% passing
 ```
 
+## Documentation
+
+- [x] **Concepts Guide**: [`CONCEPTS.md`](CONCEPTS.md) — Solidity by Example-style reference for all 79 concepts in this dojo. Each entry explains the concept, shows a code snippet, and links to the contract + tests.
+
 ## Next Steps
 
 1. Review failing tests in EVM and DeFi sections
