@@ -65,8 +65,9 @@ contract Events {
     /// @notice Batch emit multiple events
     /// @param _count Number of events to emit
     function batchEmit(uint256 _count) external {
-        for (uint256 i = 0; i < _count; i++) {
+        for (uint256 i = 0; i < _count;) {
             emit ValueChanged(i);
+            unchecked { ++i; }
         }
     }
 

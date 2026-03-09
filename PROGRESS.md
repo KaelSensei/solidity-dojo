@@ -137,15 +137,26 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 Last run: 2026-03-09
 
 ```
-Total: 597 tests
-Passing: 535 (89.6%)
-Failing: 62 (10.4%)
+Total: 630 tests
+Passing: 565 (89.7%)
+Failing: 65 (10.3%)
 
 Failing tests breakdown:
 - EVM Section: 35 failing (Yul overflow/underflow edge cases)
-- DeFi Section: 27 failing (various edge cases)
+- DeFi Section: 30 failing (Uniswap V2/V3/V4, EnglishAuction, DutchAuction edge cases)
 - All Basic, Applications, and Hacks sections: 100% passing
 ```
+
+## Gas Optimizations & Code Review (2026-03-09)
+
+- [x] **P0 BUG FIX**: `StakingRewards.exit()` — `_totalSupply = 0` replaced with `_totalSupply -= amount` (critical correctness bug)
+- [x] **P1**: `ReentrancySecure` — reentrancy guard changed from `bool` (0/1) to `uint256` (1/2) pattern, saving ~17,100 gas on first entry by avoiding zero-to-nonzero SSTORE
+- [x] **P2**: Unchecked loop increments added across 10+ contracts (`Loop.sol`, `Array.sol`, `DataLocations.sol`, `Events.sol`, `Library.sol`, `MultiSigWallet.sol`) — ~30-40 gas saved per iteration
+- [x] **P3**: Custom errors replacing `require` strings in `Array.sol`, `VerifySignature.sol` — saves deployment + runtime gas
+- [x] **P4**: `memory` → `calldata` for read-only external params in `VerifySignature.sol`, `MultiSigWallet.sol` — saves ~300-3,000 gas per call
+- [x] **P5**: Storage caching for `arr.length` and repeated reads in `Array.sol`, `Structs.sol`, `ContractFactory.sol`, `Library.sol`, `Interface.sol` (MockToken) — saves ~2,000 gas per cached SLOAD
+- [x] **P5**: `unchecked` subtraction after bounds check in `MockToken.transfer()` and `transferFrom()` — saves ~30-40 gas
+- [x] **Test fixes**: `StakingRewards` test `test_TotalSupplyUpdates` (insufficient approval), `test_WithdrawingClaimsRewards` (withdraw doesn't auto-claim), `UniswapV4FlashLoan.t.sol` and `UniswapV4Swap.t.sol` (missing event declarations in test contracts)
 
 ## Documentation
 
@@ -155,10 +166,11 @@ Failing tests breakdown:
 
 1. Review failing tests in EVM and DeFi sections
 2. Consider fixing edge cases in Yul assembly functions
-3. Final verification and cleanup
+3. Apply custom errors to remaining contracts (DeFi, Applications)
+4. Storage packing opportunities in DeFi contracts (ChainlinkPriceFeed, DutchAuction, EnglishAuction)
 
 ## Estimated Completion
 
 - Current: 73/73 topics (100%) - All phases implemented!
-- Test coverage: 535/597 tests passing (89.6%)
+- Test coverage: 565/630 tests passing (89.7%)
 - All core functionality tested and working

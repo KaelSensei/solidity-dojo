@@ -81,6 +81,8 @@ contract MockPoolManagerV4 {
 /// @title Uniswap V4 Swap Test Suite
 /// @dev Tests demonstrate V4 concepts: PoolManager, flash accounting, hooks
 contract UniswapV4SwapTest is Test {
+    event FlashLoan(address indexed borrower, address token, uint256 amount);
+
     UniswapV4Swap public swap;
     MockERC20V4 public tokenA;
     MockERC20V4 public tokenB;

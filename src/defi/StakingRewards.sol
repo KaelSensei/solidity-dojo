@@ -245,7 +245,7 @@ contract StakingRewards {
         _updateReward(msg.sender);
         
         _balances[msg.sender] = 0;
-        _totalSupply = 0;
+        _totalSupply -= amount;
         
         stakingToken.transfer(msg.sender, amount);
         

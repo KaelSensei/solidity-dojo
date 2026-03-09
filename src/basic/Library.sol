@@ -32,18 +32,20 @@ library MathLibrary {
 library ArrayLibrary {
     /// @notice Find index of element, returns length if not found
     function find(uint256[] storage arr, uint256 value) internal view returns (uint256) {
-        for (uint256 i = 0; i < arr.length; i++) {
+        for (uint256 i = 0; i < arr.length;) {
             if (arr[i] == value) {
                 return i;
             }
+            unchecked { ++i; }
         }
         return arr.length;
     }
 
     /// @notice Remove element at index (unordered)
     function removeUnordered(uint256[] storage arr, uint256 index) internal {
-        require(index < arr.length, "Index out of bounds");
-        arr[index] = arr[arr.length - 1];
+        uint256 len = arr.length;
+        require(index < len, "Index out of bounds");
+        arr[index] = arr[len - 1];
         arr.pop();
     }
 }
