@@ -39,6 +39,16 @@ artifacts/
 broadcast/
 logs/
 
+# Foundry binaries (install via package manager instead)
+anvil
+cast
+chisel
+forge
+foundry.tar.gz
+
+# Kilo Code lock file
+skills-lock.json
+
 # Local chain data
 anvil.db
 anvil/
@@ -59,6 +69,7 @@ bin/
 *.orig
 
 # Cursor / Claude / AI assistants
+skills-lock.json
 .agents/
 .cursor/
 .claude/
