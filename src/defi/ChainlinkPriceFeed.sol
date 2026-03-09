@@ -47,6 +47,7 @@ contract ChainlinkPriceFeed {
     /// @param _staleThreshold Threshold in seconds for staleness
     constructor(address _priceFeed, uint256 _staleThreshold) {
         require(_priceFeed != address(0), "Invalid price feed address");
+        require(_staleThreshold > 0, "Threshold must be positive");
         
         priceFeed = AggregatorV3Interface(_priceFeed);
         decimals = priceFeed.decimals();

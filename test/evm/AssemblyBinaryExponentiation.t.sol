@@ -113,8 +113,8 @@ contract AssemblyBinaryExponentiationTest is Test {
 
     /// @notice Fuzz test pow
     function testFuzz_Pow(uint256 base, uint256 exp) public {
-        // Limit to avoid massive numbers
-        exp = exp % 20;
+        exp = exp % 10;
+        vm.assume(base <= 1000); // Bound to avoid overflow in expected calculation
         
         uint256 expected = 1;
         for (uint256 i = 0; i < exp; i++) {
@@ -150,8 +150,8 @@ contract AssemblyBinaryExponentiationTest is Test {
 
     /// @notice Fuzz test isPowerOfTwo
     function testFuzz_IsPowerOfTwo(uint256 x) public {
-        // Check if x is a power of 2
-        bool isPow2 = (x & (x - 1)) == 0 && x != 0;
+        vm.assume(x != 0); // Avoid underflow in (x - 1)
+        bool isPow2 = (x & (x - 1)) == 0;
         
         bool result = asmPow.isPowerOfTwo(x);
         
@@ -160,6 +160,7 @@ contract AssemblyBinaryExponentiationTest is Test {
 
     /// @notice Fuzz test nextPowerOfTwo
     function testFuzz_NextPowerOfTwo(uint256 x) public {
+        vm.assume(x <= (type(uint256).max >> 1) + 1); // Avoid overflow
         uint256 result = asmPow.nextPowerOfTwo(x);
         
         // Result should be >= x
@@ -176,6 +177,7 @@ contract AssemblyBinaryExponentiationTest is Test {
 
     /// @notice Fuzz test sqrt
     function testFuzz_Sqrt(uint256 x) public {
+        vm.assume(x < 2**128); // Keep result small to avoid (result+1)^2 overflow
         uint256 result = asmPow.sqrt(x);
         
         // result^2 should be <= x

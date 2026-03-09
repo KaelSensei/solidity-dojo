@@ -23,12 +23,11 @@ contract Structs {
     /// @notice Creates a new todo
     /// @param _text The todo text
     function create(string calldata _text) external {
-        uint256 id = todos.length;
         todos.push(Todo({
             text: _text,
             completed: false
         }));
-        emit TodoCreated(id, _text);
+        emit TodoCreated(todos.length - 1, _text);
     }
 
     /// @notice Gets a todo by index
@@ -63,8 +62,8 @@ contract Structs {
 
     /// @notice Alternative syntax for creating struct
     function createAlternative(string calldata _text) external {
-        uint256 id = todos.length;
+        // Using positional arguments instead of named
         todos.push(Todo(_text, false));
-        emit TodoCreated(id, _text);
+        emit TodoCreated(todos.length - 1, _text);
     }
 }

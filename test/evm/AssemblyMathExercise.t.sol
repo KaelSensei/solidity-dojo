@@ -15,7 +15,8 @@ contract AssemblyMathExerciseTest is Test {
     /// @notice Test subtract
     function test_Subtract() public {
         assertEq(asmMath.subtract(10, 5), 5);
-        assertEq(asmMath.subtract(5, 10), 0); // Underflows to max uint
+        // Yul sub wraps: 5 - 10 = type(uint256).max - 4
+        assertEq(asmMath.subtract(5, 10), type(uint256).max - 4);
     }
 
     /// @notice Test multiply
@@ -120,10 +121,10 @@ contract AssemblyMathExerciseTest is Test {
         assertEq(asmMath.absDiff(7, 7), 0);
     }
 
-    /// @notice Fuzz test add
+    /// @notice Fuzz test add (contract has no add; this tests Solidity)
     function testFuzz_Add(uint256 a, uint256 b) public {
+        vm.assume(a <= type(uint256).max - b);
         uint256 result = a + b;
-        // Just verify no overflow in Solidity
         assertTrue(result >= a);
     }
 
@@ -136,6 +137,7 @@ contract AssemblyMathExerciseTest is Test {
 
     /// @notice Fuzz test multiply
     function testFuzz_Multiply(uint256 a, uint256 b) public {
+        vm.assume(a == 0 || b <= type(uint256).max / a);
         assertEq(asmMath.multiply(a, b), a * b);
     }
 
@@ -153,6 +155,7 @@ contract AssemblyMathExerciseTest is Test {
 
     /// @notice Fuzz test square
     function testFuzz_Square(uint256 x) public {
+        vm.assume(x <= 340282366920938463463374607431768211455); // sqrt(max)
         assertEq(asmMath.square(x), x * x);
     }
 
@@ -192,6 +195,7 @@ contract AssemblyMathExerciseTest is Test {
     /// @notice Fuzz test absDiff
     function testFuzz_AbsDiff(uint256 a, uint256 b) public {
         uint256 result = asmMath.absDiff(a, b);
-        assertTrue(result == a - b || result == b - a);
+        uint256 expected = a >= b ? a - b : b - a;
+        assertEq(result, expected);
     }
 }

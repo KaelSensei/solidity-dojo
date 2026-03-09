@@ -5,12 +5,6 @@ pragma solidity ^0.8.26;
 /// @notice Demonstrates dynamic and fixed-size arrays.
 /// @dev Dynamic arrays can grow/shrink. Fixed-size arrays have compile-time size.
 contract Array {
-    /// @notice Thrown when array is empty
-    error EmptyArray();
-
-    /// @notice Thrown when index exceeds array bounds
-    error IndexOutOfBounds(uint256 index, uint256 length);
-
     /// @notice Dynamic array of uint256
     uint256[] public arr;
 
@@ -26,9 +20,8 @@ contract Array {
     /// @notice Removes and returns the last element
     /// @return The removed element
     function pop() external returns (uint256) {
-        uint256 len = arr.length;
-        if (len == 0) revert EmptyArray();
-        uint256 val = arr[len - 1];
+        require(arr.length > 0, "Empty array");
+        uint256 val = arr[arr.length - 1];
         arr.pop();
         return val;
     }
@@ -41,8 +34,7 @@ contract Array {
     /// @notice Gets element at index
     /// @param _i Index to retrieve
     function get(uint256 _i) external view returns (uint256) {
-        uint256 len = arr.length;
-        if (_i >= len) revert IndexOutOfBounds(_i, len);
+        require(_i < arr.length, "Index out of bounds");
         return arr[_i];
     }
 
@@ -50,11 +42,9 @@ contract Array {
     /// @param _index Index to remove
     /// @dev Shifts all elements after index left by one
     function removeByShift(uint256 _index) external {
-        uint256 len = arr.length;
-        if (_index >= len) revert IndexOutOfBounds(_index, len);
-        for (uint256 i = _index; i < len - 1;) {
+        require(_index < arr.length, "Index out of bounds");
+        for (uint256 i = _index; i < arr.length - 1; i++) {
             arr[i] = arr[i + 1];
-            unchecked { ++i; }
         }
         arr.pop();
     }
@@ -63,9 +53,8 @@ contract Array {
     /// @param _index Index to remove
     /// @dev Swaps with last element then pops
     function removeBySwap(uint256 _index) external {
-        uint256 len = arr.length;
-        if (_index >= len) revert IndexOutOfBounds(_index, len);
-        arr[_index] = arr[len - 1];
+        require(_index < arr.length, "Index out of bounds");
+        arr[_index] = arr[arr.length - 1];
         arr.pop();
     }
 
@@ -73,8 +62,7 @@ contract Array {
     /// @param _index Index to delete
     /// @dev delete resets to default value but doesn't change array size
     function deleteAt(uint256 _index) external {
-        uint256 len = arr.length;
-        if (_index >= len) revert IndexOutOfBounds(_index, len);
+        require(_index < arr.length, "Index out of bounds");
         delete arr[_index];
     }
 
@@ -85,13 +73,13 @@ contract Array {
 
     /// @notice Sets value in fixed-size array
     function setFixed(uint256 _index, uint256 _value) external {
-        if (_index >= 10) revert IndexOutOfBounds(_index, 10);
+        require(_index < 10, "Index out of bounds");
         fixedArr[_index] = _value;
     }
 
     /// @notice Gets value from fixed-size array
     function getFixed(uint256 _index) external view returns (uint256) {
-        if (_index >= 10) revert IndexOutOfBounds(_index, 10);
+        require(_index < 10, "Index out of bounds");
         return fixedArr[_index];
     }
 }

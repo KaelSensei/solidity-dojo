@@ -65,6 +65,7 @@ contract AssemblyVariableTest is Test {
 
     /// @notice Fuzz test double with assembly
     function testFuzz_DoubleWithAssembly(uint256 x) public {
+        vm.assume(x <= type(uint256).max / 2); // Avoid overflow
         uint256 result = asmVar.doubleWithAssembly(x);
         assertEq(result, x * 2);
     }

@@ -117,9 +117,9 @@ contract AssemblyMathExercise {
     /// @return result Floor average
     function average(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
-            // (a + b) / 2 = a/2 + b/2 + (a%2 + b%2)/2
+            // (a + b) / 2 = a/2 + b/2; add 1 only when both are odd
             result := add(shr(1, a), shr(1, b))
-            if and(or(and(a, 1), and(b, 1)), 1) {
+            if and(and(a, 1), and(b, 1)) {
                 result := add(result, 1)
             }
         }

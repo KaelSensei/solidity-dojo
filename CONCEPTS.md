@@ -59,6 +59,8 @@
 | 40 | [Keccak256](#40-keccak256) | `src/basic/Keccak256.sol` | `test/basic/Keccak256.t.sol` |
 | 41 | [Verify Signature](#41-verify-signature) | `src/basic/VerifySignature.sol` | `test/basic/VerifySignature.t.sol` |
 | 42 | [Accessing Private Data](#42-accessing-private-data) | `src/basic/PrivateData.sol` | `test/basic/PrivateData.t.sol` |
+| 43 | [Unchecked Math](#43-unchecked-math) | `src/basic/UncheckedMath.sol` | `test/basic/UncheckedMath.t.sol` |
+| 44 | [Gas Golf](#44-gas-golf) | `src/basic/GasGolf.sol` | `test/basic/GasGolf.t.sol` |
 
 ### Applications
 
@@ -71,6 +73,11 @@
 | 47 | [CREATE2](#47-create2) | `src/applications/Create2.sol` | `test/applications/Create2.t.sol` |
 | 48 | [Minimal Proxy (EIP-1167)](#48-minimal-proxy-eip-1167) | `src/applications/MinimalProxy.sol` | `test/applications/MinimalProxy.t.sol` |
 | 49 | [Deploy Any Contract](#49-deploy-any-contract) | `src/applications/Deployer.sol` | `test/applications/Deployer.t.sol` |
+| 80 | [ERC20 Token](#80-erc20-token) | `src/applications/ERC20Token.sol` | `test/applications/ERC20Token.t.sol` |
+| 81 | [ERC721 Token (NFT)](#81-erc721-token-nft) | `src/applications/ERC721Token.sol` | `test/applications/ERC721Token.t.sol` |
+| 82 | [MultiCall](#82-multicall) | `src/applications/MultiCall.sol` | `test/applications/MultiCall.t.sol` |
+| 83 | [TimeLock](#83-timelock) | `src/applications/TimeLock.sol` | `test/applications/TimeLock.t.sol` |
+| 84 | [Upgradeable Proxy](#84-upgradeable-proxy) | `src/applications/UpgradeableProxy.sol` | `test/applications/UpgradeableProxy.t.sol` |
 
 ### DeFi
 
@@ -86,6 +93,8 @@
 | 57 | [Dutch Auction](#57-dutch-auction) | `src/defi/DutchAuction.sol` | `test/defi/DutchAuction.t.sol` |
 | 58 | [English Auction](#58-english-auction) | `src/defi/EnglishAuction.sol` | `test/defi/EnglishAuction.t.sol` |
 | 59 | [Crowd Fund](#59-crowd-fund) | `src/defi/CrowdFund.sol` | `test/defi/CrowdFund.t.sol` |
+| 85 | [Vault (ERC4626-style)](#85-vault-erc4626-style) | `src/defi/Vault.sol` | `test/defi/Vault.t.sol` |
+| 86 | [Constant Product AMM](#86-constant-product-amm) | `src/defi/ConstantProductAMM.sol` | `test/defi/ConstantProductAMM.t.sol` |
 
 ### Hacks & Security
 
@@ -103,6 +112,7 @@
 | 69 | [Predictable Randomness](#69-predictable-randomness) | `src/hacks/PredictableRandomness.sol` | `test/hacks/PredictableRandomness.t.sol` |
 | 70 | [Denial of Service (DoS)](#70-denial-of-service-dos) | `src/hacks/DoSAttack.sol` | `test/hacks/DoSAttack.t.sol` |
 | 71 | [Vault Inflation Attack](#71-vault-inflation-attack) | `src/hacks/VaultInflation.sol` | `test/hacks/VaultInflation.t.sol` |
+| 87 | [Front Running](#87-front-running) | `src/hacks/FrontRunning.sol` | `test/hacks/FrontRunning.t.sol` |
 
 ### EVM / Assembly (Yul)
 
@@ -1686,6 +1696,275 @@ uint128 unpacked_b = uint128(packed);
 
 ---
 
+## New Topics (Phase 10)
+
+---
+
+### 43. Unchecked Math
+
+**What you learn:** Solidity 0.8+ automatically reverts on overflow/underflow. The `unchecked` block disables these checks, saving ~30-40 gas per operation. Only use it when overflow is mathematically impossible.
+
+```solidity
+// Regular — reverts on overflow
+function add(uint256 x, uint256 y) external pure returns (uint256) {
+    return x + y;
+}
+
+// Unchecked — wraps around (dangerous if not bounded)
+function uncheckedAdd(uint256 x, uint256 y) external pure returns (uint256 result) {
+    unchecked { result = x + y; }
+}
+
+// The standard gas-efficient loop pattern
+for (uint256 i; i < len;) {
+    // ...
+    unchecked { ++i; }
+}
+```
+
+**Why it matters:** Loop counters bounded by array length can never overflow `uint256`, making `unchecked { ++i; }` a free gas optimization used in every production contract.
+
+| Source | Tests |
+|--------|-------|
+| [`src/basic/UncheckedMath.sol`](src/basic/UncheckedMath.sol) | [`test/basic/UncheckedMath.t.sol`](test/basic/UncheckedMath.t.sol) |
+
+---
+
+### 44. Gas Golf
+
+**What you learn:** A side-by-side comparison of an unoptimized vs optimized function doing the same thing. Teaches `calldata` vs `memory`, cached `.length`, unchecked increments, custom errors, and short-circuit evaluation.
+
+```solidity
+// UNOPTIMIZED: memory, checked loop, require string
+function sumIfEvenAndLessThan99_UNOPTIMIZED(uint256[] memory nums) external pure returns (uint256 total) {
+    require(nums.length > 0, "Array must not be empty");
+    for (uint256 i = 0; i < nums.length; i++) { ... }
+}
+
+// OPTIMIZED: calldata, cached length, unchecked, custom error
+function sumIfEvenAndLessThan99(uint256[] calldata nums) external pure returns (uint256 total) {
+    uint256 len = nums.length;
+    if (len == 0) revert EmptyArray();
+    for (uint256 i; i < len;) {
+        uint256 num = nums[i];
+        if (num < 99 && num % 2 == 0) total += num;
+        unchecked { ++i; }
+    }
+}
+```
+
+**Why it matters:** These are the most common gas optimizations used in production. The test suite proves both produce identical results while the optimized version uses measurably less gas.
+
+| Source | Tests |
+|--------|-------|
+| [`src/basic/GasGolf.sol`](src/basic/GasGolf.sol) | [`test/basic/GasGolf.t.sol`](test/basic/GasGolf.t.sol) |
+
+---
+
+### 80. ERC20 Token
+
+**What you learn:** A full ERC20 implementation from scratch — `transfer`, `approve`, `transferFrom`, `mint`, `burn`. Teaches how the token standard works internally without relying on OpenZeppelin.
+
+```solidity
+function transfer(address to, uint256 amount) external returns (bool) {
+    if (to == address(0)) revert ZeroAddress();
+    uint256 senderBal = balanceOf[msg.sender]; // cache storage
+    if (senderBal < amount) revert InsufficientBalance(senderBal, amount);
+    unchecked { balanceOf[msg.sender] = senderBal - amount; } // safe after check
+    balanceOf[to] += amount;
+    emit Transfer(msg.sender, to, amount);
+    return true;
+}
+```
+
+**Why it matters:** ERC20 is the foundation of DeFi. Understanding the internal mechanics (allowance double-mapping, balance checks before unchecked arithmetic) is essential before using production libraries.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/ERC20Token.sol`](src/applications/ERC20Token.sol) | [`test/applications/ERC20Token.t.sol`](test/applications/ERC20Token.t.sol) |
+
+---
+
+### 81. ERC721 Token (NFT)
+
+**What you learn:** A full ERC721 (NFT) implementation — `mint`, `burn`, `transferFrom`, `safeTransferFrom`, `approve`, `setApprovalForAll`, `supportsInterface` (ERC165). Includes the `IERC721Receiver` hook for safe transfers to contracts.
+
+```solidity
+function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public {
+    transferFrom(from, to, tokenId);
+    if (to.code.length > 0) {
+        try IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, data) returns (bytes4 retval) {
+            if (retval != IERC721Receiver.onERC721Received.selector) revert UnsafeRecipient();
+        } catch { revert UnsafeRecipient(); }
+    }
+}
+```
+
+**Why it matters:** NFTs are the second most-used token standard. The `safeTransferFrom` pattern prevents tokens from being locked in contracts that can't handle them.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/ERC721Token.sol`](src/applications/ERC721Token.sol) | [`test/applications/ERC721Token.t.sol`](test/applications/ERC721Token.t.sol) |
+
+---
+
+### 82. MultiCall
+
+**What you learn:** Batch multiple contract calls into a single transaction, saving the 21,000 gas base cost per tx. Includes both state-changing `multicall` and read-only `staticMulticall`.
+
+```solidity
+function multicall(address[] calldata targets, bytes[] calldata data)
+    external returns (bytes[] memory results)
+{
+    uint256 len = targets.length;
+    results = new bytes[](len);
+    for (uint256 i; i < len;) {
+        (bool success, bytes memory result) = targets[i].call(data[i]);
+        if (!success) revert CallFailed(i);
+        results[i] = result;
+        unchecked { ++i; }
+    }
+}
+```
+
+**Why it matters:** MultiCall is used by Uniswap, MakerDAO, and most DeFi protocols to batch operations. It reduces gas and network round-trips.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/MultiCall.sol`](src/applications/MultiCall.sol) | [`test/applications/MultiCall.t.sol`](test/applications/MultiCall.t.sol) |
+
+---
+
+### 83. TimeLock
+
+**What you learn:** A timelock controller for governance — transactions must be queued with a mandatory delay (2-30 days) before they can be executed. Includes queue, execute, and cancel with grace period expiration.
+
+```solidity
+function queue(address target, uint256 value, bytes calldata data, uint256 executeTime) external onlyOwner {
+    bytes32 txId = keccak256(abi.encode(target, value, data, executeTime));
+    if (queued[txId]) revert AlreadyQueued(txId);
+    // executeTime must be between MIN_DELAY and MAX_DELAY from now
+    queued[txId] = true;
+}
+```
+
+**Why it matters:** Timelocks give users time to exit a protocol before governance changes take effect. They are a standard pattern in DAO governance (Compound, Aave, etc.).
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/TimeLock.sol`](src/applications/TimeLock.sol) | [`test/applications/TimeLock.t.sol`](test/applications/TimeLock.t.sol) |
+
+---
+
+### 84. Upgradeable Proxy
+
+**What you learn:** EIP-1967 transparent upgradeable proxy — stores `implementation` and `admin` at deterministic storage slots (computed from hashes) to avoid collisions with the logic contract. Uses `delegatecall` in the fallback function to forward calls.
+
+```solidity
+// EIP-1967 slot: keccak256("eip1967.proxy.implementation") - 1
+bytes32 private constant _IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+
+fallback() external payable {
+    address impl;
+    assembly { impl := sload(_IMPL_SLOT) }
+    assembly {
+        calldatacopy(0, 0, calldatasize())
+        let result := delegatecall(gas(), impl, 0, calldatasize(), 0, 0)
+        returndatacopy(0, 0, returndatasize())
+        switch result
+        case 0 { revert(0, returndatasize()) }
+        default { return(0, returndatasize()) }
+    }
+}
+```
+
+**Why it matters:** Most production smart contracts need upgradeability. Understanding how storage persists across upgrades and how `delegatecall` preserves context is fundamental.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/UpgradeableProxy.sol`](src/applications/UpgradeableProxy.sol) | [`test/applications/UpgradeableProxy.t.sol`](test/applications/UpgradeableProxy.t.sol) |
+
+---
+
+### 85. Vault (ERC4626-style)
+
+**What you learn:** A deposit vault that accepts ERC20 tokens and mints proportional shares. Teaches the share/asset math behind ERC4626 and includes a virtual offset to protect against the vault inflation (first-depositor) attack.
+
+```solidity
+function deposit(uint256 amount) external returns (uint256 shares) {
+    if (totalShares == 0) {
+        shares = amount;
+    } else {
+        shares = (amount * (totalShares + OFFSET)) / (totalAssets() + OFFSET);
+    }
+    token.transferFrom(msg.sender, address(this), amount);
+    totalShares += shares;
+}
+```
+
+**Why it matters:** Vaults are the backbone of DeFi (Yearn, Aave, ERC4626). The inflation attack is a real vulnerability — OpenZeppelin's vault implementation uses the same virtual offset technique demonstrated here.
+
+| Source | Tests |
+|--------|-------|
+| [`src/defi/Vault.sol`](src/defi/Vault.sol) | [`test/defi/Vault.t.sol`](test/defi/Vault.t.sol) |
+
+---
+
+### 86. Constant Product AMM
+
+**What you learn:** A minimal x*y=k automated market maker with 0.3% swap fee. Teaches the invariant math, LP share minting (sqrt for initial liquidity), and how fees make k increase monotonically.
+
+```solidity
+function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
+    uint256 amountInWithFee = (amountIn * 997) / 1000; // 0.3% fee
+    amountOut = (resOut * amountInWithFee) / (resIn + amountInWithFee);
+}
+
+function addLiquidity(uint256 amount0, uint256 amount1) external returns (uint256 shares) {
+    if (totalSupply == 0) shares = _sqrt(amount0 * amount1);
+    else shares = _min((amount0 * totalSupply) / reserve0, (amount1 * totalSupply) / reserve1);
+}
+```
+
+**Why it matters:** This is the core mechanism behind Uniswap V1/V2. Understanding x*y=k is prerequisite for all AMM-related work including V3 concentrated liquidity and V4 hooks.
+
+| Source | Tests |
+|--------|-------|
+| [`src/defi/ConstantProductAMM.sol`](src/defi/ConstantProductAMM.sol) | [`test/defi/ConstantProductAMM.t.sol`](test/defi/ConstantProductAMM.t.sol) |
+
+---
+
+### 87. Front Running
+
+**What you learn:** How front-running works in the EVM mempool, and how to defend against it using commit-reveal.
+
+A **vulnerable** guessing game lets anyone see the correct answer in the mempool and submit their own tx with higher gas to claim the prize first.
+
+A **secure** version uses commit-reveal: players first commit `keccak256(guess, salt)`, then reveal after a delay. Front-runners can't exploit the commitment because they don't know the answer until reveal.
+
+```solidity
+// Phase 1: Commit (answer hidden)
+function commit(bytes32 commitment) external {
+    commitments[commitment] = msg.sender;
+}
+
+// Phase 2: Reveal (after commit deadline)
+function reveal(uint256 guess, bytes32 salt) external {
+    bytes32 commitment = keccak256(abi.encodePacked(guess, salt));
+    if (commitments[commitment] != msg.sender) revert NoCommitmentFound();
+    if (keccak256(abi.encodePacked(guess)) != answerHash) revert WrongGuess();
+    // ... transfer prize
+}
+```
+
+**Why it matters:** Front-running is one of the most common attacks on Ethereum. Commit-reveal is the standard countermeasure used in ENS, auctions, and governance voting.
+
+| Source | Tests |
+|--------|-------|
+| [`src/hacks/FrontRunning.sol`](src/hacks/FrontRunning.sol) | [`test/hacks/FrontRunning.t.sol`](test/hacks/FrontRunning.t.sol) |
+
+---
+
 ## How to Run Tests
 
 ```bash
@@ -1714,3 +1993,16 @@ forge test --fuzz-runs 1000
 - [Foundry Book](https://book.getfoundry.sh)
 - [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts)
 - [Uniswap V4 Docs](https://docs.uniswap.org/contracts/v4/overview)
+
+### Gas Optimization References
+
+For deeper study of gas optimization, beyond the `Gas`, `UncheckedMath`, `GasGolf`, `MultiCall`, `Vault`, `ConstantProductAMM`, and other gas‑aware contracts in this dojo, see:
+
+- [EVM opcodes & costs](https://www.evm.codes/) — exact gas pricing per opcode.
+- [Solidity storage layout](https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html) — how variables map to slots (critical for packing and caching).
+- [Solidity optimizer docs](https://docs.soliditylang.org/en/latest/internals/optimizer.html) — `--optimize`, `optimizer_runs`, and `via-ir`.
+- [EIP‑1153 — transient storage](https://eips.ethereum.org/EIPS/eip-1153) — `TSTORE` / `TLOAD` for cheap, tx‑local state.
+- [RareSkills — 80+ gas optimization tips](https://rareskills.io/post/gas-optimization) — curated, up‑to‑date patterns.
+- [Cyfrin — L2 gas efficiency guide](https://www.cyfrin.io/blog/solidity-gas-efficiency-tips-tackle-rising-fees-base-other-l2) — calldata‑focused optimizations for L2s.
+
+These references are the basis for the internal gas‑optimization skill at `.cursor/skills/gas-optimization/SKILL.md`, which informs the patterns used throughout this repository.

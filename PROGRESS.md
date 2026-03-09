@@ -42,18 +42,11 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 ### ✅ Phase 4: Testing & Quality
 - [x] Docker environment tested and working
 - [x] Foundry 1.5.1 running in container
-- [x] **126/126 tests passing (100%)**
 - [x] Fuzz tests: 256 runs per test
 - [x] Invariant tests: 64 runs, 2048 calls
-- [x] Fixed Yul builtin name conflict (`exp` → `exponent`)
-- [x] Fixed EtherWallet test assertions
 - [x] All contracts have NatSpec documentation
 
-**Current Status: 20/73+ topics implemented (~27%)**
-
-## In Progress
-
-### ✅ Phase 5: Remaining Basic Topics (27/27 COMPLETE)
+### ✅ Phase 5: Remaining Basic Topics (29/29 COMPLETE)
 - [x] DataLocations - storage, memory, calldata
 - [x] TransientStorage - EIP-1153
 - [x] FunctionTypes - visibility, mutability
@@ -81,33 +74,37 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] Keccak256 - hashing
 - [x] VerifySignature - ECDSA verification
 - [x] PrivateData - accessing private data
+- [x] **UncheckedMath** - unchecked blocks, overflow wrapping, gas-efficient loops *(NEW)*
+- [x] **GasGolf** - side-by-side gas optimization comparison *(NEW)*
 
-**Phase 5 COMPLETE - All 27 topics implemented with 260/260 tests passing!**
-
-## Pending
-
-### ✅ Phase 6: Applications Section (6/6 COMPLETE)
+### ✅ Phase 6: Applications Section (11/11 COMPLETE)
 - [x] MultiSigWallet - multi-signature wallet
 - [x] MerkleTree - merkle proofs
 - [x] IterableMapping - iterable mappings
 - [x] Create2 - deterministic addresses
 - [x] MinimalProxy - EIP-1167 clones
 - [x] Deployer - generic contract deployer
+- [x] **ERC20Token** - full ERC20 implementation from scratch *(NEW)*
+- [x] **ERC721Token** - full ERC721 (NFT) implementation from scratch *(NEW)*
+- [x] **MultiCall** - batch multiple calls into one transaction *(NEW)*
+- [x] **TimeLock** - timelock controller for delayed execution *(NEW)*
+- [x] **UpgradeableProxy** - EIP-1967 transparent upgradeable proxy *(NEW)*
 
-**Phase 6 COMPLETE - All 6 Applications contracts implemented!**
-
-### ⏳ Phase 7: DeFi Section (7/7 COMPLETE)
+### ✅ Phase 7: DeFi Section (10/10 COMPLETE)
 - [x] UniswapV2Swap - Uniswap V2 integration
 - [x] UniswapV3Swap - Uniswap V3 integration
+- [x] UniswapV4Swap - Uniswap V4 integration
+- [x] UniswapV4FlashLoan - flash loan pattern
+- [x] UniswapV4LimitOrder - limit order hook
 - [x] ChainlinkPriceFeed - oracle integration
 - [x] StakingRewards - yield farming
 - [x] DutchAuction - price decay auction
 - [x] EnglishAuction - bidding auction
 - [x] CrowdFund - crowdfunding
+- [x] **Vault** - ERC4626-style deposit vault with inflation protection *(NEW)*
+- [x] **ConstantProductAMM** - x*y=k AMM with 0.3% fee (Uniswap V1/V2 core) *(NEW)*
 
-**Phase 7 COMPLETE - All 7 DeFi contracts implemented with fuzz and invariant tests!**
-
-### ✅ Phase 8: Hacks Section (10/10 COMPLETE)
+### ✅ Phase 8: Hacks Section (11/11 COMPLETE)
 - [x] OracleManipulation - price oracle attacks
 - [x] SelfDestructAttack - forced ether
 - [x] TxOriginAttack - phishing
@@ -118,10 +115,9 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] TimestampManipulation - block.timestamp issues
 - [x] PredictableRandomness - weak randomness
 - [x] DoSAttack - gas limit attacks
+- [x] **FrontRunning** - mempool front-running + commit-reveal protection *(NEW)*
 
-**Phase 8 COMPLETE - All 10 Hack examples implemented with tests!**
-
-### ⏳ Phase 9: EVM Section
+### ✅ Phase 9: EVM Section
 - [x] AssemblyVariable - Yul variables
 - [x] AssemblyConditionals - Yul if/switch
 - [x] AssemblyLoop - Yul loops
@@ -130,47 +126,60 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] BitwiseOperators - bit manipulation
 - [x] AssemblyMathExercise - math operations
 
-**Phase 9 COMPLETE - 7 EVM contracts implemented with tests (102/138 tests passing)**
-
 ## Test Results
 
 Last run: 2026-03-09
 
 ```
-Total: 630 tests
-Passing: 565 (89.7%)
-Failing: 65 (10.3%)
+Total: 722 tests
+Passing: 655 (90.7%)
+Failing: 67 (9.3%)
 
 Failing tests breakdown:
-- EVM Section: 35 failing (Yul overflow/underflow edge cases)
-- DeFi Section: 30 failing (Uniswap V2/V3/V4, EnglishAuction, DutchAuction edge cases)
+- EVM Section: ~40 failing (Yul overflow/underflow edge cases, assembly logic)
+- DeFi Section: ~27 failing (Uniswap V2/V3/V4, StakingRewards edge cases)
 - All Basic, Applications, and Hacks sections: 100% passing
+
+New contracts (Phase 10): 92/92 tests passing (100%)
 ```
-
-## Gas Optimizations & Code Review (2026-03-09)
-
-- [x] **P0 BUG FIX**: `StakingRewards.exit()` — `_totalSupply = 0` replaced with `_totalSupply -= amount` (critical correctness bug)
-- [x] **P1**: `ReentrancySecure` — reentrancy guard changed from `bool` (0/1) to `uint256` (1/2) pattern, saving ~17,100 gas on first entry by avoiding zero-to-nonzero SSTORE
-- [x] **P2**: Unchecked loop increments added across 10+ contracts (`Loop.sol`, `Array.sol`, `DataLocations.sol`, `Events.sol`, `Library.sol`, `MultiSigWallet.sol`) — ~30-40 gas saved per iteration
-- [x] **P3**: Custom errors replacing `require` strings in `Array.sol`, `VerifySignature.sol` — saves deployment + runtime gas
-- [x] **P4**: `memory` → `calldata` for read-only external params in `VerifySignature.sol`, `MultiSigWallet.sol` — saves ~300-3,000 gas per call
-- [x] **P5**: Storage caching for `arr.length` and repeated reads in `Array.sol`, `Structs.sol`, `ContractFactory.sol`, `Library.sol`, `Interface.sol` (MockToken) — saves ~2,000 gas per cached SLOAD
-- [x] **P5**: `unchecked` subtraction after bounds check in `MockToken.transfer()` and `transferFrom()` — saves ~30-40 gas
-- [x] **Test fixes**: `StakingRewards` test `test_TotalSupplyUpdates` (insufficient approval), `test_WithdrawingClaimsRewards` (withdraw doesn't auto-claim), `UniswapV4FlashLoan.t.sol` and `UniswapV4Swap.t.sol` (missing event declarations in test contracts)
 
 ## Documentation
 
-- [x] **Concepts Guide**: [`CONCEPTS.md`](CONCEPTS.md) — Solidity by Example-style reference for all 79 concepts in this dojo. Each entry explains the concept, shows a code snippet, and links to the contract + tests.
+- [x] **Concepts Guide**: [`CONCEPTS.md`](CONCEPTS.md) — Solidity by Example-style reference for all concepts in this dojo
 
-## Next Steps
+## Topics Added (2026-03-09)
 
-1. Review failing tests in EVM and DeFi sections
-2. Consider fixing edge cases in Yul assembly functions
-3. Apply custom errors to remaining contracts (DeFi, Applications)
-4. Storage packing opportunities in DeFi contracts (ChainlinkPriceFeed, DutchAuction, EnglishAuction)
+10 new topics were identified as missing from the curriculum compared to Solidity by Example:
+
+| # | Topic | Section | What it teaches |
+|---|-------|---------|-----------------|
+| 1 | UncheckedMath | Basic | `unchecked` blocks, overflow wrapping, gas comparison |
+| 2 | GasGolf | Basic | Side-by-side gas optimization (calldata, caching, unchecked) |
+| 3 | ERC20Token | Applications | Full ERC20 from scratch — transfer, approve, mint, burn |
+| 4 | ERC721Token | Applications | Full ERC721 from scratch — NFT, safeTransfer, ERC165 |
+| 5 | MultiCall | Applications | Batch calls to save 21k gas per tx |
+| 6 | TimeLock | Applications | Governance timelock — queue, delay, execute, cancel |
+| 7 | UpgradeableProxy | Applications | EIP-1967 proxy, delegatecall, storage persistence |
+| 8 | Vault | DeFi | ERC4626-style shares/assets math, inflation protection |
+| 9 | ConstantProductAMM | DeFi | x*y=k AMM, LP shares, swap fees, sqrt |
+| 10 | FrontRunning | Hacks | Mempool front-running + commit-reveal countermeasure |
+
+## Remaining Gaps (for future phases)
+
+Topics from Solidity by Example not yet covered:
+
+**Applications:** ERC1155, Gasless Token Transfer (ERC20Permit), Simple Bytecode Contract, Write to Any Slot, Payment Channels, Merkle Airdrop
+
+**DeFi:** Constant Sum AMM, Stable Swap AMM, Token Lock, Discrete Staking Rewards
+
+**Hacks:** Arithmetic Overflow (pre-0.8), Honeypot, Hiding Malicious Code, Bypass Contract Size Check, Deploy Different Contracts at Same Address, WETH Permit, 63/64 Gas Rule
+
+**EVM:** Storage Layout deep dive, Memory Layout deep dive
+
+**Foundry:** Cheatcode tutorials (vm.prank, vm.warp, vm.expectRevert, vm.sign, etc.)
 
 ## Estimated Completion
 
-- Current: 73/73 topics (100%) - All phases implemented!
-- Test coverage: 565/630 tests passing (89.7%)
-- All core functionality tested and working
+- Current: 83 topics implemented
+- Test coverage: 655/722 tests passing (90.7%)
+- All Basic, Applications, and Hacks: 100% passing
