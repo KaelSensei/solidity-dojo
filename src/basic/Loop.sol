@@ -11,9 +11,8 @@ contract Loop {
     /// @return sum The sum from 1 to n
     /// @dev Formula: n * (n + 1) / 2 should match this result
     function sumFor(uint256 n) external pure returns (uint256 sum) {
-        for (uint256 i = 1; i <= n;) {
+        for (uint256 i = 1; i <= n; i++) {
             sum += i;
-            unchecked { ++i; }
         }
     }
 
@@ -24,7 +23,7 @@ contract Loop {
         uint256 i = 1;
         while (i <= n) {
             sum += i;
-            unchecked { ++i; }
+            i++;
         }
     }
 
@@ -38,12 +37,11 @@ contract Loop {
         pure
         returns (uint256 sum)
     {
-        for (uint256 i = 0; i < arr.length;) {
+        for (uint256 i = 0; i < arr.length; i++) {
             sum += arr[i];
             if (sum >= target) {
-                break;
+                break; // Exit loop early
             }
-            unchecked { ++i; }
         }
     }
 
@@ -52,13 +50,11 @@ contract Loop {
     /// @return sum Sum of even elements only
     /// @dev Demonstrates continue statement
     function sumOnlyEven(uint256[] calldata arr) external pure returns (uint256 sum) {
-        for (uint256 i = 0; i < arr.length;) {
+        for (uint256 i = 0; i < arr.length; i++) {
             if (arr[i] % 2 != 0) {
-                unchecked { ++i; }
-                continue;
+                continue; // Skip odd numbers
             }
             sum += arr[i];
-            unchecked { ++i; }
         }
     }
 
@@ -71,13 +67,12 @@ contract Loop {
         pure
         returns (uint256 index)
     {
-        index = type(uint256).max;
-        for (uint256 i = 0; i < arr.length;) {
+        index = type(uint256).max; // Default to "not found"
+        for (uint256 i = 0; i < arr.length; i++) {
             if (arr[i] == value) {
                 index = i;
                 break;
             }
-            unchecked { ++i; }
         }
     }
 
@@ -87,9 +82,8 @@ contract Loop {
     /// @dev Will overflow for n > 20 due to uint256 limits
     function factorial(uint8 n) external pure returns (uint256 result) {
         result = 1;
-        for (uint8 i = 2; i <= n;) {
+        for (uint8 i = 2; i <= n; i++) {
             result *= i;
-            unchecked { ++i; }
         }
     }
 }

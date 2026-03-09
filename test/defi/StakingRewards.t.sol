@@ -126,22 +126,26 @@ contract StakingRewardsTest is Test {
 
     /// @notice Test withdrawing claims rewards
     function test_WithdrawingClaimsRewards() public {
+        // Stake first
         vm.startPrank(user1);
         stakingToken.approve(address(staking), 1000e18);
         staking.stake(1000e18);
         vm.stopPrank();
 
+        // Notify rewards
         staking.notifyRewardAmount(100e18);
-
+        
+        // Warp time
         vm.warp(block.timestamp + 10 days);
-
+        
+        // Get reward before
         uint256 rewardBefore = rewardsToken.balanceOf(user1);
-
+        
+        // Withdraw (should also claim)
         vm.startPrank(user1);
         staking.withdraw(500e18);
-        staking.getReward();
         vm.stopPrank();
-
+        
         uint256 rewardAfter = rewardsToken.balanceOf(user1);
         assertTrue(rewardAfter > rewardBefore);
     }
@@ -254,14 +258,14 @@ contract StakingRewardsTest is Test {
     /// @notice Test total supply updates correctly
     function test_TotalSupplyUpdates() public {
         vm.startPrank(user1);
-        stakingToken.approve(address(staking), 1500e18);
+        stakingToken.approve(address(staking), 1000e18);
         staking.stake(1000e18);
-
+        
         assertEq(staking.totalSupply(), 1000e18);
-
+        
         staking.stake(500e18);
         assertEq(staking.totalSupply(), 1500e18);
-
+        
         staking.withdraw(500e18);
         assertEq(staking.totalSupply(), 1000e18);
         vm.stopPrank();

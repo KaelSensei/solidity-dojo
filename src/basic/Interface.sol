@@ -33,9 +33,8 @@ contract MockToken is IERC20 {
     }
 
     function transfer(address to, uint256 amount) external override returns (bool) {
-        uint256 senderBal = balanceOf[msg.sender];
-        require(senderBal >= amount, "Insufficient balance");
-        unchecked { balanceOf[msg.sender] = senderBal - amount; }
+        require(balanceOf[msg.sender] >= amount, "Insufficient balance");
+        balanceOf[msg.sender] -= amount;
         balanceOf[to] += amount;
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -48,14 +47,10 @@ contract MockToken is IERC20 {
     }
 
     function transferFrom(address from, address to, uint256 amount) external override returns (bool) {
-        uint256 fromBal = balanceOf[from];
-        uint256 currentAllowance = allowance[from][msg.sender];
-        require(fromBal >= amount, "Insufficient balance");
-        require(currentAllowance >= amount, "Insufficient allowance");
-        unchecked {
-            allowance[from][msg.sender] = currentAllowance - amount;
-            balanceOf[from] = fromBal - amount;
-        }
+        require(balanceOf[from] >= amount, "Insufficient balance");
+        require(allowance[from][msg.sender] >= amount, "Insufficient allowance");
+        allowance[from][msg.sender] -= amount;
+        balanceOf[from] -= amount;
         balanceOf[to] += amount;
         emit Transfer(from, to, amount);
         return true;

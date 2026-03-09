@@ -11,9 +11,8 @@ contract DataLocations {
     /// @notice Adds values to storage array
     /// @param _values Values to store
     function addToStorage(uint256[] calldata _values) external {
-        for (uint256 i = 0; i < _values.length;) {
+        for (uint256 i = 0; i < _values.length; i++) {
             storageArray.push(_values[i]);
-            unchecked { ++i; }
         }
     }
 
@@ -45,9 +44,8 @@ contract DataLocations {
     /// @return Sum of all elements
     function sumCalldata(uint256[] calldata _data) external pure returns (uint256) {
         uint256 sum;
-        for (uint256 i = 0; i < _data.length;) {
+        for (uint256 i = 0; i < _data.length; i++) {
             sum += _data[i];
-            unchecked { ++i; }
         }
         return sum;
     }
@@ -56,9 +54,8 @@ contract DataLocations {
     /// @param _data Memory array (can be modified)
     /// @return Doubled values
     function doubleMemory(uint256[] memory _data) external pure returns (uint256[] memory) {
-        for (uint256 i = 0; i < _data.length;) {
+        for (uint256 i = 0; i < _data.length; i++) {
             _data[i] *= 2;
-            unchecked { ++i; }
         }
         return _data;
     }

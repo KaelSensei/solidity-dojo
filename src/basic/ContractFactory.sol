@@ -31,9 +31,8 @@ contract ContractFactory {
     /// @param _value Initial value for contract
     function createContract(uint256 _value) external returns (SimpleContract) {
         SimpleContract newContract = new SimpleContract(_value);
-        uint256 index = contracts.length;
         contracts.push(newContract);
-        emit ContractCreated(address(newContract), index, _value);
+        emit ContractCreated(address(newContract), contracts.length - 1, _value);
         return newContract;
     }
 
@@ -42,9 +41,8 @@ contract ContractFactory {
     /// @param _salt Salt for CREATE2
     function createContractWithSalt(uint256 _value, bytes32 _salt) external returns (SimpleContract) {
         SimpleContract newContract = new SimpleContract{salt: _salt}(_value);
-        uint256 index = contracts.length;
         contracts.push(newContract);
-        emit ContractCreated(address(newContract), index, _value);
+        emit ContractCreated(address(newContract), contracts.length - 1, _value);
         return newContract;
     }
 
