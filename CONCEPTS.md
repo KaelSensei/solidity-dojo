@@ -1993,3 +1993,16 @@ forge test --fuzz-runs 1000
 - [Foundry Book](https://book.getfoundry.sh)
 - [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts)
 - [Uniswap V4 Docs](https://docs.uniswap.org/contracts/v4/overview)
+
+### Gas Optimization References
+
+For deeper study of gas optimization, beyond the `Gas`, `UncheckedMath`, `GasGolf`, `MultiCall`, `Vault`, `ConstantProductAMM`, and other gas‑aware contracts in this dojo, see:
+
+- [EVM opcodes & costs](https://www.evm.codes/) — exact gas pricing per opcode.
+- [Solidity storage layout](https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html) — how variables map to slots (critical for packing and caching).
+- [Solidity optimizer docs](https://docs.soliditylang.org/en/latest/internals/optimizer.html) — `--optimize`, `optimizer_runs`, and `via-ir`.
+- [EIP‑1153 — transient storage](https://eips.ethereum.org/EIPS/eip-1153) — `TSTORE` / `TLOAD` for cheap, tx‑local state.
+- [RareSkills — 80+ gas optimization tips](https://rareskills.io/post/gas-optimization) — curated, up‑to‑date patterns.
+- [Cyfrin — L2 gas efficiency guide](https://www.cyfrin.io/blog/solidity-gas-efficiency-tips-tackle-rising-fees-base-other-l2) — calldata‑focused optimizations for L2s.
+
+These references are the basis for the internal gas‑optimization skill at `.cursor/skills/gas-optimization/SKILL.md`, which informs the patterns used throughout this repository.

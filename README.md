@@ -181,12 +181,29 @@ All contracts follow NatSpec conventions:
 
 ## Gas Optimization Notes
 
-Key gas-saving patterns demonstrated:
+Key gas-saving patterns demonstrated across the repo:
 
 - `constant` and `immutable` for compile-time values (~3 gas vs ~2100 for storage)
 - `calldata` instead of `memory` for external function parameters
 - Short-circuiting in boolean expressions
-- Assembly for performance-critical operations
+- Assembly for performance-critical operations (see `src/evm/*`)
+- Storage caching, custom errors, and unchecked loop increments in many contracts
+
+Dedicated gas optimization topics:
+
+- `src/basic/Gas.sol` — measures `gasleft()` for storage writes, reads, and pure computation; introduces EIP‑1559 concepts.
+- `src/basic/UncheckedMath.sol` — shows how 0.8+ overflow checks work and when `unchecked` is safe and cheaper, with tests comparing checked vs unchecked loops.
+- `src/basic/GasGolf.sol` — side‑by‑side unoptimized vs optimized implementation of the same function (memory vs calldata, cached `.length`, custom errors, unchecked increments) with tests asserting the optimized version uses less gas.
+- `src/applications/MultiCall.sol` — demonstrates batching multiple calls in one transaction to amortize the 21,000 gas base cost.
+
+Recommended external references for gas optimization:
+
+- [Solidity docs — optimizer & storage layout](https://docs.soliditylang.org/)  
+- [EVM opcodes and gas costs](https://www.evm.codes/)  
+- [RareSkills — 80+ gas optimization tips](https://rareskills.io/post/gas-optimization)  
+- [Cyfrin — Solidity gas efficiency on L2s](https://www.cyfrin.io/blog/solidity-gas-efficiency-tips-tackle-rising-fees-base-other-l2)
+
+The internal Cursor skill at `.cursor/skills/gas-optimization/SKILL.md` is used to keep examples in this repo aligned with up‑to‑date best practices (storage caching, transient storage, `via-ir`, batch patterns, etc.).
 
 ## Security Patterns
 
