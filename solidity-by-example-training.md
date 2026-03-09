@@ -995,6 +995,58 @@ Contract integrating with Uniswap V3 for single and multi-hop swaps.
 
 ---
 
+#### Uniswap V4 Swap
+
+**Concepts:** V4 pools, hooks, flash accounting, Permit2, universal router.
+
+**Contract:** `src/defi/UniswapV4Swap.sol`
+Contract performing single and multi-hop swaps using Uniswap V4 PoolManager and Universal Router.
+
+**Test:** `test/defi/UniswapV4Swap.t.sol`
+- Unit: exact input single swap works
+- Unit: exact output single swap works
+- Unit: multi-hop swap works
+- Unit: slippage protection reverts on excessive slippage
+
+**Fuzz:** `testFuzz_swap_amounts(uint256 amountIn, uint256 amountOutMinimum)` — fuzz swap amounts.
+**Invariant:** no — Uniswap V4 invariants are complex.
+
+---
+
+#### Uniswap V4 Flash Loan
+
+**Concepts:** V4 flash loans, callback architecture, flash accounting, hook callbacks.
+
+**Contract:** `src/defi/UniswapV4FlashLoan.sol`
+Contract demonstrating flash loan functionality in Uniswap V4 using the pool callback.
+
+**Test:** `test/defi/UniswapV4FlashLoan.t.sol`
+- Unit: flash loan executes successfully
+- Unit: flash loan repayment is correct
+- Unit: reverts if callback fails
+
+**Fuzz:** `testFuzz_flash_loan_amounts(uint256 amount)` — fuzz loan amounts within bounds.
+**Invariant:** no.
+
+---
+
+#### Uniswap V4 Limit Order
+
+**Concepts:** V4 hooks, limit orders, tick manipulation, hook-driven liquidity.
+
+**Contract:** `src/defi/UniswapV4LimitOrder.sol`
+Contract implementing a limit order using Uniswap V4 hook architecture.
+
+**Test:** `test/defi/UniswapV4LimitOrder.t.sol`
+- Unit: limit order fills at correct price
+- Unit: order does not fill above limit price
+- Unit: partial fills work correctly
+
+**Fuzz:** `testFuzz_limit_order_price(uint256 amountIn, uint256 priceLimit)` — fuzz order parameters.
+**Invariant:** no.
+
+---
+
 #### Chainlink Price Feed
 
 **Concepts:** Chainlink oracle integration, price staleness checks, decimal handling.
@@ -1706,6 +1758,19 @@ Bitwise operations for packing data, permissions, flags.
 
 ---
 
+## References
+
+External resources and documentation used in this training:
+
+### Uniswap
+
+- [Uniswap V4 Documentation](https://docs.uniswap.org/contracts/v4/overview)
+- [Uniswap V4 Core](https://github.com/Uniswap/v4-core)
+- [Uniswap V4 Periphery](https://github.com/Uniswap/v4-periphery)
+- [Universal Router](https://github.com/Uniswap/universal-router)
+
+---
+
 ## Progress Tracking
 
 Track your progress through the topics:
@@ -1756,6 +1821,9 @@ Track your progress through the topics:
 - [ ] Basic / Accessing Private Data
 - [ ] DeFi / Uniswap V2 Swap
 - [ ] DeFi / Uniswap V3 Swap
+- [ ] DeFi / Uniswap V4 Swap
+- [ ] DeFi / Uniswap V4 Flash Loan
+- [ ] DeFi / Uniswap V4 Limit Order
 - [ ] DeFi / Chainlink Price Feed
 - [ ] DeFi / Staking Rewards
 - [ ] DeFi / Dutch Auction
