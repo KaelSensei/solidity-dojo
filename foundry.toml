@@ -1,0 +1,13 @@
+[profile.default]
+src     = "src"
+out     = "out"
+libs    = ["lib"]
+solc    = "0.8.26"
+skip    = ["lib/universal-router"]
+
+[fuzz]
+runs = 256
+
+[invariant]
+runs  = 64
+depth = 32
