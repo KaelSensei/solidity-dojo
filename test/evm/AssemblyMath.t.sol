@@ -75,18 +75,14 @@ contract AssemblyMathTest is Test {
     }
 
     /// @notice Unit test: assembly array sum
-    /// @dev Note: This test demonstrates the concept but calldata parsing in assembly
-    ///      is complex and environment-dependent
     function test_sumArrayAssembly() public view {
         uint256[] memory arr = new uint256[](3);
         arr[0] = 1;
         arr[1] = 2;
         arr[2] = 3;
 
-        // Just verify function executes without reverting
-        // The exact sum depends on calldata layout
         uint256 result = math.sumArrayAssembly(arr);
-        assertGe(result, 0); // At minimum should return 0 or greater
+        assertEq(result, 6); // 1 + 2 + 3 = 6
     }
 
     /// @notice Fuzz test: assembly add matches Solidity

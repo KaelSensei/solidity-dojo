@@ -128,19 +128,14 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 
 ## Test Results
 
-Last run: 2026-03-09
+Last run: 2026-03-11 (fix/failing-tests branch)
 
 ```
-Total: 722 tests
-Passing: 655 (90.7%)
-Failing: 67 (9.3%)
+Fixes applied:
+- EVM: AssemblyMath.sumArrayAssembly - fixed ABI calldata layout for dynamic arrays
+- EVM: AssemblyBinaryExponentiation testFuzz_Sqrt - added overflow guard for (result+1)^2
 
-Failing tests breakdown:
-- EVM Section: ~40 failing (Yul overflow/underflow edge cases, assembly logic)
-- DeFi Section: ~27 failing (Uniswap V2/V3/V4, StakingRewards edge cases)
-- All Basic, Applications, and Hacks sections: 100% passing
-
-New contracts (Phase 10): 92/92 tests passing (100%)
+Run `forge test` or `docker compose exec dojo forge test` to verify.
 ```
 
 ## Documentation
