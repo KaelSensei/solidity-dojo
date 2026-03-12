@@ -183,7 +183,10 @@ contract AssemblyBinaryExponentiationTest is Test {
         // result^2 should be <= x
         assertTrue(result * result <= x);
         
-        // (result+1)^2 should be > x
-        assertTrue((result + 1) * (result + 1) > x);
+        // (result+1)^2 should be > x; skip if result+1 would overflow when squared
+        if (result < 2**128 - 1) {
+            uint256 next = result + 1;
+            assertTrue(next * next > x);
+        }
     }
 }

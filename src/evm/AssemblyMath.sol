@@ -84,20 +84,20 @@ contract AssemblyMath {
     /// @return sum Sum of all elements
     function sumArrayAssembly(uint256[] calldata arr) external pure returns (uint256 sum) {
         assembly {
-            // Get array length from calldata
-            // calldataload(4) loads the length (first word after function selector)
-            let length := calldataload(4)
+            // ABI encoding: first word after selector (byte 4) is offset to array data
+            // Offset is relative to start of encoded params (byte 4)
+            let paramOffset := calldataload(4)
+            // Array data: length at (4 + paramOffset), elements follow
+            let length := calldataload(add(4, paramOffset))
+            // Pointer to first array element (immediately after length word)
+            let dataOffset := add(add(4, paramOffset), 0x20)
 
-            // Get offset to array data (starts after length word)
-            // 0x24 = 4 bytes selector + 32 bytes offset pointer
-            let offset := 0x24
-
-            // Loop through array
+            // Loop over all elements: i from 0 to length - 1
             for { let i := 0 } lt(i, length) { i := add(i, 1) } {
-                // Load element at offset and add to sum
-                sum := add(sum, calldataload(offset))
-                // Move to next element (32 bytes per element)
-                offset := add(offset, 0x20)
+                // Accumulate current element into sum
+                sum := add(sum, calldataload(dataOffset))
+                // Move pointer to next element (32 bytes per uint256)
+                dataOffset := add(dataOffset, 0x20)
             }
         }
     }

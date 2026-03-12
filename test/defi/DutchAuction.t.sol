@@ -44,14 +44,16 @@ contract DutchAuctionTest is Test {
     DutchAuction public auction;
     MockNFT public nft;
 
-    address public seller = address(0x1);
-    address public buyer1 = address(0x2);
-    address public buyer2 = address(0x3);
+    // Use addresses above precompile range (0x1 = ecrecover rejects ETH)
+    address public seller = address(0x10001);
+    address public buyer1 = address(0x10002);
+    address public buyer2 = address(0x10003);
 
     uint256 constant STARTING_PRICE = 10 ether;
     uint256 constant MINIMUM_PRICE = 1 ether;
     uint256 constant DURATION = 7 days;
-    uint256 constant DISCOUNT_RATE = 1286006885760308; // 1e18 / 7 days (approx)
+    // Discount so that at DURATION/2 price is between min and start: (start - min) / (DURATION/2) ≈ 2.98e13
+    uint256 constant DISCOUNT_RATE = 2e13;
 
     uint256 constant TOKEN_ID = 1;
 
@@ -200,9 +202,10 @@ contract DutchAuctionTest is Test {
     /// @notice Test buyer receives NFT
     function test_BuyerReceivesNFT() public {
         vm.deal(buyer1, 100 ether);
+        uint256 price = auction.currentPrice();
         
         vm.prank(buyer1);
-        auction.purchase{value: auction.currentPrice()}();
+        auction.purchase{value: price}();
         
         assertEq(nft.ownerOf(TOKEN_ID), buyer1);
     }
@@ -225,7 +228,7 @@ contract DutchAuctionTest is Test {
 
     /// @notice Fuzz test for purchase timing
     function testFuzz_purchase_timing(uint256 warpTime) public {
-        warpTime = bound(warpTime, 0, DURATION);
+        warpTime = bound(warpTime, 0, DURATION - 1); // stay before endsAt so purchase is allowed
         
         vm.warp(block.timestamp + warpTime);
         
