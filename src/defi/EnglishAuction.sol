@@ -96,7 +96,10 @@ contract EnglishAuction {
     function bid() external payable {
         require(started, "Not started");
         require(block.timestamp < endAt, "Ended");
-        require(msg.value >= highestBid + minBidIncrement, "Bid too low");
+        uint256 minRequired = highestBidder == address(0)
+            ? highestBid
+            : highestBid + minBidIncrement;
+        require(msg.value >= minRequired, "Bid too low");
         
         // Store previous bid for refund
         if (highestBidder != address(0)) {

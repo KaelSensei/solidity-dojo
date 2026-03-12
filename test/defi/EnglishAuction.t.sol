@@ -40,10 +40,11 @@ contract EnglishAuctionTest is Test {
     EnglishAuction public auction;
     MockNFTEnglish public nft;
 
-    address public seller = address(0x1);
-    address public bidder1 = address(0x2);
-    address public bidder2 = address(0x3);
-    address public bidder3 = address(0x4);
+    // Use addresses above precompile range (0x1 = ecrecover rejects ETH)
+    address public seller = address(0x10001);
+    address public bidder1 = address(0x10002);
+    address public bidder2 = address(0x10003);
+    address public bidder3 = address(0x10004);
 
     uint256 constant STARTING_BID = 1 ether;
     uint256 constant MIN_INCREMENT = 0.1 ether;

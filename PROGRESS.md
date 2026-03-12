@@ -134,7 +134,10 @@ Last run: 2026-03-11 (fix/failing-tests branch)
 Fixes applied:
 - EVM: AssemblyMath.sumArrayAssembly - fixed ABI calldata layout for dynamic arrays
 - EVM: AssemblyBinaryExponentiation testFuzz_Sqrt - added overflow guard for (result+1)^2
+- DeFi: DutchAuction - currentPrice() safe for underflow/overflow; test DISCOUNT_RATE and prank fix
+- DeFi: EnglishAuction - first bid allowed at startingBid (no increment); test addresses above precompile range (0x1 = ecrecover)
 
+DutchAuction + EnglishAuction: 31/31 tests passing.
 Run `forge test` or `docker compose exec dojo forge test` to verify.
 ```
 

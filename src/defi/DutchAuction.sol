@@ -91,9 +91,13 @@ contract DutchAuction {
         }
         
         uint256 timePassed = block.timestamp - startsAt;
+        uint256 maxDiscount = startingPrice - minimumPrice;
+        // Avoid overflow: timePassed * discountRate
+        if (discountRate > 0 && timePassed > type(uint256).max / discountRate) {
+            return minimumPrice;
+        }
         uint256 discount = timePassed * discountRate;
-        
-        if (startingPrice - discount < minimumPrice) {
+        if (discount >= maxDiscount || discount > startingPrice) {
             return minimumPrice;
         }
         
