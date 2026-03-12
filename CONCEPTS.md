@@ -228,7 +228,7 @@ contract Variables {
 
 | Source | Tests |
 |--------|-------|
-| [`src/basic/Variables.sol`](src/basic/Variables.sol) | [`test/basic/Variables.t.sol`](test/basic/Variables.t.sol) |
+| [`src/basic/Variables.sol`](src/basic/Variables.sol) | [`test/ba  sic/Variables.t.sol`](test/basic/Variables.t.sol) |
 
 ---
 
