@@ -89,10 +89,14 @@ contract AssemblyMath {
             let paramOffset := calldataload(4)
             // Array data: length at (4 + paramOffset), elements follow
             let length := calldataload(add(4, paramOffset))
+            // Pointer to first array element (immediately after length word)
             let dataOffset := add(add(4, paramOffset), 0x20)
 
+            // Loop over all elements: i from 0 to length - 1
             for { let i := 0 } lt(i, length) { i := add(i, 1) } {
+                // Accumulate current element into sum
                 sum := add(sum, calldataload(dataOffset))
+                // Move pointer to next element (32 bytes per uint256)
                 dataOffset := add(dataOffset, 0x20)
             }
         }
