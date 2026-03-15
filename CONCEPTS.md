@@ -7,7 +7,7 @@
 
 **Solidity version:** `^0.8.26` · **Tooling:** Foundry (Forge)
 
-**Last updated:** 2026-03-09
+**Last updated:** 2026-03-15 (109 topics)
 
 ---
 
@@ -78,6 +78,12 @@
 | 82 | [MultiCall](#82-multicall) | `src/applications/MultiCall.sol` | `test/applications/MultiCall.t.sol` |
 | 83 | [TimeLock](#83-timelock) | `src/applications/TimeLock.sol` | `test/applications/TimeLock.t.sol` |
 | 84 | [Upgradeable Proxy](#84-upgradeable-proxy) | `src/applications/UpgradeableProxy.sol` | `test/applications/UpgradeableProxy.t.sol` |
+| 95 | [ERC1155 Token](#95-erc1155-token) | `src/applications/ERC1155Token.sol` | `test/applications/ERC1155Token.t.sol` |
+| 96 | [ERC20 Permit (EIP-2612)](#96-erc20-permit-eip-2612) | `src/applications/ERC20Permit.sol` | `test/applications/ERC20Permit.t.sol` |
+| 97 | [Write to Any Slot](#97-write-to-any-slot) | `src/applications/WriteToAnySlot.sol` | `test/applications/WriteToAnySlot.t.sol` |
+| 98 | [Simple Bytecode Contract](#98-simple-bytecode-contract) | `src/applications/SimpleBytecodeContract.sol` | `test/applications/SimpleBytecodeContract.t.sol` |
+| 99 | [Payment Channel](#99-payment-channel) | `src/applications/PaymentChannel.sol` | `test/applications/PaymentChannel.t.sol` |
+| 100 | [Merkle Airdrop](#100-merkle-airdrop) | `src/applications/MerkleAirdrop.sol` | `test/applications/MerkleAirdrop.t.sol` |
 
 ### DeFi
 
@@ -95,6 +101,10 @@
 | 59 | [Crowd Fund](#59-crowd-fund) | `src/defi/CrowdFund.sol` | `test/defi/CrowdFund.t.sol` |
 | 85 | [Vault (ERC4626-style)](#85-vault-erc4626-style) | `src/defi/Vault.sol` | `test/defi/Vault.t.sol` |
 | 86 | [Constant Product AMM](#86-constant-product-amm) | `src/defi/ConstantProductAMM.sol` | `test/defi/ConstantProductAMM.t.sol` |
+| 101 | [Constant Sum AMM](#101-constant-sum-amm) | `src/defi/ConstantSumAMM.sol` | `test/defi/ConstantSumAMM.t.sol` |
+| 102 | [StableSwap AMM](#102-stableswap-amm) | `src/defi/StableSwapAMM.sol` | `test/defi/StableSwapAMM.t.sol` |
+| 103 | [Token Locker](#103-token-locker) | `src/defi/TokenLocker.sol` | `test/defi/TokenLocker.t.sol` |
+| 104 | [Discrete Staking Rewards](#104-discrete-staking-rewards) | `src/defi/DiscreteStakingRewards.sol` | `test/defi/DiscreteStakingRewards.t.sol` |
 
 ### Hacks & Security
 
@@ -113,6 +123,13 @@
 | 70 | [Denial of Service (DoS)](#70-denial-of-service-dos) | `src/hacks/DoSAttack.sol` | `test/hacks/DoSAttack.t.sol` |
 | 71 | [Vault Inflation Attack](#71-vault-inflation-attack) | `src/hacks/VaultInflation.sol` | `test/hacks/VaultInflation.t.sol` |
 | 87 | [Front Running](#87-front-running) | `src/hacks/FrontRunning.sol` | `test/hacks/FrontRunning.t.sol` |
+| 88 | [Arithmetic Overflow](#88-arithmetic-overflow) | `src/hacks/ArithmeticOverflow.sol` | `test/hacks/ArithmeticOverflow.t.sol` |
+| 89 | [Honeypot](#89-honeypot) | `src/hacks/Honeypot.sol` | `test/hacks/Honeypot.t.sol` |
+| 90 | [Hiding Malicious Code](#90-hiding-malicious-code) | `src/hacks/HidingMaliciousCode.sol` | `test/hacks/HidingMaliciousCode.t.sol` |
+| 91 | [Bypass Contract Size Check](#91-bypass-contract-size-check) | `src/hacks/BypassContractSize.sol` | `test/hacks/BypassContractSize.t.sol` |
+| 92 | [Deploy Different Contract at Same Address](#92-deploy-different-contract-at-same-address) | `src/hacks/DeployDifferentContract.sol` | `test/hacks/DeployDifferentContract.t.sol` |
+| 93 | [WETH Permit Attack](#93-weth-permit-attack) | `src/hacks/WETHPermitAttack.sol` | `test/hacks/WETHPermitAttack.t.sol` |
+| 94 | [63/64 Gas Rule](#94-6364-gas-rule) | `src/hacks/SixtyThreeOver64Rule.sol` | `test/hacks/SixtyThreeOver64Rule.t.sol` |
 
 ### EVM / Assembly (Yul)
 
@@ -126,6 +143,8 @@
 | 77 | [Assembly Binary Exponentiation](#77-assembly-binary-exponentiation) | `src/evm/AssemblyBinaryExponentiation.sol` | `test/evm/AssemblyBinaryExponentiation.t.sol` |
 | 78 | [Assembly Arrays](#78-assembly-arrays) | `src/evm/AssemblyArray.sol` | `test/evm/AssemblyArray.t.sol` |
 | 79 | [Bitwise Operators](#79-bitwise-operators) | `src/evm/BitwiseOperators.sol` | `test/evm/BitwiseOperators.t.sol` |
+| 105 | [Storage Layout](#105-storage-layout) | `src/evm/StorageLayout.sol` | `test/evm/StorageLayout.t.sol` |
+| 106 | [Memory Layout](#106-memory-layout) | `src/evm/MemoryLayout.sol` | `test/evm/MemoryLayout.t.sol` |
 
 ---
 
@@ -1965,6 +1984,181 @@ function reveal(uint256 guess, bytes32 salt) external {
 
 ---
 
+### 88. Arithmetic Overflow
+
+**What you learn:** Why Solidity 0.8+ defaults to checked arithmetic and how pre-0.8 code was vulnerable to overflow/underflow.
+
+Before Solidity 0.8, all arithmetic silently wrapped on overflow/underflow. A `uint256` balance of 0 minus 1 would become `type(uint256).max` (2^256 - 1). The `unchecked` block in 0.8+ explicitly opts out of safety checks, mimicking this dangerous behavior.
+
+```solidity
+// VULNERABLE (pre-0.8 behavior via unchecked)
+function transfer(address to, uint256 amount) external {
+    unchecked {
+        balances[msg.sender] -= amount; // wraps to max if balance < amount
+        balances[to] += amount;
+    }
+}
+
+// SAFE (default 0.8+ behavior)
+function transfer(address to, uint256 amount) external {
+    balances[msg.sender] -= amount; // reverts on underflow
+    balances[to] += amount;
+}
+```
+
+**Why it matters:** Arithmetic overflow was one of the most exploited vulnerabilities in early Solidity. SafeMath libraries were the only defense until 0.8 made checked arithmetic the default.
+
+| Source | Tests |
+|--------|-------|
+| [`src/hacks/ArithmeticOverflow.sol`](src/hacks/ArithmeticOverflow.sol) | [`test/hacks/ArithmeticOverflow.t.sol`](test/hacks/ArithmeticOverflow.t.sol) |
+
+---
+
+### 89. Honeypot
+
+**What you learn:** How deceptive contracts trap user funds by hiding malicious logic in external dependencies.
+
+A honeypot bank looks like a simple deposit/withdraw contract, but its withdraw function calls an external logger controlled by the attacker. The logger reverts for non-owners, permanently trapping victim funds.
+
+```solidity
+// The trap: logger reverts for everyone except the attacker
+function withdraw() external {
+    logger.log(msg.sender); // reverts for victims
+    balances[msg.sender] = 0;
+    msg.sender.call{value: balance}("");
+}
+```
+
+**Why it matters:** Always verify ALL external contracts a contract interacts with. Be suspicious of contracts that call external addresses in withdraw paths.
+
+| Source | Tests |
+|--------|-------|
+| [`src/hacks/Honeypot.sol`](src/hacks/Honeypot.sol) | [`test/hacks/Honeypot.t.sol`](test/hacks/Honeypot.t.sol) |
+
+---
+
+### 90. Hiding Malicious Code
+
+**What you learn:** How malicious logic can be hidden behind innocent-looking interfaces via external contract injection.
+
+A contract `Foo` calls `bar.log()` on an external `IBar` implementation. The interface looks harmless, but the deployed address could be `MaliciousBar` which steals all ETH from the caller.
+
+```solidity
+// MaliciousBar implements IBar but steals ETH
+function log() external {
+    uint256 balance = msg.sender.balance;
+    attacker.call{value: balance}("");
+}
+```
+
+**Why it matters:** Always verify deployed contract bytecode, not just interface signatures. Constructor-injected addresses are a common attack vector.
+
+| Source | Tests |
+|--------|-------|
+| [`src/hacks/HidingMaliciousCode.sol`](src/hacks/HidingMaliciousCode.sol) | [`test/hacks/HidingMaliciousCode.t.sol`](test/hacks/HidingMaliciousCode.t.sol) |
+
+---
+
+### 91. Bypass Contract Size Check
+
+**What you learn:** Why `extcodesize` is not a reliable way to detect if a caller is a contract.
+
+During constructor execution, a contract's code has not yet been stored, so `extcodesize` returns 0. An attacker can call protected functions from their constructor and bypass any `isContract()` check.
+
+```solidity
+// FLAWED: extcodesize == 0 during construction
+function isContract(address addr) public view returns (bool) {
+    uint256 size;
+    assembly { size := extcodesize(addr) }
+    return size > 0;
+}
+
+// Attacker bypasses from constructor
+constructor(address target) {
+    Target(target).protected(); // extcodesize(this) == 0 here
+}
+```
+
+**Why it matters:** Neither `extcodesize` nor `tx.origin` is a reliable EOA check. The best approach is to not distinguish between contracts and EOAs.
+
+| Source | Tests |
+|--------|-------|
+| [`src/hacks/BypassContractSize.sol`](src/hacks/BypassContractSize.sol) | [`test/hacks/BypassContractSize.t.sol`](test/hacks/BypassContractSize.t.sol) |
+
+---
+
+### 92. Deploy Different Contract at Same Address
+
+**What you learn:** How CREATE2 + selfdestruct could historically be used to swap a contract at the same address.
+
+CREATE2 deploys to deterministic addresses based on deployer, salt, and bytecode hash. Historically, an attacker could deploy a trusted contract, selfdestruct it, then re-deploy malicious code at the same address.
+
+```solidity
+// CREATE2 address = keccak256(0xff ++ deployer ++ salt ++ keccak256(bytecode))
+function deploy(bytes32 salt) external returns (address) {
+    ContractA a = new ContractA{salt: salt}();
+    return address(a);
+}
+```
+
+**Why it matters:** Post-Dencun (EIP-6780), selfdestruct no longer clears contract code unless called in the same transaction as creation, largely mitigating this attack. Still important to understand historically.
+
+| Source | Tests |
+|--------|-------|
+| [`src/hacks/DeployDifferentContract.sol`](src/hacks/DeployDifferentContract.sol) | [`test/hacks/DeployDifferentContract.t.sol`](test/hacks/DeployDifferentContract.t.sol) |
+
+---
+
+### 93. WETH Permit Attack
+
+**What you learn:** Why assuming all ERC20 tokens support EIP-2612 `permit()` is dangerous, and how permit griefing works.
+
+WETH (0xC02...) does not implement `permit()`. Protocols that call `permit()` on WETH will revert. Additionally, even for tokens with permit, an attacker can front-run the permit call to grief the victim's transaction.
+
+```solidity
+// VULNERABLE: assumes token has permit
+function depositWithPermit(...) external {
+    token.permit(...); // reverts on WETH!
+    token.transferFrom(msg.sender, address(this), amount);
+}
+
+// SAFE: try/catch around permit
+try this._callPermit(...) {} catch {}
+token.transferFrom(msg.sender, address(this), amount);
+```
+
+**Why it matters:** Always wrap `permit()` in try/catch. Never assume all ERC20s support permit. Check allowance as fallback.
+
+| Source | Tests |
+|--------|-------|
+| [`src/hacks/WETHPermitAttack.sol`](src/hacks/WETHPermitAttack.sol) | [`test/hacks/WETHPermitAttack.t.sol`](test/hacks/WETHPermitAttack.t.sol) |
+
+---
+
+### 94. 63/64 Gas Rule
+
+**What you learn:** EIP-150's gas forwarding rule and how unchecked low-level calls can silently fail.
+
+When contract A calls contract B, only 63/64 of remaining gas is forwarded. The 1/64 is reserved for A to finish execution. An attacker can provide just enough gas that B fails but A continues, causing silent failures if return values are not checked.
+
+```solidity
+// UNSAFE: return value ignored — silent failure possible
+target.call(abi.encodeWithSignature("doWork()"));
+actionCompleted = true; // runs even if call failed!
+
+// SAFE: check return value
+(bool success,) = target.call(abi.encodeWithSignature("doWork()"));
+if (!success) revert ExternalCallFailed();
+```
+
+**Why it matters:** Always check return values of low-level calls. Use high-level calls (which auto-revert) when possible. Set explicit minimum gas requirements for critical operations.
+
+| Source | Tests |
+|--------|-------|
+| [`src/hacks/SixtyThreeOver64Rule.sol`](src/hacks/SixtyThreeOver64Rule.sol) | [`test/hacks/SixtyThreeOver64Rule.t.sol`](test/hacks/SixtyThreeOver64Rule.t.sol) |
+
+---
+
 ## How to Run Tests
 
 ```bash
@@ -1983,6 +2177,424 @@ forge test -vvv
 # Fuzz with more runs
 forge test --fuzz-runs 1000
 ```
+
+---
+
+### 95. ERC1155 Token
+
+**What you learn:** The ERC1155 multi-token standard -- managing multiple token types (fungible and non-fungible) in a single contract with batch operations and operator approvals.
+
+ERC1155 replaces the need for separate ERC20 and ERC721 contracts. A single contract tracks balances across multiple token IDs using a nested mapping. Batch operations (`safeBatchTransferFrom`, `balanceOfBatch`, `mintBatch`) allow multiple token types to be transferred or queried in one transaction, dramatically reducing gas costs for games, collectibles, and multi-asset protocols.
+
+```solidity
+// Nested mapping: account => token id => balance
+mapping(address => mapping(uint256 => uint256)) private _balances;
+
+// Batch balance query — one call for multiple account/id pairs
+function balanceOfBatch(
+    address[] calldata accounts,
+    uint256[] calldata ids
+) external view returns (uint256[] memory balances) {
+    if (accounts.length != ids.length) {
+        revert LengthMismatch(accounts.length, ids.length);
+    }
+    balances = new uint256[](accounts.length);
+    for (uint256 i = 0; i < accounts.length; i++) {
+        balances[i] = _balances[accounts[i]][ids[i]];
+    }
+}
+```
+
+**Why it matters:** ERC1155 is the standard for blockchain games, NFT collections, and any protocol that needs multiple token types. Batch operations save significant gas compared to individual ERC20/ERC721 transfers, and the single-contract design simplifies deployment and management.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/ERC1155Token.sol`](src/applications/ERC1155Token.sol) | [`test/applications/ERC1155Token.t.sol`](test/applications/ERC1155Token.t.sol) |
+
+---
+
+### 96. ERC20 Permit (EIP-2612)
+
+**What you learn:** Gasless token approvals using EIP-2612 off-chain signatures, EIP-712 typed structured data hashing, and nonce-based replay protection.
+
+Standard ERC20 `approve` requires an on-chain transaction from the token holder. EIP-2612 `permit` lets a holder sign an off-chain message authorizing a spender, and anyone (a relayer, the spender, a bundler) can submit that signature on-chain. This eliminates the approve-then-transfer two-step UX and enables meta-transactions where users do not need ETH for gas.
+
+```solidity
+function permit(
+    address _owner, address spender, uint256 value,
+    uint256 deadline, uint8 v, bytes32 r, bytes32 s
+) external {
+    if (block.timestamp > deadline) revert ExpiredDeadline(deadline, block.timestamp);
+
+    // EIP-712 struct hash
+    bytes32 structHash = keccak256(
+        abi.encode(PERMIT_TYPEHASH, _owner, spender, value, nonces[_owner], deadline)
+    );
+
+    // Full EIP-712 digest
+    bytes32 digest = keccak256(
+        abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash)
+    );
+
+    address recoveredSigner = ecrecover(digest, v, r, s);
+    if (recoveredSigner == address(0) || recoveredSigner != _owner) revert InvalidSignature();
+
+    nonces[_owner]++;
+    allowance[_owner][spender] = value;
+}
+```
+
+**Why it matters:** Permit is essential for modern DeFi UX. It powers gasless approvals in Uniswap, Aave, and most major protocols. Understanding EIP-712 domain separation and nonce management is critical for building secure signature-based authorization.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/ERC20Permit.sol`](src/applications/ERC20Permit.sol) | [`test/applications/ERC20Permit.t.sol`](test/applications/ERC20Permit.t.sol) |
+
+---
+
+### 97. Write to Any Slot
+
+**What you learn:** Direct storage access via assembly `sstore`/`sload`, arbitrary slot reads and writes, and how Solidity computes mapping storage locations.
+
+Solidity assigns storage slots sequentially to state variables, but assembly lets you read or write any slot directly. This is the foundation for patterns like EIP-1967 proxy storage (storing the implementation address at a deterministic hash-derived slot to avoid collisions with the logic contract's storage).
+
+```solidity
+function write(bytes32 slot, bytes32 value) external {
+    assembly {
+        sstore(slot, value)
+    }
+}
+
+function read(bytes32 slot) external view returns (bytes32 value) {
+    assembly {
+        value := sload(slot)
+    }
+}
+
+// Mapping storage: mapping[key] lives at keccak256(abi.encode(key, baseSlot))
+function computeMappingSlot(address key, uint256 baseSlot) external pure returns (bytes32 slot) {
+    slot = keccak256(abi.encode(key, baseSlot));
+}
+```
+
+**Why it matters:** Understanding raw storage access is essential for proxy contracts, storage inspection tools, and debugging. EIP-1967 proxies rely on writing to computed slots to avoid storage collisions between proxy and implementation contracts.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/WriteToAnySlot.sol`](src/applications/WriteToAnySlot.sol) | [`test/applications/WriteToAnySlot.t.sol`](test/applications/WriteToAnySlot.t.sol) |
+
+---
+
+### 98. Simple Bytecode Contract
+
+**What you learn:** Deploying contracts from raw bytecode using the CREATE opcode, understanding init code vs runtime code, and how the EVM creates new contract addresses.
+
+The CREATE opcode takes raw bytecode in memory and deploys it as a new contract. The bytecode is init code -- it runs once during deployment and returns the runtime bytecode that will be stored at the new address. This is the lowest-level contract deployment mechanism, used by factory patterns, metamorphic contracts, and CREATE2-based deterministic deployments.
+
+```solidity
+function deploy(bytes memory bytecode) external returns (address addr) {
+    // create(value, offset, size)
+    // - offset: bytecode + 0x20 skips the length prefix
+    // - size: mload(bytecode) reads the length from the first 32 bytes
+    assembly {
+        addr := create(0, add(bytecode, 0x20), mload(bytecode))
+    }
+    if (addr == address(0)) revert DeploymentFailed();
+}
+```
+
+**Why it matters:** Understanding bytecode deployment is foundational for factory contracts, minimal proxy clones (EIP-1167), and advanced patterns like CREATE2 deterministic addresses. It reveals how the EVM actually creates contracts under the hood.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/SimpleBytecodeContract.sol`](src/applications/SimpleBytecodeContract.sol) | [`test/applications/SimpleBytecodeContract.t.sol`](test/applications/SimpleBytecodeContract.t.sol) |
+
+---
+
+### 99. Payment Channel
+
+**What you learn:** Off-chain payment channels with ECDSA signature verification, enabling many micro-payments with only two on-chain transactions (open and close).
+
+The sender funds the channel at deployment. Off-chain, the sender signs messages specifying cumulative amounts owed. The receiver can close the channel at any time by submitting the latest signed amount. The sender can reclaim funds after a timeout. This pattern enables high-frequency, low-cost payments without per-payment gas costs.
+
+```solidity
+function close(uint256 amount, bytes memory signature) external {
+    if (msg.sender != receiver) revert NotReceiver();
+    if (closed) revert ChannelAlreadyClosed();
+    if (!_verify(amount, signature)) revert InvalidSignature();
+
+    closed = true;
+    (bool sent,) = receiver.call{value: amount}("");
+    if (!sent) revert TransferFailed();
+
+    // Refund remaining balance to the sender
+    uint256 remaining = address(this).balance;
+    if (remaining > 0) {
+        (sent,) = sender.call{value: remaining}("");
+        if (!sent) revert TransferFailed();
+    }
+}
+```
+
+**Why it matters:** Payment channels are a Layer 2 scaling technique used in Bitcoin's Lightning Network and Ethereum state channels. They demonstrate signature-based authorization, timeout mechanisms, and the tradeoff between on-chain security and off-chain throughput.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/PaymentChannel.sol`](src/applications/PaymentChannel.sol) | [`test/applications/PaymentChannel.t.sol`](test/applications/PaymentChannel.t.sol) |
+
+---
+
+### 100. Merkle Airdrop
+
+**What you learn:** Merkle proof-based token distribution -- storing only a single root hash on-chain while allowing thousands of recipients to prove eligibility and claim tokens.
+
+A Merkle tree encodes all eligible (address, amount) pairs. Only the root is stored on-chain. Each claimant submits a proof (array of sibling hashes) that their leaf belongs to the tree. The contract verifies the proof by walking up the tree, sorting pairs at each level for deterministic ordering, and comparing against the stored root.
+
+```solidity
+function claim(address account, uint256 amount, bytes32[] calldata proof) external {
+    if (_claimed[account]) revert AlreadyClaimed(account);
+
+    bytes32 leaf = keccak256(abi.encodePacked(account, amount));
+    if (!_verifyProof(leaf, proof)) revert InvalidProof();
+
+    _claimed[account] = true;
+    bool success = token.transfer(account, amount);
+    if (!success) revert TransferFailed();
+}
+
+function _verifyProof(bytes32 leaf, bytes32[] calldata proof) internal view returns (bool) {
+    bytes32 computedHash = leaf;
+    for (uint256 i = 0; i < proof.length; i++) {
+        bytes32 proofElement = proof[i];
+        if (computedHash < proofElement) {
+            computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
+        } else {
+            computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
+        }
+    }
+    return computedHash == merkleRoot;
+}
+```
+
+**Why it matters:** Merkle airdrops are the standard pattern for efficient token distribution (Uniswap, ENS, Optimism airdrops all used this). Storing one root instead of thousands of addresses saves massive gas on deployment while still providing cryptographic proof of eligibility.
+
+| Source | Tests |
+|--------|-------|
+| [`src/applications/MerkleAirdrop.sol`](src/applications/MerkleAirdrop.sol) | [`test/applications/MerkleAirdrop.t.sol`](test/applications/MerkleAirdrop.t.sol) |
+
+---
+
+### 101. Constant Sum AMM
+
+**What you learn:** The simplest AMM invariant (x+y=k), zero-slippage swaps for same-value tokens, LP share mechanics, and why constant-sum is vulnerable to reserve depletion.
+
+A constant sum AMM swaps tokens at a fixed 1:1 rate (minus fees). There is no price impact regardless of trade size. This makes it ideal for tokens that should trade at identical values (e.g., two stablecoins both pegged to $1). However, if prices diverge, arbitrageurs drain the undervalued token completely -- a fundamental limitation that motivates more sophisticated invariants like StableSwap.
+
+```solidity
+function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
+    if (amountIn == 0) revert ZeroAmount();
+
+    bool isToken0 = tokenIn == address(token0);
+    (IERC20SumAMM _tokenIn, IERC20SumAMM _tokenOut, uint256 _resOut) = isToken0
+        ? (token0, token1, reserve1)
+        : (token1, token0, reserve0);
+
+    _tokenIn.transferFrom(msg.sender, address(this), amountIn);
+
+    // Constant sum: 1:1 exchange rate, 0.3% fee
+    amountOut = (amountIn * 997) / 1000;
+    if (amountOut > _resOut) revert InsufficientLiquidity();
+
+    _tokenOut.transfer(msg.sender, amountOut);
+    _updateReserves();
+}
+```
+
+**Why it matters:** Understanding constant-sum AMMs builds intuition for why more complex invariants (constant product, StableSwap) exist. It clearly illustrates the tradeoffs between slippage, capital efficiency, and vulnerability to price divergence that define AMM design.
+
+| Source | Tests |
+|--------|-------|
+| [`src/defi/ConstantSumAMM.sol`](src/defi/ConstantSumAMM.sol) | [`test/defi/ConstantSumAMM.t.sol`](test/defi/ConstantSumAMM.t.sol) |
+
+---
+
+### 102. StableSwap AMM
+
+**What you learn:** The Curve-style StableSwap invariant that blends constant-sum and constant-product behavior, Newton's method for on-chain numerical solving, and amplification coefficient tuning.
+
+StableSwap uses the invariant `A * 4 * (x+y) + D = A*D + D^3/(4*x*y)` where A is an amplification coefficient. Near the peg (balanced reserves), it behaves like x+y=k with minimal slippage. Far from the peg, it approaches x*y=k to prevent total reserve depletion. Newton's method iteratively solves for D (the invariant) and y (the output amount).
+
+```solidity
+// Newton's method to solve for D (the StableSwap invariant)
+function _getD(uint256 x, uint256 y) internal view returns (uint256 d) {
+    uint256 s = x + y;
+    if (s == 0) return 0;
+    d = s;
+    uint256 ann = A * 2; // A * n where n = 2
+
+    for (uint256 i = 0; i < 255; i++) {
+        uint256 dP = d;
+        dP = (dP * d) / (2 * x);
+        dP = (dP * d) / (2 * y);
+        uint256 dPrev = d;
+        d = (ann * s + 2 * dP) * d / ((ann - 1) * d + 3 * dP);
+
+        if (d > dPrev) {
+            if (d - dPrev <= 1) return d;
+        } else {
+            if (dPrev - d <= 1) return d;
+        }
+    }
+    revert ConvergenceFailed();
+}
+```
+
+**Why it matters:** Curve's StableSwap is the dominant DEX design for stablecoin trading, handling billions in daily volume. Understanding the invariant, amplification coefficient, and Newton's method convergence is essential for DeFi protocol development and auditing.
+
+| Source | Tests |
+|--------|-------|
+| [`src/defi/StableSwapAMM.sol`](src/defi/StableSwapAMM.sol) | [`test/defi/StableSwapAMM.t.sol`](test/defi/StableSwapAMM.t.sol) |
+
+---
+
+### 103. Token Locker
+
+**What you learn:** Time-locked token vesting using struct-based state management, time-based access control, and the checks-effects-interactions pattern for safe withdrawals.
+
+A token locker lets anyone create a lock that holds ERC20 tokens until a specified timestamp. Only the designated beneficiary can withdraw, and only after the unlock time. Each lock is stored as a struct in a dynamic array, indexed by ID. This pattern is used for team token vesting, liquidity locks, and any scenario requiring time-delayed token releases.
+
+```solidity
+struct Lock {
+    address token;
+    address beneficiary;
+    uint256 amount;
+    uint256 unlockTime;
+    bool withdrawn;
+}
+
+function withdraw(uint256 lockId) external {
+    Lock storage lock = locks[lockId];
+    if (msg.sender != lock.beneficiary) revert NotBeneficiary();
+    if (block.timestamp < lock.unlockTime) revert NotYetUnlocked();
+    if (lock.withdrawn) revert AlreadyWithdrawn();
+
+    lock.withdrawn = true;
+    IERC20Locker(lock.token).transfer(msg.sender, lock.amount);
+}
+```
+
+**Why it matters:** Token locking is a fundamental DeFi primitive. Team vesting schedules, liquidity locks (proving to investors that LP tokens cannot be pulled), and governance timelocks all rely on this pattern. The struct-based design teaches clean state management for multi-entity systems.
+
+| Source | Tests |
+|--------|-------|
+| [`src/defi/TokenLocker.sol`](src/defi/TokenLocker.sol) | [`test/defi/TokenLocker.t.sol`](test/defi/TokenLocker.t.sol) |
+
+---
+
+### 104. Discrete Staking Rewards
+
+**What you learn:** Per-notification reward distribution using a cumulative reward index, the difference between discrete and continuous (Synthetix-style) staking, and precision-safe fixed-point math.
+
+Unlike continuous staking (which streams rewards over time), discrete staking distributes rewards instantly when the owner calls `notifyReward()`. A global `rewardIndex` tracks cumulative rewards per staked token (scaled by 1e18). Each user's pending rewards are computed as `(globalIndex - userIndex) * userStake / 1e18`. The index is snapshotted before any stake/withdraw to ensure accurate accounting.
+
+```solidity
+function notifyReward(uint256 amount) external onlyOwner {
+    if (totalStaked == 0) revert InsufficientBalance();
+
+    IERC20Staking(rewardToken).transferFrom(msg.sender, address(this), amount);
+    rewardIndex += (amount * 1e18) / totalStaked;
+}
+
+function _updateRewards(address account) private {
+    uint256 pending = stakedBalance[account]
+        * (rewardIndex - userRewardIndex[account]) / 1e18;
+    userRewards[account] += pending;
+    userRewardIndex[account] = rewardIndex;
+}
+```
+
+**Why it matters:** The cumulative index pattern is one of the most important accounting primitives in DeFi. It appears in Compound's cToken interest accrual, Synthetix staking, and most yield-bearing protocols. Mastering it is essential for building any reward distribution system.
+
+| Source | Tests |
+|--------|-------|
+| [`src/defi/DiscreteStakingRewards.sol`](src/defi/DiscreteStakingRewards.sol) | [`test/defi/DiscreteStakingRewards.t.sol`](test/defi/DiscreteStakingRewards.t.sol) |
+
+---
+
+### 105. Storage Layout
+
+**What you learn:** How the EVM lays out state variables in storage -- slot packing for sub-32-byte types, dynamic array element locations via `keccak256(slot) + index`, and mapping element locations via `keccak256(abi.encode(key, slot))`.
+
+The EVM provides 2^256 storage slots of 32 bytes each. Solidity packs smaller types (uint128, bool, address) into a single slot when they fit. Dynamic arrays store their length at the declared slot, with elements starting at `keccak256(slot)`. Mappings leave their slot empty and store values at `keccak256(key . slot)`. This contract uses inline assembly to demonstrate each layout rule.
+
+```solidity
+uint128 public a; // lower 16 bytes of slot 0
+uint128 public b; // upper 16 bytes of slot 0
+uint256 public c; // slot 1
+uint256[] public arr; // length at slot 3, elements at keccak256(3) + index
+mapping(address => uint256) public map; // values at keccak256(key . 4)
+
+function setValues(uint128 _a, uint128 _b, uint256 _c) external {
+    assembly {
+        // Pack a and b into slot 0: b in upper 128 bits, a in lower 128 bits
+        let packed := or(shl(128, _b), _a)
+        sstore(0, packed)
+        sstore(c.slot, _c)
+    }
+}
+
+function getMappingSlot(address key) external pure returns (bytes32 slot) {
+    assembly {
+        mstore(0x00, key)
+        mstore(0x20, map.slot)
+        slot := keccak256(0x00, 0x40)
+    }
+}
+```
+
+**Why it matters:** Storage layout knowledge is critical for proxy contract development (avoiding storage collisions), gas optimization (packing variables), security auditing (detecting storage overwrites), and using tools like `forge inspect` or `cast storage` to debug on-chain state.
+
+| Source | Tests |
+|--------|-------|
+| [`src/evm/StorageLayout.sol`](src/evm/StorageLayout.sol) | [`test/evm/StorageLayout.t.sol`](test/evm/StorageLayout.t.sol) |
+
+---
+
+### 106. Memory Layout
+
+**What you learn:** EVM memory organization -- scratch space (0x00-0x3f), the free memory pointer (0x40), the zero slot (0x60), manual memory allocation, and how `abi.encode` lays out data in memory.
+
+EVM memory is a linear byte array that expands as needed (with quadratic gas cost). Solidity reserves the first 128 bytes: scratch space for hashing, the free memory pointer at 0x40 (initialized to 0x80), and the zero slot at 0x60. All dynamic allocations start at 0x80 and advance the free memory pointer. Understanding this layout is essential for writing correct inline assembly.
+
+```solidity
+function getFreeMemoryPointer() external pure returns (uint256 ptr) {
+    assembly {
+        ptr := mload(0x40) // Returns 0x80 at start (after reserved regions)
+    }
+}
+
+function allocateMemory(uint256 size) external pure returns (uint256 ptr) {
+    assembly {
+        ptr := mload(0x40)          // Read current free pointer
+        mstore(0x40, add(ptr, size)) // Advance it by requested size
+    }
+}
+
+function writeAndReadMemory(uint256 value) external pure returns (uint256 result) {
+    assembly {
+        let ptr := mload(0x40)
+        mstore(0x40, add(ptr, 0x20)) // Allocate 32 bytes
+        mstore(ptr, value)            // Write
+        result := mload(ptr)          // Read back
+    }
+}
+```
+
+**Why it matters:** Memory layout knowledge is essential for gas-efficient assembly code, understanding ABI encoding/decoding, and avoiding subtle bugs like overwriting scratch space or corrupting the free memory pointer. It is foundational for writing custom precompile calls, optimized data structures, and Yul-heavy contracts.
+
+| Source | Tests |
+|--------|-------|
+| [`src/evm/MemoryLayout.sol`](src/evm/MemoryLayout.sol) | [`test/evm/MemoryLayout.t.sol`](test/evm/MemoryLayout.t.sol) |
 
 ---
 
