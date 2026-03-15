@@ -115,49 +115,19 @@ forge test --fuzz-runs 1000
 
 ## 📖 Concepts Guide
 
-See **[CONCEPTS.md](CONCEPTS.md)** for a Solidity by Example-style reference covering all 79 topics in this dojo. Each entry explains the concept, shows a code snippet, and links directly to the contract and its tests.
+See **[CONCEPTS.md](CONCEPTS.md)** for a Solidity by Example-style reference covering all 109 topics in this dojo. Each entry explains the concept, shows a code snippet, and links directly to the contract and its tests.
 
 ## Implemented Contracts
 
-### Basic Section
+| Section | Count | Examples |
+|---------|-------|---------|
+| **Basic** | 45 | HelloWorld, Counter, Primitives, Variables, Mapping, Inheritance, Delegatecall, VerifySignature, GasGolf |
+| **Applications** | 18 | ERC20Token, ERC721Token, ERC1155Token, ERC20Permit, MultiSigWallet, TimeLock, UpgradeableProxy, PaymentChannel, MerkleAirdrop |
+| **DeFi** | 16 | ConstantProductAMM, ConstantSumAMM, StableSwapAMM, Vault, StakingRewards, DiscreteStakingRewards, TokenLocker, DutchAuction, CrowdFund |
+| **Hacks** | 20 | Reentrancy, FrontRunning, Honeypot, ArithmeticOverflow, BypassContractSize, WETHPermitAttack, SixtyThreeOver64Rule, OracleManipulation |
+| **EVM** | 10 | AssemblyVariable, AssemblyMath, BitwiseOperators, StorageLayout, MemoryLayout |
 
-| Contract | Description | Tests |
-|----------|-------------|-------|
-| HelloWorld | SPDX, pragma, state variables | Unit |
-| Counter | Increment/decrement with underflow protection | Unit, Fuzz |
-| Primitives | bool, uint, int, address, bytes32 | Unit, Fuzz |
-| Variables | local, state, global variables | Unit, Fuzz |
-| Constants | constant keyword and gas savings | Unit, Invariant |
-| Immutable | immutable variables set in constructor | Unit, Fuzz |
-| SimpleStorage | SSTORE vs SLOAD demonstration | Unit, Fuzz, Invariant |
-| EtherUnits | wei, gwei, ether conversions | Unit, Fuzz |
-| Gas | gasleft() and EIP-1559 concepts | Unit |
-| IfElse | conditional branching and ternary | Unit, Fuzz |
-| Loop | for, while, break, continue | Unit, Fuzz |
-| Mapping | mapping and nested mappings | Unit, Fuzz |
-| Array | dynamic and fixed-size arrays | Unit, Fuzz |
-| Enum | enum types with casting | Unit, Fuzz |
-| UserDefinedValueTypes | type safety with wrap/unwrap | Unit, Fuzz |
-| Structs | struct declaration and usage | Unit, Invariant |
-
-### Applications Section
-
-| Contract | Description |
-|----------|-------------|
-| EtherWallet | payable functions, receive/fallback, access control |
-
-### Hacks Section
-
-| Contract | Description |
-|----------|-------------|
-| ReentrancyVulnerable | Classic reentrancy vulnerability (DO NOT USE) |
-| ReentrancySecure | CEI pattern and reentrancy guard |
-
-### EVM Section
-
-| Contract | Description |
-|----------|-------------|
-| AssemblyMath | Inline assembly for gas-efficient operations |
+**Total: 109 contracts with 922 tests**
 
 ## Testing Philosophy
 

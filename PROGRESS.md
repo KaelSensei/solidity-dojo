@@ -77,7 +77,7 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] **UncheckedMath** - unchecked blocks, overflow wrapping, gas-efficient loops *(NEW)*
 - [x] **GasGolf** - side-by-side gas optimization comparison *(NEW)*
 
-### ✅ Phase 6: Applications Section (11/11 COMPLETE)
+### ✅ Phase 6: Applications Section (18/18 COMPLETE)
 - [x] MultiSigWallet - multi-signature wallet
 - [x] MerkleTree - merkle proofs
 - [x] IterableMapping - iterable mappings
@@ -89,8 +89,14 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] **MultiCall** - batch multiple calls into one transaction *(NEW)*
 - [x] **TimeLock** - timelock controller for delayed execution *(NEW)*
 - [x] **UpgradeableProxy** - EIP-1967 transparent upgradeable proxy *(NEW)*
+- [x] **ERC1155Token** - multi-token standard, batch transfers *(NEW)*
+- [x] **ERC20Permit** - gasless approvals via EIP-2612 *(NEW)*
+- [x] **WriteToAnySlot** - assembly sstore/sload to arbitrary slots *(NEW)*
+- [x] **SimpleBytecodeContract** - deploy via raw bytecode (CREATE opcode) *(NEW)*
+- [x] **PaymentChannel** - off-chain payment channels with signatures *(NEW)*
+- [x] **MerkleAirdrop** - merkle proof-based token airdrop *(NEW)*
 
-### ✅ Phase 7: DeFi Section (10/10 COMPLETE)
+### ✅ Phase 7: DeFi Section (16/16 COMPLETE)
 - [x] UniswapV2Swap - Uniswap V2 integration
 - [x] UniswapV3Swap - Uniswap V3 integration
 - [x] UniswapV4Swap - Uniswap V4 integration
@@ -103,8 +109,12 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] CrowdFund - crowdfunding
 - [x] **Vault** - ERC4626-style deposit vault with inflation protection *(NEW)*
 - [x] **ConstantProductAMM** - x*y=k AMM with 0.3% fee (Uniswap V1/V2 core) *(NEW)*
+- [x] **ConstantSumAMM** - x+y=k AMM for same-price tokens *(NEW)*
+- [x] **StableSwapAMM** - Curve-style StableSwap invariant *(NEW)*
+- [x] **TokenLocker** - time-locked token vesting *(NEW)*
+- [x] **DiscreteStakingRewards** - discrete per-notification reward distribution *(NEW)*
 
-### ✅ Phase 8: Hacks Section (11/11 COMPLETE)
+### ✅ Phase 8: Hacks Section (20/20 COMPLETE)
 - [x] OracleManipulation - price oracle attacks
 - [x] SelfDestructAttack - forced ether
 - [x] TxOriginAttack - phishing
@@ -116,8 +126,15 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] PredictableRandomness - weak randomness
 - [x] DoSAttack - gas limit attacks
 - [x] **FrontRunning** - mempool front-running + commit-reveal protection *(NEW)*
+- [x] **ArithmeticOverflow** - pre-0.8 overflow behavior vs. 0.8+ safe math *(NEW)*
+- [x] **Honeypot** - deceptive contracts that trap user funds *(NEW)*
+- [x] **HidingMaliciousCode** - hiding malicious logic via external contracts *(NEW)*
+- [x] **BypassContractSize** - bypassing extcodesize check via constructor *(NEW)*
+- [x] **DeployDifferentContract** - CREATE2 + selfdestruct address swap *(NEW)*
+- [x] **WETHPermitAttack** - WETH permit griefing vulnerability *(NEW)*
+- [x] **SixtyThreeOver64Rule** - EIP-150 gas forwarding rule exploitation *(NEW)*
 
-### ✅ Phase 9: EVM Section
+### ✅ Phase 9: EVM Section (10/10 COMPLETE)
 - [x] AssemblyVariable - Yul variables
 - [x] AssemblyConditionals - Yul if/switch
 - [x] AssemblyLoop - Yul loops
@@ -125,25 +142,25 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] AssemblyArray - Yul arrays
 - [x] BitwiseOperators - bit manipulation
 - [x] AssemblyMathExercise - math operations
+- [x] **StorageLayout** - slot packing, dynamic arrays, mappings storage locations *(NEW)*
+- [x] **MemoryLayout** - memory layout, free memory pointer, ABI encoding *(NEW)*
 
 ## Test Results
 
-Last run: 2026-03-11 (fix/failing-tests branch)
+Last run: 2026-03-15 (feature/missing-concepts branch)
 
 ```
-Fixes applied:
-- EVM: AssemblyMath.sumArrayAssembly - fixed ABI calldata layout for dynamic arrays
-- EVM: AssemblyBinaryExponentiation testFuzz_Sqrt - added overflow guard for (result+1)^2
-- DeFi: DutchAuction - currentPrice() safe for underflow/overflow; test DISCOUNT_RATE and prank fix
-- DeFi: EnglishAuction - first bid allowed at startingBid (no increment); test addresses above precompile range (0x1 = ecrecover)
+New contracts: 19
+New tests: 201 (all passing)
+Total tests: 922 (908 passing, 14 pre-existing Uniswap integration failures)
 
-DutchAuction + EnglishAuction: 31/31 tests passing.
-Run `forge test` or `docker compose exec dojo forge test` to verify.
+All new contracts compile and pass tests via Docker:
+  docker compose exec dojo forge test
 ```
 
 ## Documentation
 
-- [x] **Concepts Guide**: [`CONCEPTS.md`](CONCEPTS.md) — Solidity by Example-style reference for all concepts in this dojo
+- [x] **Concepts Guide**: [`CONCEPTS.md`](CONCEPTS.md) — Solidity by Example-style reference for all 109 concepts
 
 ## Topics Added (2026-03-09)
 
@@ -162,22 +179,39 @@ Run `forge test` or `docker compose exec dojo forge test` to verify.
 | 9 | ConstantProductAMM | DeFi | x*y=k AMM, LP shares, swap fees, sqrt |
 | 10 | FrontRunning | Hacks | Mempool front-running + commit-reveal countermeasure |
 
-## Remaining Gaps (for future phases)
+## Topics Added (2026-03-15)
 
-Topics from Solidity by Example not yet covered:
+19 new topics filling the remaining gaps from Solidity by Example:
 
-**Applications:** ERC1155, Gasless Token Transfer (ERC20Permit), Simple Bytecode Contract, Write to Any Slot, Payment Channels, Merkle Airdrop
+| # | Topic | Section | What it teaches |
+|---|-------|---------|-----------------|
+| 1 | ERC1155Token | Applications | Multi-token standard, batch transfers, balanceOfBatch |
+| 2 | ERC20Permit | Applications | Gasless approvals via EIP-2612 signatures |
+| 3 | WriteToAnySlot | Applications | Assembly sstore/sload to arbitrary storage slots |
+| 4 | SimpleBytecodeContract | Applications | Deploy contracts via raw bytecode (CREATE opcode) |
+| 5 | PaymentChannel | Applications | Off-chain payment channels with signature verification |
+| 6 | MerkleAirdrop | Applications | Merkle proof-based token airdrop |
+| 7 | ConstantSumAMM | DeFi | x+y=k AMM (simplest AMM, no slippage) |
+| 8 | StableSwapAMM | DeFi | Curve-style StableSwap invariant |
+| 9 | TokenLocker | DeFi | Time-locked token vesting |
+| 10 | DiscreteStakingRewards | DeFi | Discrete (per-notification) reward distribution |
+| 11 | ArithmeticOverflow | Hacks | Pre-0.8 overflow (why 0.8 defaults matter) |
+| 12 | Honeypot | Hacks | Deceptive contracts that trap users |
+| 13 | HidingMaliciousCode | Hacks | Hiding malicious logic via external contracts |
+| 14 | BypassContractSize | Hacks | Bypassing extcodesize check via constructor |
+| 15 | DeployDifferentContract | Hacks | CREATE2 + selfdestruct to swap contract at same address |
+| 16 | WETHPermitAttack | Hacks | WETH permit griefing vulnerability |
+| 17 | SixtyThreeOver64Rule | Hacks | EIP-150 gas forwarding rule exploitation |
+| 18 | StorageLayout | EVM | Slot packing, dynamic arrays, mappings storage locations |
+| 19 | MemoryLayout | EVM | Memory layout, free memory pointer, ABI encoding in memory |
 
-**DeFi:** Constant Sum AMM, Stable Swap AMM, Token Lock, Discrete Staking Rewards
+## Remaining Gaps
 
-**Hacks:** Arithmetic Overflow (pre-0.8), Honeypot, Hiding Malicious Code, Bypass Contract Size Check, Deploy Different Contracts at Same Address, WETH Permit, 63/64 Gas Rule
-
-**EVM:** Storage Layout deep dive, Memory Layout deep dive
-
-**Foundry:** Cheatcode tutorials (vm.prank, vm.warp, vm.expectRevert, vm.sign, etc.)
+**Foundry:** Cheatcode tutorials (vm.prank, vm.warp, vm.expectRevert, vm.sign, etc.) — these are tool docs, not Solidity concepts. Skipped intentionally.
 
 ## Estimated Completion
 
-- Current: 83 topics implemented
-- Test coverage: 655/722 tests passing (90.7%)
-- All Basic, Applications, and Hacks: 100% passing
+- Current: 109 topics implemented (up from 90)
+- New test count: 201 additional tests
+- Total tests: 922 (908 passing, 14 pre-existing Uniswap integration failures)
+- All Basic, Applications, DeFi (non-Uniswap), Hacks, and EVM: 100% passing
