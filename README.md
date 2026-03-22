@@ -220,6 +220,7 @@ This is a training repository. To add new contracts:
 - [Solidity by Example](https://solidity-by-example.org)
 - [Foundry Documentation](https://book.getfoundry.sh)
 - [Solidity Documentation](https://docs.soliditylang.org)
+- [CI.md](CI.md) — full documentation of the quality gate setup (Slither, Codecov, Forge)
 
 ## License
 
