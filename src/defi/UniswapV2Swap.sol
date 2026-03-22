@@ -104,6 +104,7 @@ contract UniswapV2FlashSwap {
     ) public pure returns (uint amountIn) {
         require(amountOut > 0, "Insufficient output amount");
         require(reserveIn > 0 && reserveOut > 0, "Insufficient liquidity");
+        require(amountOut < reserveOut, "Insufficient liquidity");
 
         uint numerator = reserveIn * amountOut * 1000;
         uint denominator = (reserveOut - amountOut) * 997;

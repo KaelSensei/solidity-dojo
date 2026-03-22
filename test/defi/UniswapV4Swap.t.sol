@@ -210,8 +210,9 @@ contract UniswapV4SwapTest is Test {
         assertGe(amountIn, 0, "Input token spent");
         assertLe(amountIn, amountInMax, "Within max");
         
-        // With 0.3% fee, input should be ~1003e15 for 1000e18 output
-        assertEq(amountIn, 1003e15, "Input amount matches reverse fee calculation");
+        // With 0.3% fee (30 bps), input = amountOut * 10000 / (10000 - 30) = 1000e18 * 10000 / 9970
+        // ≈ 1003009027081243731193 (slightly over 1003e18)
+        assertEq(amountIn, (amountOut * 10000) / (10000 - 30), "Input amount matches reverse fee calculation");
     }
 
     /// @notice Test exact output swap reverts on excessive input

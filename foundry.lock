@@ -11,10 +11,16 @@
       "rev": "5fd1781b1454fd1ef8e722282f86f9293cacf256"
     }
   },
+  "lib/universal-router": {
+    "rev": "fd75e3eca49d039fe2082bbd0c01aee93ed777a1"
+  },
   "lib/v4-core": {
     "tag": {
       "name": "v4.0.0",
       "rev": "e50237c43811bd9b526eff40f26772152a42daba"
     }
+  },
+  "lib/v4-periphery": {
+    "rev": "5da22e609fd78c01fb7ddf2a6abb1f2ec7dc2b87"
   }
 }
