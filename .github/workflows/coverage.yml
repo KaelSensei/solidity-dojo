@@ -32,17 +32,10 @@ jobs:
         run: forge install
 
       - name: Generate coverage report (lcov)
-        run: forge coverage --report lcov 2>&1 | tee coverage-summary.txt
-        # lcov.info is written to the working directory by forge
-
-      - name: Verify lcov.info was generated
         run: |
-          if [ ! -f lcov.info ]; then
-            echo "ERROR: lcov.info not found — forge coverage may have failed"
-            cat coverage-summary.txt
-            exit 1
-          fi
-          echo "lcov.info found ($(wc -l < lcov.info) lines)"
+          forge coverage --report lcov
+          # forge writes lcov.info to the project root by default
+          ls -la lcov.info || (echo "lcov.info not found, listing root:" && ls -la)
 
       - name: Remove test and lib files from coverage
         run: |
@@ -51,7 +44,7 @@ jobs:
             '*/test/*' '*/lib/*' \
             --output-file lcov.info \
             --ignore-errors unused,empty \
-            || true  # lcov exits non-zero if nothing was removed; that's fine
+            || echo "lcov --remove returned non-zero (ok if nothing to remove)"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -64,7 +57,9 @@ jobs:
 
       - name: Upload coverage summary artifact
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: coverage-summary
-          path: coverage-summary.txt
+          path: |
+            lcov.info
           retention-days: 1
