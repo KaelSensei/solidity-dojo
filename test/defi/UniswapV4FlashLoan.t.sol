@@ -161,9 +161,10 @@ contract UniswapV4FlashLoanTest is Test {
         uint256 amount = 100e18;
         
         // The mock calculates the fee and emits events but doesn't actually borrow tokens
-        // We verify the function executes and the event is emitted
+        // We verify the function executes and the event is emitted.
+        // msg.sender from the contract's perspective is address(this) (the test contract).
         vm.expectEmit(true, true, true, true);
-        emit FlashLoanExecuted(msg.sender, address(token), amount, amount / 10000);
+        emit FlashLoanExecuted(address(this), address(token), amount, amount / 10000);
         flashLoan.executeFlashLoan(address(token), amount, "");
         
         // Verify fee calculation

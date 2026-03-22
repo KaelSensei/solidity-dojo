@@ -182,10 +182,13 @@ contract UniswapV4LimitOrderTest is Test {
     }
 
     /// @notice Test filling a limit order
+    /// @dev amountOutMin in fillOrder is compared against the per-fill output, not the total.
+    ///      For a 50e18 partial fill with 0.3% fee, output = 49.85e18.
+    ///      Set amountOutMin <= 49e18 so partial fills pass the slippage check.
     function test_FillOrder() public {
         // Create order first
         uint256 amountIn = 100e18;
-        uint256 amountOutMin = 90e18;
+        uint256 amountOutMin = 49e18; // Per-fill minimum for the 50e18 partial fill
 
         vm.startPrank(user);
         tokenA.approve(address(limitOrder), amountIn);
@@ -264,6 +267,9 @@ contract UniswapV4LimitOrderTest is Test {
     }
 
     /// @notice Test partial fill
+    /// @dev amountOutMin is checked per fill. With 0.3% fee:
+    ///      30e18 fill → 29.91e18 out; 50e18 fill → 49.85e18 out.
+    ///      Set amountOutMin=25e18 so all partial fills pass the check.
     function test_PartialFill() public {
         uint256 amountIn = 100e18;
 
@@ -273,7 +279,7 @@ contract UniswapV4LimitOrderTest is Test {
             address(tokenA),
             address(tokenB),
             amountIn,
-            50e18,
+            25e18, // Per-fill minimum, below smallest fill output (29.91e18 for 30e18 fill)
             100,
             200,
             deadline
@@ -386,6 +392,8 @@ contract UniswapV4LimitOrderTest is Test {
     }
 
     /// @notice Test getRemainingAmount
+    /// @dev amountOutMin must be <= per-fill output. For 50e18 fill at 0.3% fee,
+    ///      output = 49.85e18, so amountOutMin must be <= 49e18.
     function test_GetRemainingAmount() public {
         uint256 amountIn = 100e18;
 
@@ -395,7 +403,7 @@ contract UniswapV4LimitOrderTest is Test {
             address(tokenA),
             address(tokenB),
             amountIn,
-            90e18,
+            49e18, // Per-fill minimum, must be <= output for any partial fill
             100,
             200,
             deadline

@@ -146,7 +146,15 @@ contract UniswapV4FlashLoan {
                     callbackData
                 )
             );
-            require(success, "Callback failed");
+            if (!success) {
+                // Re-bubble the revert reason from the callback
+                assembly {
+                    let ptr := mload(0x40)
+                    let size := returndatasize()
+                    returndatacopy(ptr, 0, size)
+                    revert(ptr, size)
+                }
+            }
         }
     }
 
