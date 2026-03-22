@@ -1,0 +1,91 @@
+name: Slither Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - fix/**
+      - feature/**
+      - ci/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # ── Job 1: Scan clean code (basic, applications, defi, evm) ─────────────────
+  # Fails on high-severity findings → blocks PRs
+  slither-clean:
+    name: "Slither — clean contracts"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # required to upload SARIF to GitHub Code Scanning
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Foundry toolchain
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install Forge dependencies
+        run: forge install
+
+      - name: Run Slither on clean contracts
+        uses: crytic/slither-action@v0.4.0
+        id: slither-clean
+        with:
+          # Exclude intentionally vulnerable contracts
+          slither-args: >-
+            --filter-paths "src/hacks"
+            --exclude-informational
+            --exclude-low
+          sarif: slither-clean.sarif
+          fail-on: high
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: slither-clean.sarif
+          category: slither-clean
+
+  # ── Job 2: Scan hacks/ (expected vulnerabilities) ───────────────────────────
+  # Never blocks — documents that vulnerabilities ARE intentionally present
+  slither-hacks:
+    name: "Slither — hacks (expected vulns)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Foundry toolchain
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install Forge dependencies
+        run: forge install
+
+      - name: Run Slither on hacks/ (informational only)
+        uses: crytic/slither-action@v0.4.0
+        id: slither-hacks
+        continue-on-error: true  # never blocks — vulnerabilities are intentional
+        with:
+          slither-args: >-
+            --filter-paths "src/basic,src/applications,src/defi,src/evm"
+          sarif: slither-hacks.sarif
+          fail-on: none
+
+      - name: Upload hacks SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: slither-hacks.sarif
+          category: slither-hacks

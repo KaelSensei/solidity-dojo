@@ -1,0 +1,63 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+      - fix/**
+      - feature/**
+      - ci/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  coverage:
+    name: "Forge Coverage → Codecov"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Foundry toolchain
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install lcov
+        run: sudo apt-get install -y lcov
+
+      - name: Install Forge dependencies
+        run: forge install
+
+      - name: Generate coverage report (lcov)
+        run: |
+          forge coverage \
+            --report lcov \
+            --lcov-version 2 \
+            2>&1 | tee coverage-summary.txt
+
+      - name: Remove test files from coverage
+        run: |
+          lcov \
+            --remove lcov.info \
+            'test/*' 'lib/*' \
+            --output-file lcov.info \
+            --ignore-errors unused
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: lcov.info
+          flags: foundry
+          name: solidity-dojo
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary
+          path: coverage-summary.txt
+          retention-days: 7
