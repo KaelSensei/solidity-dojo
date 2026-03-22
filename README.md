@@ -2,6 +2,11 @@
 
 # Solidity Dojo
 
+[![Forge Tests](https://github.com/KaelSensei/solidity-dojo/actions/workflows/forge-tests.yml/badge.svg)](https://github.com/KaelSensei/solidity-dojo/actions/workflows/forge-tests.yml)
+[![Slither — clean contracts](https://github.com/KaelSensei/solidity-dojo/actions/workflows/slither.yml/badge.svg)](https://github.com/KaelSensei/solidity-dojo/actions/workflows/slither.yml)
+[![codecov](https://codecov.io/gh/KaelSensei/solidity-dojo/branch/main/graph/badge.svg)](https://codecov.io/gh/KaelSensei/solidity-dojo)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A hands-on Solidity training ground based on [solidity-by-example.org](https://solidity-by-example.org).
 
 ## Overview
@@ -128,6 +133,20 @@ See **[CONCEPTS.md](CONCEPTS.md)** for a Solidity by Example-style reference cov
 | **EVM** | 10 | AssemblyVariable, AssemblyMath, BitwiseOperators, StorageLayout, MemoryLayout |
 
 **Total: 109 contracts with 922 tests**
+
+## CI / Quality Gates
+
+| Check | Scope | Blocks PRs? |
+|-------|-------|-------------|
+| **Forge Tests** | All contracts | ✅ Yes |
+| **Slither (clean)** | `basic/` `applications/` `defi/` `evm/` | ✅ Yes — fails on high severity |
+| **Slither (hacks)** | `hacks/` only | ❌ No — vulnerabilities are intentional |
+| **Codecov** | All contracts | ❌ No — informational |
+
+Static analysis results are visible in **[GitHub Security → Code Scanning](https://github.com/KaelSensei/solidity-dojo/security/code-scanning)**.
+Coverage report on **[Codecov](https://codecov.io/gh/KaelSensei/solidity-dojo)**.
+
+> **Note on `hacks/`:** Contracts in `src/hacks/` are intentionally vulnerable — they exist to demonstrate attack vectors and exploitation techniques. Slither findings on this folder are expected and do not affect the quality gate.
 
 ## Testing Philosophy
 
