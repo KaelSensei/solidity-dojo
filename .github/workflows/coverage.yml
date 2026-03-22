@@ -33,9 +33,10 @@ jobs:
 
       - name: Generate coverage report (lcov)
         run: |
-          forge coverage --report lcov
-          # forge writes lcov.info to the project root by default
-          ls -la lcov.info || (echo "lcov.info not found, listing root:" && ls -la)
+          # --no-fail-fast ensures lcov.info is written even if some tests fail
+          # (this repo has intentional failing tests in DeFi/advanced sections)
+          forge coverage --report lcov --no-fail-fast || true
+          ls -la lcov.info || (echo "lcov.info not found, listing root:" && ls -la && exit 1)
 
       - name: Remove test and lib files from coverage
         run: |
