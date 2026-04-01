@@ -52,13 +52,12 @@ jobs:
           category: slither-clean
 
   # ── Job 2: Scan hacks/ (expected vulnerabilities) ───────────────────────────
-  # Never blocks — documents that vulnerabilities ARE intentionally present
+  # Informational only — results are kept as workflow artifacts (not Code Scanning)
   slither-hacks:
-    name: "Slither — hacks (expected vulns)"
+    name: "Slither — hacks (informational)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
 
     steps:
       - name: Checkout repository
@@ -77,13 +76,14 @@ jobs:
         id: slither-hacks
         continue-on-error: true
         with:
-          slither-args: --filter-paths "src/basic,src/applications,src/defi,src/evm" --exclude suicidal
+          # Scan only src/hacks by filtering out all other src/ directories
+          slither-args: --filter-paths "src/basic,src/applications,src/defi,src/evm"
           sarif: slither-hacks.sarif
           fail-on: none
 
-      - name: Upload hacks SARIF to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload hacks SARIF as artifact
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          sarif_file: slither-hacks.sarif
-          category: slither-hacks
+          name: slither-hacks-sarif
+          path: slither-hacks.sarif
