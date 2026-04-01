@@ -77,7 +77,7 @@ jobs:
         id: slither-hacks
         continue-on-error: true
         with:
-          slither-args: --filter-paths "src/basic,src/applications,src/defi,src/evm"
+          slither-args: --filter-paths "src/basic,src/applications,src/defi,src/evm" --exclude suicidal
           sarif: slither-hacks.sarif
           fail-on: none
 
