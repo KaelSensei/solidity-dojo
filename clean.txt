@@ -1,6 +1,0 @@
-gh api repos/KaelSensei/solidity-dojo/actions/runs --paginate \
-  --jq '.workflow_runs[].id' \
-  | while read id; do
-      echo "Deleting run $id..."
-      gh api -X DELETE "repos/KaelSensei/solidity-dojo/actions/runs/$id"
-    done
