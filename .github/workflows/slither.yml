@@ -40,7 +40,8 @@ jobs:
         id: slither-clean
         continue-on-error: true  # informational — teaching repo uses intentional patterns
         with:
-          slither-args: --filter-paths "src/hacks,lib,test,script"
+          # slither --filter-paths expects a regex, not a comma-separated list
+          slither-args: --filter-paths "(src/hacks|lib|test|script)(/|$)"
           sarif: slither-clean.sarif
           fail-on: none
 
