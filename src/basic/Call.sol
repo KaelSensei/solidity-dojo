@@ -76,13 +76,24 @@ contract Call {
         (bool ok,) = to.call{value: amount}("");
         require(ok, "Withdraw failed");
     }
+
+    receive() external payable {
+        // Never retain ETH: immediately forward to the fixed target.
+        (bool ok,) = valueTarget.call{value: msg.value}("");
+        require(ok, "Forward failed");
+    }
 }
 
 /// @title TargetContract
 /// @notice Target for call demonstrations
 contract TargetContract {
+    address public immutable owner;
     uint256 public value;
     mapping(address => uint256) public balances;
+
+    constructor() {
+        owner = msg.sender;
+    }
 
     function setValue(uint256 newValue) external {
         value = newValue;
@@ -94,6 +105,13 @@ contract TargetContract {
 
     function deposit() external payable {
         balances[msg.sender] += msg.value;
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 }
 

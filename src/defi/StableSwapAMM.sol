@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
+import "openzeppelin-contracts/contracts/utils/math/Math.sol";
+
 /// @title IERC20StableSwap
 /// @notice Minimal ERC20 interface for StableSwap AMM operations
 interface IERC20StableSwap {
@@ -25,6 +27,8 @@ interface IERC20StableSwap {
 ///      Newton's method is used to solve for D and y — max 255 iterations, sufficient
 ///      for convergence in practice.
 contract StableSwapAMM {
+    using Math for uint256;
+
     IERC20StableSwap public immutable token0;
     IERC20StableSwap public immutable token1;
 
@@ -81,8 +85,6 @@ contract StableSwapAMM {
             ? (token0, token1, reserve0, reserve1)
             : (token1, token0, reserve1, reserve0);
 
-        if (!tokenInErc.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
-
         // Apply 0.3% fee to the input amount
         uint256 amountInWithFee = (amountIn * 997) / 1000;
 
@@ -98,9 +100,19 @@ contract StableSwapAMM {
         amountOut = resOutAmt - newResOut;
         if (amountOut < 1) revert InsufficientLiquidity();
 
+        // Effects before interactions (CEI) to satisfy reentrancy detectors.
+        // Note: pricing uses `amountInWithFee`, but the full `amountIn` stays in the pool (fee accrues to LPs).
+        if (isToken0) {
+            reserve0 = resInAmt + amountIn;
+            reserve1 = resOutAmt - amountOut;
+        } else {
+            reserve1 = resInAmt + amountIn;
+            reserve0 = resOutAmt - amountOut;
+        }
+
+        if (!tokenInErc.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
         if (!tokenOutErc.transfer(msg.sender, amountOut)) revert TransferFailed();
 
-        _updateReserves();
         emit Swap(msg.sender, tokenIn, amountIn, amountOut);
     }
 
@@ -108,13 +120,6 @@ contract StableSwapAMM {
     /// @return shares LP shares minted
     function addLiquidity(uint256 amount0, uint256 amount1) external nonReentrant returns (uint256 shares) {
         if (amount0 == 0 && amount1 == 0) revert ZeroAmount();
-
-        if (amount0 > 0) {
-            if (!token0.transferFrom(msg.sender, address(this), amount0)) revert TransferFailed();
-        }
-        if (amount1 > 0) {
-            if (!token1.transferFrom(msg.sender, address(this), amount1)) revert TransferFailed();
-        }
 
         if (totalSupply < 1) {
             // First deposit: compute D as the initial share basis
@@ -127,12 +132,22 @@ contract StableSwapAMM {
             shares = ((d1 - d0) * totalSupply) / d0;
         }
 
-        if (shares == 0) revert InsufficientLiquidity();
+        if (shares < 1) revert InsufficientLiquidity();
 
         balanceOf[msg.sender] += shares;
         totalSupply += shares;
 
-        _updateReserves();
+        // Update reserves before interacting (CEI).
+        reserve0 += amount0;
+        reserve1 += amount1;
+
+        if (amount0 > 0) {
+            if (!token0.transferFrom(msg.sender, address(this), amount0)) revert TransferFailed();
+        }
+        if (amount1 > 0) {
+            if (!token1.transferFrom(msg.sender, address(this), amount1)) revert TransferFailed();
+        }
+
         emit AddLiquidity(msg.sender, amount0, amount1, shares);
     }
 
@@ -150,6 +165,10 @@ contract StableSwapAMM {
         balanceOf[msg.sender] -= shares;
         totalSupply -= shares;
 
+        // Update reserves before interacting (CEI).
+        reserve0 -= amount0;
+        reserve1 -= amount1;
+
         if (amount0 > 0) {
             if (!token0.transfer(msg.sender, amount0)) revert TransferFailed();
         }
@@ -157,7 +176,6 @@ contract StableSwapAMM {
             if (!token1.transfer(msg.sender, amount1)) revert TransferFailed();
         }
 
-        _updateReserves();
         emit RemoveLiquidity(msg.sender, shares, amount0, amount1);
     }
 
@@ -173,16 +191,16 @@ contract StableSwapAMM {
     function _getD(uint256 x, uint256 y) internal view returns (uint256 d) {
         uint256 s = x + y;
         if (s < 1) return 0;
+        if (x == 0 || y == 0) return 0;
 
         d = s; // Initial guess
         uint256 ann = amplificationCoefficient * 2; // amplificationCoefficient * n where n = 2
 
         for (uint256 i = 0; i < 255; i++) {
-            // D_p = D^2 / (2 * x) * D / (2 * y) = D^3 / (4 * x * y)
-            // Computed step by step to avoid overflow
-            uint256 dP = d;
-            dP = (dP * d) / (2 * x); // D^2 / (2x)
-            dP = (dP * d) / (2 * y); // D^3 / (4xy)
+            // D_p = D^3 / (4 * x * y)
+            // Computed step by step to keep intermediates smaller.
+            uint256 dP = Math.mulDiv(d, d, 2 * x); // D^2 / (2x)
+            dP = Math.mulDiv(dP, d, 2 * y); // D^3 / (4xy)
 
             uint256 dPrev = d;
 
@@ -214,11 +232,11 @@ contract StableSwapAMM {
     /// @return y The computed reserve for the other token
     function _getY(uint256 x, uint256 d) internal view returns (uint256 y) {
         uint256 ann = amplificationCoefficient * 2; // amplificationCoefficient * n, n = 2
+        require(x > 0, "Zero x");
 
-        // c = D^3 / (4 * x * ann)  — but compute step by step
-        // c = D * D / (2 * x) * D / (2 * ann)  ... to keep intermediate sizes manageable
-        uint256 c = (d * d) / (2 * x);
-        c = (c * d) / (2 * ann);
+        // c = D^3 / (4 * x * ann) — computed step by step to keep intermediates smaller
+        uint256 c = Math.mulDiv(d, d, 2 * x);
+        c = Math.mulDiv(c, d, 2 * ann);
 
         // b = x + D / ann - D
         // Note: b can be negative conceptually, so we handle carefully
@@ -251,6 +269,7 @@ contract StableSwapAMM {
         reserve0 = token0.balanceOf(address(this));
         reserve1 = token1.balanceOf(address(this));
     }
+
 }
 
 

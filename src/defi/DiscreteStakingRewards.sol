@@ -78,10 +78,11 @@ contract DiscreteStakingRewards {
         // Settle any pending rewards before changing the user's stake
         _updateRewards(msg.sender);
 
-        if (!IERC20Staking(stakingToken).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
-
+        // Effects before interactions (CEI).
         stakedBalance[msg.sender] += amount;
         totalStaked += amount;
+
+        if (!IERC20Staking(stakingToken).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
 
         emit Staked(msg.sender, amount);
     }

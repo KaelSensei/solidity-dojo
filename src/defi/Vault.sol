@@ -65,9 +65,11 @@ contract Vault {
             shares = (amount * (_totalShares + OFFSET)) / (_totalAssets + OFFSET);
         }
 
-        if (!token.transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
         totalShares += shares;
         sharesOf[msg.sender] += shares;
+
+        // Interactions last (CEI).
+        if (!token.transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
 
         emit Deposit(msg.sender, amount, shares);
     }
