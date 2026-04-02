@@ -91,6 +91,9 @@ contract StakingRewards {
     /// @notice Emitted when rewards are paid out
     event RewardPaid(address indexed user, uint256 reward);
 
+    /// @notice Emitted when rewards are notified and the distribution parameters are updated
+    event RewardNotified(uint256 reward, uint256 rewardRate, uint256 periodFinish);
+
     uint256 private _unlocked = 1;
     modifier nonReentrant() {
         require(_unlocked == 1, "Reentrancy");
@@ -126,6 +129,7 @@ contract StakingRewards {
 
     /// @notice Last time reward was applicable
     function lastTimeRewardApplicable() public view returns (uint256) {
+        // slither-disable-next-line timestamp
         return block.timestamp < periodFinish ? block.timestamp : periodFinish;
     }
 
@@ -225,9 +229,11 @@ contract StakingRewards {
         
         _updateReward(address(0));
         
+        // slither-disable-next-line timestamp
         if (block.timestamp >= periodFinish) {
             rewardRate = reward / rewardsDuration;
         } else {
+            // slither-disable-next-line timestamp
             uint256 remainingRewards = (periodFinish - block.timestamp) * rewardRate;
             rewardRate = (reward + remainingRewards) / rewardsDuration;
         }
@@ -236,8 +242,12 @@ contract StakingRewards {
         uint256 balance = rewardsToken.balanceOf(address(this));
         require(rewardRate <= balance / rewardsDuration, "Reward amount > balance");
         
+        // slither-disable-next-line timestamp
         periodFinish = block.timestamp + rewardsDuration;
+        // slither-disable-next-line timestamp
         lastUpdateTime = block.timestamp;
+
+        emit RewardNotified(reward, rewardRate, periodFinish);
     }
 
     /// @notice Exit the staking (withdraw + claim)

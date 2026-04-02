@@ -56,9 +56,8 @@ contract TokenLocker {
         if (amount == 0) revert ZeroAmount();
         if (token == address(0)) revert ZeroAddress();
         if (beneficiary == address(0)) revert ZeroAddress();
+        // slither-disable-next-line timestamp
         if (unlockTime <= block.timestamp) revert UnlockTimeInPast();
-
-        if (!IERC20Locker(token).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
 
         lockId = locks.length;
         locks.push(Lock({
@@ -69,6 +68,8 @@ contract TokenLocker {
             withdrawn: false
         }));
 
+        if (!IERC20Locker(token).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
+
         emit LockCreated(lockId, token, beneficiary, amount, unlockTime);
     }
 
@@ -78,6 +79,7 @@ contract TokenLocker {
         Lock storage lock = locks[lockId];
 
         if (msg.sender != lock.beneficiary) revert NotBeneficiary();
+        // slither-disable-next-line timestamp
         if (block.timestamp < lock.unlockTime) revert NotYetUnlocked();
         if (lock.withdrawn) revert AlreadyWithdrawn();
 

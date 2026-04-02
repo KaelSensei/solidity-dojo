@@ -64,12 +64,14 @@ contract ChainlinkPriceFeed {
             uint256 updatedAt,
             uint80 answeredInRound
         ) = priceFeed.latestRoundData();
+        (startedAt); // intentionally unused
         
         require(answer > 0, "Invalid price");
         require(updatedAt > 0, "Round not complete");
         require(answeredInRound >= roundId, "Stale data");
         
         // Check staleness
+        // slither-disable-next-line timestamp
         uint256 timeSinceUpdate = block.timestamp - updatedAt;
         require(timeSinceUpdate <= staleThreshold, "Price is stale");
         
@@ -94,6 +96,7 @@ contract ChainlinkPriceFeed {
             return (0, true);
         }
         
+        // slither-disable-next-line timestamp
         uint256 timeSinceUpdate = block.timestamp - updatedAt;
         isStale = timeSinceUpdate > staleThreshold;
         

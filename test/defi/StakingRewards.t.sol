@@ -65,6 +65,8 @@ contract StakingRewardsTest is Test {
     MockERC20Token public stakingToken;
     MockERC20Token public rewardsToken;
 
+    event RewardNotified(uint256 reward, uint256 rewardRate, uint256 periodFinish);
+
     address public owner = address(this);
     address public user1 = address(0x1);
     address public user2 = address(0x2);
@@ -90,6 +92,18 @@ contract StakingRewardsTest is Test {
         
         // Mint rewards to staking contract
         rewardsToken.mint(address(staking), 1000e18);
+    }
+
+    function test_NotifyRewardAmountEmitsEvent() public {
+        uint256 reward = 100e18;
+
+        uint256 expectedRate = reward / REWARDS_DURATION;
+        uint256 expectedFinish = block.timestamp + REWARDS_DURATION;
+
+        vm.expectEmit(false, false, false, true);
+        emit RewardNotified(reward, expectedRate, expectedFinish);
+
+        staking.notifyRewardAmount(reward);
     }
 
     /// @notice Test staking updates reward balance
@@ -354,7 +368,7 @@ contract StakingRewardsTest is Test {
     // ============ INVARIANT TESTS ============
 
     /// @notice Invariant: reward per token never decreases
-    function invariant_reward_per_token_increases() public {
+    function invariant_reward_per_token_increases() public view {
         // This is hard to test directly in invariant since rewardPerToken changes over time
         // Instead, verify basic properties
         assertTrue(staking.rewardRate() >= 0);

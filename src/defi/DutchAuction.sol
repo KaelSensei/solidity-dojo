@@ -81,10 +81,12 @@ contract DutchAuction {
 
     /// @notice Get current price based on time elapsed
     function currentPrice() public view returns (uint256) {
+        // slither-disable-next-line timestamp
         if (block.timestamp >= endsAt) {
             return minimumPrice;
         }
         
+        // slither-disable-next-line timestamp
         uint256 timePassed = block.timestamp - startsAt;
         uint256 maxDiscount = startingPrice - minimumPrice;
         // Avoid overflow: timePassed * discountRate
@@ -102,6 +104,7 @@ contract DutchAuction {
     /// @notice Purchase the NFT at current price
     function purchase() external payable {
         require(!ended, "Auction ended");
+        // slither-disable-next-line timestamp
         require(block.timestamp < endsAt, "Auction expired");
         
         uint256 price = currentPrice();
@@ -110,15 +113,15 @@ contract DutchAuction {
         // Mark as ended
         ended = true;
         buyer = msg.sender;
-        
-        // Transfer NFT to buyer
-        nft.safeTransferFrom(address(this), msg.sender, tokenId);
 
         // Pull-payment accounting (avoids direct ETH sends during purchase)
         pendingWithdrawals[seller] += price;
         if (msg.value > price) {
             pendingWithdrawals[msg.sender] += (msg.value - price);
         }
+        
+        // Transfer NFT to buyer
+        nft.safeTransferFrom(address(this), msg.sender, tokenId);
 
         emit AuctionEnded(msg.sender, price, block.timestamp);
     }

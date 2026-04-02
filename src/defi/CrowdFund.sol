@@ -68,15 +68,16 @@ contract CrowdFund {
 
     /// @notice Pledge tokens to the campaign
     function pledge(uint256 amount) external {
+        // slither-disable-next-line timestamp
         require(block.timestamp < deadline, "Campaign ended");
         require(amount > 0, "Cannot pledge 0");
-        
-        // Transfer tokens from pledger
-        if (!token.transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
-        
-        // Update state
+
+        // Effects before interactions (CEI)
         pledges[msg.sender] += amount;
         totalPledged += amount;
+
+        // Transfer tokens from pledger
+        if (!token.transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
         
         emit Pledged(msg.sender, amount);
     }
@@ -99,6 +100,7 @@ contract CrowdFund {
     /// @notice Claim funds if goal is met (only creator)
     function claim() external {
         require(msg.sender == creator, "Only creator");
+        // slither-disable-next-line timestamp
         require(block.timestamp >= deadline, "Campaign ongoing");
         require(!claimed, "Already claimed");
         require(totalPledged >= goal, "Goal not met");
@@ -113,6 +115,7 @@ contract CrowdFund {
 
     /// @notice Get refund if goal not met (only after deadline)
     function refund() external {
+        // slither-disable-next-line timestamp
         require(block.timestamp >= deadline, "Campaign ongoing");
         require(totalPledged < goal, "Goal met");
         
