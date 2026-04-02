@@ -91,6 +91,7 @@ contract UniswapV3Swap {
             tokenOut: tokenOut,
             fee: fee,
             recipient: msg.sender,
+            // slither-disable-next-line timestamp
             deadline: block.timestamp + 300, // 5 min deadline
             amountIn: amountIn,
             amountOutMinimum: amountOutMinimum,
@@ -123,6 +124,7 @@ contract UniswapV3Swap {
             tokenOut: tokenOut,
             fee: fee,
             recipient: msg.sender,
+            // slither-disable-next-line timestamp
             deadline: block.timestamp + 300,
             amountOut: amountOut,
             amountInMaximum: amountInMaximum,
@@ -157,6 +159,7 @@ contract UniswapV3Swap {
         ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
             path: path,
             recipient: msg.sender,
+            // slither-disable-next-line timestamp
             deadline: block.timestamp + 300,
             amountIn: amountIn,
             amountOutMinimum: amountOutMinimum

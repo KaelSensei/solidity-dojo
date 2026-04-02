@@ -79,6 +79,7 @@ contract EnglishAuction {
         require(!started, "Already started");
         
         started = true;
+        // slither-disable-next-line timestamp
         endAt = block.timestamp + duration;
         
         emit Started(block.timestamp, endAt);
@@ -87,6 +88,7 @@ contract EnglishAuction {
     /// @notice Place a bid
     function bid() external payable {
         require(started, "Not started");
+        // slither-disable-next-line timestamp
         require(block.timestamp < endAt, "Ended");
         uint256 minRequired = highestBidder == address(0)
             ? highestBid
@@ -120,16 +122,17 @@ contract EnglishAuction {
     function end() external {
         require(started, "Not started");
         require(!ended, "Already ended");
+        // slither-disable-next-line timestamp
         require(block.timestamp >= endAt, "Not yet ended");
         
         ended = true;
         
         if (highestBidder != address(0)) {
-            // Transfer NFT to winner
-            nft.safeTransferFrom(address(this), highestBidder, tokenId);
-
             // Pull-payment for seller proceeds (avoids direct ETH send in end())
             pendingWithdrawals[seller] += highestBid;
+
+            // Transfer NFT to winner
+            nft.safeTransferFrom(address(this), highestBidder, tokenId);
         } else {
             // No bids - return NFT to seller
             nft.safeTransferFrom(address(this), seller, tokenId);

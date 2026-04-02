@@ -75,6 +75,7 @@ contract PaymentChannel {
     /// @dev Only callable by the sender after the expiration timestamp.
     function timeout() external {
         if (msg.sender != sender) revert NotSender();
+        // slither-disable-next-line timestamp
         if (block.timestamp < expiration) revert ChannelNotExpired();
         if (closed) revert ChannelAlreadyClosed();
 

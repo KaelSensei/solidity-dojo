@@ -62,6 +62,7 @@ contract TimeLock {
         txId = getTxId(target, value, data, executeTime);
 
         if (queued[txId]) revert AlreadyQueued(txId);
+        // slither-disable-next-line timestamp
         if (executeTime < block.timestamp + MIN_DELAY || executeTime > block.timestamp + MAX_DELAY) {
             revert TimestampNotInRange(executeTime, block.timestamp + MIN_DELAY, block.timestamp + MAX_DELAY);
         }
@@ -81,7 +82,9 @@ contract TimeLock {
         bytes32 txId = getTxId(target, value, data, executeTime);
 
         if (!queued[txId]) revert NotQueued(txId);
+        // slither-disable-next-line timestamp
         if (block.timestamp < executeTime) revert TimestampNotPassed(executeTime, block.timestamp);
+        // slither-disable-next-line timestamp
         if (block.timestamp > executeTime + GRACE_PERIOD) revert TimestampExpired(executeTime, executeTime + GRACE_PERIOD);
 
         delete queued[txId];

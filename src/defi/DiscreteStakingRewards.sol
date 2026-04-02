@@ -135,10 +135,10 @@ contract DiscreteStakingRewards {
         if (amount == 0) revert ZeroAmount();
         if (totalStaked == 0) revert InsufficientBalance(); // No stakers to receive rewards
 
-        if (!IERC20Staking(rewardToken).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
-
         // Increase the global reward index: each staked token earns (amount / totalStaked)
         rewardIndex += (amount * 1e18) / totalStaked;
+
+        if (!IERC20Staking(rewardToken).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
 
         emit RewardNotified(amount, rewardIndex);
     }

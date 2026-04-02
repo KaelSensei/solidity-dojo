@@ -134,6 +134,7 @@ contract ERC20Permit {
         bytes32 s
     ) external {
         // Check deadline first
+        // slither-disable-next-line timestamp
         if (block.timestamp > deadline) {
             revert ExpiredDeadline(deadline, block.timestamp);
         }

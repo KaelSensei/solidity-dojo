@@ -80,6 +80,7 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
         uint256 deadline
     ) external returns (uint256 orderId) {
         // Check deadline
+        // slither-disable-next-line timestamp
         require(block.timestamp <= deadline, "Order expired");
 
         // Validate tick range
@@ -120,6 +121,7 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
         // Validate order exists and is active
         require(order.owner != address(0), "Order does not exist");
         require(!order.cancelled, "Order cancelled");
+        // slither-disable-next-line timestamp
         require(block.timestamp <= order.deadline, "Order expired");
 
         // Check how much is left to fill
