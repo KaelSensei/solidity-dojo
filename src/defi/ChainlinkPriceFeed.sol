@@ -80,13 +80,15 @@ contract ChainlinkPriceFeed {
     /// @return price Latest price
     /// @return isStale Whether price is stale
     function getPriceWithStaleCheck() external view returns (int256 price, bool isStale) {
+        // Explicitly capture return values so Slither doesn't flag ignored values.
         (
             uint80 roundId,
             int256 answer,
-            ,
+            uint256 startedAt,
             uint256 updatedAt,
             uint80 answeredInRound
         ) = priceFeed.latestRoundData();
+        (startedAt); // intentionally unused
         
         if (answer <= 0 || answeredInRound < roundId) {
             return (0, true);

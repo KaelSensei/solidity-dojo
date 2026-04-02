@@ -66,25 +66,19 @@ contract BitwiseOperators {
     /// @notice Set bit at position
     /// @return result Value with bit set
     function setBit(uint256 a, uint256 pos) external pure returns (uint256 result) {
-        assembly {
-            result := or(a, shl(pos, 1))
-        }
+        result = a | (uint256(1) << pos);
     }
 
     /// @notice Clear bit at position
     /// @return result Value with bit cleared
     function clearBit(uint256 a, uint256 pos) external pure returns (uint256 result) {
-        assembly {
-            result := and(a, not(shl(pos, 1)))
-        }
+        result = a & ~(uint256(1) << pos);
     }
 
     /// @notice Toggle bit at position
     /// @return result Value with bit toggled
     function toggleBit(uint256 a, uint256 pos) external pure returns (uint256 result) {
-        assembly {
-            result := xor(a, shl(pos, 1))
-        }
+        result = a ^ (uint256(1) << pos);
     }
 
     /// @notice Count trailing zeros
@@ -168,10 +162,7 @@ contract BitwiseOperators {
     /// @notice Bit mask
     /// @return result Mask
     function bitMask(uint256 pos, uint256 width) external pure returns (uint256 result) {
-        assembly {
-            result := sub(shl(width, 1), 1)
-            result := shl(pos, result)
-        }
+        result = ((uint256(1) << width) - 1) << pos;
     }
 }
 

@@ -54,6 +54,14 @@ contract StableSwapAMM {
     error ConvergenceFailed();
     error TransferFailed();
 
+    uint256 private _unlocked = 1;
+    modifier nonReentrant() {
+        require(_unlocked == 1, "Reentrancy");
+        _unlocked = 2;
+        _;
+        _unlocked = 1;
+    }
+
     constructor(address token0Addr, address token1Addr, uint256 ampCoeff) {
         token0 = IERC20StableSwap(token0Addr);
         token1 = IERC20StableSwap(token1Addr);
@@ -64,7 +72,7 @@ contract StableSwapAMM {
     /// @dev Computes D from current reserves, applies fee to input, then solves for new y.
     ///      amountOut = old_reserve_out - new_y.
     /// @return amountOut Amount of the other token received
-    function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
+    function swap(address tokenIn, uint256 amountIn) external nonReentrant returns (uint256 amountOut) {
         if (amountIn == 0) revert ZeroAmount();
         if (tokenIn != address(token0) && tokenIn != address(token1)) revert InvalidToken();
 
@@ -88,7 +96,7 @@ contract StableSwapAMM {
         uint256 newResOut = _getY(newResIn, d);
 
         amountOut = resOutAmt - newResOut;
-        if (amountOut == 0) revert InsufficientLiquidity();
+        if (amountOut < 1) revert InsufficientLiquidity();
 
         if (!tokenOutErc.transfer(msg.sender, amountOut)) revert TransferFailed();
 
@@ -98,7 +106,7 @@ contract StableSwapAMM {
 
     /// @notice Add liquidity to the pool
     /// @return shares LP shares minted
-    function addLiquidity(uint256 amount0, uint256 amount1) external returns (uint256 shares) {
+    function addLiquidity(uint256 amount0, uint256 amount1) external nonReentrant returns (uint256 shares) {
         if (amount0 == 0 && amount1 == 0) revert ZeroAmount();
 
         if (amount0 > 0) {
@@ -108,7 +116,7 @@ contract StableSwapAMM {
             if (!token1.transferFrom(msg.sender, address(this), amount1)) revert TransferFailed();
         }
 
-        if (totalSupply == 0) {
+        if (totalSupply < 1) {
             // First deposit: compute D as the initial share basis
             uint256 d = _getD(amount0, amount1);
             shares = d;
@@ -131,7 +139,7 @@ contract StableSwapAMM {
     /// @notice Remove liquidity from the pool
     /// @return amount0 Token0 returned
     /// @return amount1 Token1 returned
-    function removeLiquidity(uint256 shares) external returns (uint256 amount0, uint256 amount1) {
+    function removeLiquidity(uint256 shares) external nonReentrant returns (uint256 amount0, uint256 amount1) {
         if (shares == 0) revert ZeroAmount();
         if (balanceOf[msg.sender] < shares) revert InsufficientShares();
 
@@ -164,7 +172,7 @@ contract StableSwapAMM {
     /// @return d The invariant D
     function _getD(uint256 x, uint256 y) internal view returns (uint256 d) {
         uint256 s = x + y;
-        if (s == 0) return 0;
+        if (s < 1) return 0;
 
         d = s; // Initial guess
         uint256 ann = amplificationCoefficient * 2; // amplificationCoefficient * n where n = 2

@@ -37,6 +37,14 @@ contract Vault {
         token = IERC20Vault(_token);
     }
 
+    uint256 private _unlocked = 1;
+    modifier nonReentrant() {
+        require(_unlocked == 1, "Reentrancy");
+        _unlocked = 2;
+        _;
+        _unlocked = 1;
+    }
+
     /// @notice Total assets held by the vault
     function totalAssets() public view returns (uint256) {
         return token.balanceOf(address(this));
@@ -44,14 +52,14 @@ contract Vault {
 
     /// @notice Deposit assets and receive shares
     /// @return shares Number of shares minted
-    function deposit(uint256 amount) external returns (uint256 shares) {
+    function deposit(uint256 amount) external nonReentrant returns (uint256 shares) {
         if (amount == 0) revert ZeroAmount();
 
         // Virtual shares/assets with OFFSET prevent inflation attack
         uint256 _totalAssets = totalAssets();
         uint256 _totalShares = totalShares;
 
-        if (_totalShares == 0) {
+        if (_totalShares < 1) {
             shares = amount;
         } else {
             shares = (amount * (_totalShares + OFFSET)) / (_totalAssets + OFFSET);
@@ -66,7 +74,7 @@ contract Vault {
 
     /// @notice Withdraw assets by burning shares
     /// @return amount Amount of tokens returned
-    function withdraw(uint256 shares) external returns (uint256 amount) {
+    function withdraw(uint256 shares) external nonReentrant returns (uint256 amount) {
         if (shares == 0) revert ZeroAmount();
         uint256 userShares = sharesOf[msg.sender];
         if (userShares < shares) revert InsufficientShares(userShares, shares);
@@ -84,7 +92,7 @@ contract Vault {
     /// @notice Preview how many shares a deposit would yield
     function previewDeposit(uint256 amount) external view returns (uint256) {
         uint256 _totalShares = totalShares;
-        if (_totalShares == 0) return amount;
+        if (_totalShares < 1) return amount;
         return (amount * (_totalShares + OFFSET)) / (totalAssets() + OFFSET);
     }
 

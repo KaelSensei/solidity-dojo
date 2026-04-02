@@ -11,24 +11,21 @@ contract SendingEtherTest is Test {
     EtherReceiver public receiver;
 
     function setUp() public {
-        sender = new SendingEther();
         receiver = new EtherReceiver();
-        // Fund the sender contract
-        (bool success,) = address(sender).call{value: 10 ether}("");
-        require(success);
+        sender = new SendingEther(payable(address(receiver)));
     }
 
     /// @notice Test transfer works
     function test_SendViaTransfer() public {
         uint256 balanceBefore = address(receiver).balance;
-        sender.sendViaTransfer(payable(address(receiver)), 1 ether);
+        sender.sendViaTransfer{value: 1 ether}(1 ether);
         assertEq(address(receiver).balance, balanceBefore + 1 ether);
     }
 
     /// @notice Test send works
     function test_SendViaSend() public {
         uint256 balanceBefore = address(receiver).balance;
-        bool success = sender.sendViaSend(payable(address(receiver)), 1 ether);
+        bool success = sender.sendViaSend{value: 1 ether}(1 ether);
         assertTrue(success);
         assertEq(address(receiver).balance, balanceBefore + 1 ether);
     }
@@ -36,7 +33,7 @@ contract SendingEtherTest is Test {
     /// @notice Test call works
     function test_SendViaCall() public {
         uint256 balanceBefore = address(receiver).balance;
-        bool success = sender.sendViaCall(payable(address(receiver)), 1 ether);
+        bool success = sender.sendViaCall{value: 1 ether}(1 ether);
         assertTrue(success);
         assertEq(address(receiver).balance, balanceBefore + 1 ether);
     }
@@ -44,13 +41,18 @@ contract SendingEtherTest is Test {
     /// @notice Test safe send works
     function test_SendSafely() public {
         uint256 balanceBefore = address(receiver).balance;
-        sender.sendSafely(payable(address(receiver)), 1 ether);
+        sender.sendSafely{value: 1 ether}(1 ether);
         assertEq(address(receiver).balance, balanceBefore + 1 ether);
     }
 
-    function test_Revert_sendViaCall_zeroRecipient() public {
+    function test_Revert_constructor_zeroReceiver() public {
         vm.expectRevert("Zero address");
-        sender.sendViaCall(payable(address(0)), 1 ether);
+        new SendingEther(payable(address(0)));
+    }
+
+    function test_Revert_valueMismatch() public {
+        vm.expectRevert("Value mismatch");
+        sender.sendViaCall{value: 2 ether}(1 ether);
     }
 
     receive() external payable {}

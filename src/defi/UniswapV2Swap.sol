@@ -52,7 +52,8 @@ contract UniswapV2FlashSwap {
         require(amountBorrow > 0, "Amount must be greater than 0");
 
         // Determine which token to borrow
-        (uint112 reserve0, uint112 reserve1,) = pair.getReserves();
+        (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) = pair.getReserves();
+        (reserve0, reserve1, blockTimestampLast); // educational: reserves fetched for illustration
         address token0 = pair.token0();
 
         // Calculate amounts to send
@@ -107,7 +108,9 @@ contract UniswapV2FlashSwap {
     /// @return reserve0 Reserve of token0
     /// @return reserve1 Reserve of token1
     function getReserves() public view returns (uint112 reserve0, uint112 reserve1) {
-        (reserve0, reserve1,) = pair.getReserves();
+        uint32 blockTimestampLast;
+        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
+        (blockTimestampLast);
     }
 }
 

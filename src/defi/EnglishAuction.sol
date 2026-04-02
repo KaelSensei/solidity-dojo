@@ -42,8 +42,8 @@ contract EnglishAuction {
     /// @notice Whether auction has ended
     bool public ended;
 
-    /// @notice Mapping of pending returns (for outbid users)
-    mapping(address => uint256) public pendingReturns;
+    /// @notice Pull-payment balances (outbid refunds + seller proceeds)
+    mapping(address => uint256) public pendingWithdrawals;
 
     /// @notice Emitted when auction starts
     event Started(uint256 startTime, uint256 endAt);
@@ -52,27 +52,25 @@ contract EnglishAuction {
     event Bid(address indexed bidder, uint256 amount);
     
     /// @notice Emitted when auction is ended
-    event Ended(address winner, uint256 amount);
+    event Ended(address indexed winner, uint256 amount);
 
     constructor(
         address _nft,
         uint256 _tokenId,
-        address _seller,
         uint256 _startingBid,
-        uint256 _minBidIncrement,
-        uint256 _duration
+        uint256 _minBidIncrement
     ) {
         require(_nft != address(0), "Invalid NFT");
         require(_startingBid > 0, "Invalid starting bid");
         
         nft = IERC721(_nft);
         tokenId = _tokenId;
-        seller = _seller;
+        seller = msg.sender;
         highestBid = _startingBid;
         minBidIncrement = _minBidIncrement;
         
         // Transfer NFT to auction contract
-        nft.transferFrom(_seller, address(this), _tokenId);
+        nft.transferFrom(msg.sender, address(this), _tokenId);
     }
 
     /// @notice Start the auction
@@ -97,7 +95,7 @@ contract EnglishAuction {
         
         // Store previous bid for refund
         if (highestBidder != address(0)) {
-            pendingReturns[highestBidder] += highestBid;
+            pendingWithdrawals[highestBidder] += highestBid;
         }
         
         // Update highest bidder
@@ -109,12 +107,13 @@ contract EnglishAuction {
 
     /// @notice Withdraw pending returns
     function withdraw() external {
-        uint256 amount = pendingReturns[msg.sender];
+        uint256 amount = pendingWithdrawals[msg.sender];
         require(amount > 0, "Nothing to withdraw");
         
-        pendingReturns[msg.sender] = 0;
-        
-        payable(msg.sender).transfer(amount);
+        pendingWithdrawals[msg.sender] = 0;
+
+        (bool ok,) = payable(msg.sender).call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 
     /// @notice End the auction
@@ -128,9 +127,9 @@ contract EnglishAuction {
         if (highestBidder != address(0)) {
             // Transfer NFT to winner
             nft.safeTransferFrom(address(this), highestBidder, tokenId);
-            
-            // Transfer payment to seller
-            payable(seller).transfer(highestBid);
+
+            // Pull-payment for seller proceeds (avoids direct ETH send in end())
+            pendingWithdrawals[seller] += highestBid;
         } else {
             // No bids - return NFT to seller
             nft.safeTransferFrom(address(this), seller, tokenId);

@@ -51,6 +51,13 @@ contract Proxy {
             default { return(0, returndatasize()) }
         }
     }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
+    }
 }
 
 /// @title DelegatecallDemo
@@ -63,10 +70,9 @@ contract DelegatecallDemo {
     /// @notice Address of this contract
     address public selfAddress;
 
-    /// @notice Execute delegatecall to target
-    function executeDelegatecall(address target, uint256 newValue) external {
-        require(target != address(0), "Zero address");
-        (bool success,) = target.delegatecall(
+    /// @notice Execute delegatecall to self
+    function executeDelegatecall(uint256 newValue) external {
+        (bool success,) = address(this).delegatecall(
             abi.encodeWithSignature("setValue(uint256)", newValue)
         );
         require(success, "Delegatecall failed");

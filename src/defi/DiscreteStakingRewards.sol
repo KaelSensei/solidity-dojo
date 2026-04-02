@@ -58,13 +58,21 @@ contract DiscreteStakingRewards {
         rewardToken = _rewardToken;
     }
 
+    uint256 private _unlocked = 1;
+    modifier nonReentrant() {
+        require(_unlocked == 1, "Reentrancy");
+        _unlocked = 2;
+        _;
+        _unlocked = 1;
+    }
+
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
         _;
     }
 
     /// @notice Stake tokens to participate in reward distributions
-    function stake(uint256 amount) external {
+    function stake(uint256 amount) external nonReentrant {
         if (amount == 0) revert ZeroAmount();
 
         // Settle any pending rewards before changing the user's stake
@@ -80,7 +88,7 @@ contract DiscreteStakingRewards {
 
     /// @notice Withdraw staked tokens
     /// @dev Settles pending rewards first so they are not lost.
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount) external nonReentrant {
         if (amount == 0) revert ZeroAmount();
         if (stakedBalance[msg.sender] < amount) revert InsufficientBalance();
 
@@ -97,7 +105,7 @@ contract DiscreteStakingRewards {
 
     /// @notice Claim all accumulated rewards
     /// @return amount The amount of reward tokens transferred
-    function claim() external returns (uint256 amount) {
+    function claim() external nonReentrant returns (uint256 amount) {
         _updateRewards(msg.sender);
 
         amount = userRewards[msg.sender];
@@ -120,7 +128,7 @@ contract DiscreteStakingRewards {
     /// @notice Distribute rewards among current stakers
     /// @dev Transfers reward tokens from the caller and immediately bumps the reward index.
     ///      If no one is staked, the rewards would be lost — we revert to prevent that.
-    function notifyReward(uint256 amount) external onlyOwner {
+    function notifyReward(uint256 amount) external onlyOwner nonReentrant {
         if (amount == 0) revert ZeroAmount();
         if (totalStaked == 0) revert InsufficientBalance(); // No stakers to receive rewards
 

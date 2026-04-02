@@ -111,6 +111,11 @@ contract FunctionModifier {
         owner = newOwner;
     }
 
+    function withdrawEther(address payable to, uint256 amount) external onlyOwner validAddress(to) {
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
+    }
+
     /// @notice Get lock status
     function isLocked() external view returns (bool) {
         return locked;

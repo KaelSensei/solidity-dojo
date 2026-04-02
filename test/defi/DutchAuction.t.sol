@@ -64,15 +64,11 @@ contract DutchAuctionTest is Test {
         // Mint NFT to seller
         nft.mint(seller, TOKEN_ID);
         
-        // Seller approves NFT transfer
+        // Seller creates auction and transfers NFT in constructor
         vm.prank(seller);
-        nft.approve(address(this), TOKEN_ID);
-        
-        // Create auction
         auction = new DutchAuction(
             address(nft),
             TOKEN_ID,
-            seller,
             STARTING_PRICE,
             DISCOUNT_RATE,
             DURATION,
@@ -135,15 +131,16 @@ contract DutchAuctionTest is Test {
         
         vm.deal(buyer1, 100 ether);
         
-        uint256 balanceBefore = buyer1.balance;
-        
         vm.prank(buyer1);
         auction.purchase{value: price + excess}();
-        
-        uint256 balanceAfter = buyer1.balance;
-        
-        // Should have paid price + excess - refund
-        assertEq(balanceBefore - balanceAfter, price);
+
+        // Buyer refund is now pull-based
+        assertEq(auction.pendingWithdrawals(buyer1), excess);
+
+        uint256 balanceBefore = buyer1.balance;
+        vm.prank(buyer1);
+        auction.withdraw();
+        assertEq(buyer1.balance, balanceBefore + excess);
     }
 
     /// @notice Test insufficient payment reverts
@@ -220,7 +217,10 @@ contract DutchAuctionTest is Test {
         
         vm.prank(buyer1);
         auction.purchase{value: price}();
-        
+
+        assertEq(auction.pendingWithdrawals(seller), price);
+        vm.prank(seller);
+        auction.withdraw();
         assertEq(seller.balance, sellerBalanceBefore + price);
     }
 
@@ -253,13 +253,14 @@ contract DutchAuctionTest is Test {
         vm.assume(discountRate > 0 && discountRate < STARTING_PRICE / DURATION);
         
         vm.prank(seller);
-        nft.approve(address(this), TOKEN_ID + 1);
         nft.mint(seller, TOKEN_ID + 1);
+        // constructor pulls the NFT via transferFrom(msg.sender, ...)
+        // our mock doesn't enforce approvals, so no approve needed here.
         
+        vm.prank(seller);
         DutchAuction newAuction = new DutchAuction(
             address(nft),
             TOKEN_ID + 1,
-            seller,
             STARTING_PRICE,
             discountRate,
             DURATION,

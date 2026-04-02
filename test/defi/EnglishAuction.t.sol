@@ -59,18 +59,13 @@ contract EnglishAuctionTest is Test {
         // Mint NFT to seller
         nft.mint(seller, TOKEN_ID);
         
-        // Seller approves NFT transfer
+        // Seller creates auction and transfers NFT in constructor
         vm.prank(seller);
-        nft.approve(address(this), TOKEN_ID);
-        
-        // Create auction
         auction = new EnglishAuction(
             address(nft),
             TOKEN_ID,
-            seller,
             STARTING_BID,
-            MIN_INCREMENT,
-            DURATION
+            MIN_INCREMENT
         );
     }
 
@@ -125,7 +120,7 @@ contract EnglishAuctionTest is Test {
         auction.bid{value: STARTING_BID + MIN_INCREMENT}();
         
         // First bidder should have pending return
-        uint256 pending = auction.pendingReturns(bidder1);
+        uint256 pending = auction.pendingWithdrawals(bidder1);
         assertEq(pending, STARTING_BID);
         
         // First bidder can withdraw
@@ -184,7 +179,10 @@ contract EnglishAuctionTest is Test {
         
         vm.warp(block.timestamp + DURATION + 1);
         auction.end();
-        
+
+        assertEq(auction.pendingWithdrawals(seller), STARTING_BID);
+        vm.prank(seller);
+        auction.withdraw();
         assertEq(seller.balance, sellerBalanceBefore + STARTING_BID);
     }
 
@@ -298,7 +296,7 @@ contract EnglishAuctionTest is Test {
     function invariant_highest_bidder_has_highest_bid() public view {
         assertTrue(
             auction.highestBidder() == address(0) || 
-            auction.pendingReturns(auction.highestBidder()) == 0 ||
+            auction.pendingWithdrawals(auction.highestBidder()) == 0 ||
             auction.highestBid() > 0
         );
     }

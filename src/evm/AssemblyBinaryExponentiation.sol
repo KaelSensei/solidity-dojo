@@ -56,9 +56,8 @@ contract AssemblyBinaryExponentiation {
     /// @notice Power of 2: 2^n
     /// @return result 2^n
     function pow2(uint256 n) public pure returns (uint256 result) {
-        assembly {
-            result := shl(n, 1) // 2^n = 1 << n
-        }
+        require(n < 256, "Shift overflow");
+        result = uint256(1) << n;
     }
 
     /// @notice Power of 10: 10^n

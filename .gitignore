@@ -39,6 +39,12 @@ artifacts/
 broadcast/
 logs/
 
+# Slither outputs
+slither-*.json
+slither-*.sarif
+slither-out.json*
+slither-report.json
+
 # Foundry binaries (install via package manager instead)
 anvil
 cast

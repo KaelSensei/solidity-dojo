@@ -63,8 +63,8 @@ contract CustomError {
         emit Withdrawal(msg.sender, amount);
     }
 
-    /// @notice Transfer to another address using custom errors
-    function transfer(address to, uint256 amount) external {
+    /// @notice Transfer balance to another address using custom errors
+    function transferBalance(address to, uint256 amount) external {
         if (to == address(0)) revert ZeroAddress();
         if (amount == 0) revert ZeroAmount();
 

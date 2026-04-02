@@ -83,7 +83,7 @@ contract UniswapV3Swap {
         if (!IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
         
         // Approve router
-        IERC20(tokenIn).approve(address(router), amountIn);
+        if (!IERC20(tokenIn).approve(address(router), amountIn)) revert TransferFailed();
 
         // Execute swap
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
@@ -115,7 +115,7 @@ contract UniswapV3Swap {
         if (!IERC20(tokenIn).transferFrom(msg.sender, address(this), amountInMaximum)) revert TransferFailed();
         
         // Approve router
-        IERC20(tokenIn).approve(address(router), amountInMaximum);
+        if (!IERC20(tokenIn).approve(address(router), amountInMaximum)) revert TransferFailed();
 
         // Execute swap
         ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter.ExactOutputSingleParams({
@@ -151,7 +151,7 @@ contract UniswapV3Swap {
         if (!IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
         
         // Approve router
-        IERC20(tokenIn).approve(address(router), amountIn);
+        if (!IERC20(tokenIn).approve(address(router), amountIn)) revert TransferFailed();
 
         // Execute multi-hop swap
         ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
@@ -179,8 +179,13 @@ contract UniswapV3Swap {
     function calculateMinOutput(uint256 amountIn, uint24 fee, uint256 slippageBps) external pure returns (uint256 minimumOut) {
         // Simplified: assume 1:1 for testing (in real use, would calculate from reserves)
         uint256 feeFactor = 10000 - fee;
-        uint256 amountAfterFee = (amountIn * feeFactor) / 10000;
-        minimumOut = (amountAfterFee * (10000 - slippageBps)) / 10000;
+        uint256 slippageFactor = 10000 - slippageBps;
+
+        // Multiply first, then divide once at the end (basis points twice => 1e8).
+        // This avoids "divide-before-multiply" patterns that lose precision.
+        uint256 numerator = amountIn * feeFactor;
+        numerator = numerator * slippageFactor;
+        minimumOut = numerator / 100000000;
     }
 }
 

@@ -7,6 +7,7 @@ pragma solidity ^0.8.26;
 ///      The CREATE opcode takes (value, offset, size) and deploys whatever
 ///      bytecode is in memory, returning the new contract address (or 0 on failure).
 contract SimpleBytecodeContract {
+    address public immutable owner = msg.sender;
     /// @notice Emitted when a contract is successfully deployed
     event Deployed(address indexed addr, uint256 value);
 
@@ -45,6 +46,13 @@ contract SimpleBytecodeContract {
         if (addr == address(0)) revert DeploymentFailed();
 
         emit Deployed(addr, msg.value);
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 }
 

@@ -91,6 +91,14 @@ contract StakingRewards {
     /// @notice Emitted when rewards are paid out
     event RewardPaid(address indexed user, uint256 reward);
 
+    uint256 private _unlocked = 1;
+    modifier nonReentrant() {
+        require(_unlocked == 1, "Reentrancy");
+        _unlocked = 2;
+        _;
+        _unlocked = 1;
+    }
+
     constructor(
         address _stakingToken,
         address _rewardsToken,
@@ -165,7 +173,7 @@ contract StakingRewards {
     }
 
     /// @notice Internal stake function
-    function _stake(address _user, uint256 amount) internal {
+    function _stake(address _user, uint256 amount) internal nonReentrant {
         require(amount > 0, "Cannot stake 0");
         
         // Update reward accounting
@@ -182,7 +190,7 @@ contract StakingRewards {
     }
 
     /// @notice Withdraw staked tokens
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount) external nonReentrant {
         require(amount > 0, "Cannot withdraw 0");
         
         // Update reward accounting
@@ -199,7 +207,7 @@ contract StakingRewards {
     }
 
     /// @notice Claim earned rewards
-    function getReward() external {
+    function getReward() external nonReentrant {
         _updateReward(msg.sender);
         
         uint256 reward = rewards[msg.sender];
@@ -211,7 +219,7 @@ contract StakingRewards {
     }
 
     /// @notice Notify reward amount and start period
-    function notifyRewardAmount(uint256 reward) external {
+    function notifyRewardAmount(uint256 reward) external nonReentrant {
         require(msg.sender == owner, "Only owner");
         require(reward > 0, "No reward");
         
@@ -225,17 +233,15 @@ contract StakingRewards {
         }
         
         require(rewardRate > 0, "Reward rate = 0");
-        require(
-            rewardRate * rewardsDuration <= rewardsToken.balanceOf(address(this)),
-            "Reward amount > balance"
-        );
+        uint256 balance = rewardsToken.balanceOf(address(this));
+        require(rewardRate <= balance / rewardsDuration, "Reward amount > balance");
         
         periodFinish = block.timestamp + rewardsDuration;
         lastUpdateTime = block.timestamp;
     }
 
     /// @notice Exit the staking (withdraw + claim)
-    function exit() external {
+    function exit() external nonReentrant {
         uint256 amount = _balances[msg.sender];
         require(amount > 0, "Nothing to withdraw");
         

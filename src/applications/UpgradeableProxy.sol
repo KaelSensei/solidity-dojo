@@ -45,6 +45,13 @@ contract UpgradeableProxy {
         return _getAdmin();
     }
 
+    function withdrawEther(address payable to, uint256 amount) external {
+        if (msg.sender != _getAdmin()) revert NotAdmin();
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
+    }
+
     function _getImplementation() private view returns (address impl) {
         assembly { impl := sload(_IMPL_SLOT) }
     }

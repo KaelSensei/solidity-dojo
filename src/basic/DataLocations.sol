@@ -38,7 +38,7 @@ contract DataLocations {
     /// @notice Demonstrates calldata - read-only, gas efficient for external calls
     /// @return Sum of all elements
     function sumCalldata(uint256[] calldata data) external pure returns (uint256) {
-        uint256 sum;
+        uint256 sum = 0;
         for (uint256 i = 0; i < data.length; i++) {
             sum += data[i];
         }

@@ -5,10 +5,20 @@ pragma solidity ^0.8.26;
 /// @notice Demonstrates low-level call operations.
 /// @dev call is powerful but dangerous - check return values carefully.
 contract Call {
+    /// @notice Default target used for value-carrying calls
+    address public immutable valueTarget;
+    address public immutable owner;
+
     /// @notice Emitted on successful call
     event CallSuccess(address indexed target, bytes data, bytes result);
     /// @notice Emitted on failed call
     event CallFailed(address indexed target, bytes data);
+
+    constructor(address valueTarget_) {
+        require(valueTarget_ != address(0), "Zero address");
+        valueTarget = valueTarget_;
+        owner = msg.sender;
+    }
 
     /// @notice Call a function by selector
     function callBySelector(address target, bytes4 selector) external returns (bool, bytes memory) {
@@ -23,9 +33,9 @@ contract Call {
     }
 
     /// @notice Call with specific value
-    function callWithValue(address target, bytes calldata data, uint256 value) external payable returns (bool, bytes memory) {
-        require(target != address(0), "Zero address");
-        (bool success, bytes memory result) = target.call{value: value}(data);
+    function callWithValue(bytes calldata data, uint256 value) external payable returns (bool, bytes memory) {
+        require(msg.value == value, "Value mismatch");
+        (bool success, bytes memory result) = valueTarget.call{value: msg.value}(data);
         require(success, "Call failed");
         return (success, result);
     }
@@ -52,7 +62,20 @@ contract Call {
         return (successes, results);
     }
 
-    receive() external payable {}
+    // No receive/deposit: this contract should not retain ETH.
+    function sweepToValueTarget() external {
+        uint256 bal = address(this).balance;
+        if (bal < 1) return;
+        (bool ok,) = valueTarget.call{value: bal}("");
+        require(ok, "Sweep failed");
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
+    }
 }
 
 /// @title TargetContract
