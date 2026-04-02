@@ -34,6 +34,7 @@ contract UniswapV4FlashLoan {
 
     /// @notice Initialize with PoolManager address
     constructor(address _poolManager) {
+        require(_poolManager != address(0), "Zero address");
         poolManager = _poolManager;
     }
 
@@ -48,6 +49,7 @@ contract UniswapV4FlashLoan {
         uint256 amount,
         bytes calldata data
     ) external {
+        require(token != address(0), "Zero address");
         // Calculate the fee
         uint256 fee = (amount * FLASH_LOAN_FEE_BPS) / 10000;
         uint256 amountToRepay = amount + fee;
@@ -105,6 +107,7 @@ contract UniswapV4FlashLoan {
         address callbackTarget,
         bytes calldata callbackData
     ) external {
+        require(token != address(0), "Zero address");
         uint256 fee = (amount * FLASH_LOAN_FEE_BPS) / 10000;
         uint256 amountToRepay = amount + fee;
 

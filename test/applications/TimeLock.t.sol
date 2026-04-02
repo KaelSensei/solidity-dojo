@@ -52,6 +52,15 @@ contract TimeLockTest is Test {
         assertFalse(timelock.queued(txId));
     }
 
+    function test_ExecuteRevertsOnZeroTarget() public {
+        uint256 execTime = block.timestamp + 3 days;
+        bytes memory data = "";
+        timelock.queue(address(0), 0, data, execTime);
+        vm.warp(execTime);
+        vm.expectRevert(TimeLock.ZeroAddress.selector);
+        timelock.execute(address(0), 0, data, execTime);
+    }
+
     function test_Cancel() public {
         uint256 execTime = block.timestamp + 3 days;
         bytes memory data = _getSetValueData(42);

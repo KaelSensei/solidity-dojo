@@ -108,6 +108,11 @@ contract UniswapV4SwapTest is Test {
         tokenB.mint(address(swap), 1000000e18); // Pool has output tokens
     }
 
+    function test_ConstructorRevertsOnZeroPoolManager() public {
+        vm.expectRevert("Zero address");
+        new UniswapV4Swap(address(0));
+    }
+
     /// @notice Test exact input single swap works
     /// @dev V4 uses PoolManager for swaps, not a router like V3
     ///      Note: This is a mock - actual token transfers don't occur in the mock

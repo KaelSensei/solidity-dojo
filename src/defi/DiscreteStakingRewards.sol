@@ -51,8 +51,10 @@ contract DiscreteStakingRewards {
     error NotOwner();
     error NoRewards();
     error TransferFailed();
+    error ZeroAddress();
 
     constructor(address _stakingToken, address _rewardToken) {
+        if (_stakingToken == address(0) || _rewardToken == address(0)) revert ZeroAddress();
         owner = msg.sender;
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;

@@ -16,6 +16,11 @@ contract MinimalProxyTest is Test {
         factory = new MinimalProxyFactory();
     }
 
+    function test_ConstructorRevertsOnZeroImplementation() public {
+        vm.expectRevert("Zero address");
+        new MinimalProxy(address(0));
+    }
+
     /// @notice Test clone creates minimal proxy
     function test_CloneCreatesProxy() public {
         address proxy = minimalProxy.clone();

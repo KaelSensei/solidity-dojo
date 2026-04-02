@@ -39,6 +39,7 @@ contract UniswapV4Swap {
 
     /// @notice Initialize the contract with a PoolManager address
     constructor(address _poolManager) {
+        require(_poolManager != address(0), "Zero address");
         poolManager = _poolManager;
     }
 

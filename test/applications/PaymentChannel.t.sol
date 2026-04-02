@@ -133,4 +133,11 @@ contract PaymentChannelTest is Test {
 
         assertEq(receiverAddr.balance, CHANNEL_BALANCE, "Receiver should get full balance");
     }
+
+    function test_ConstructorRevertsOnZeroReceiver() public {
+        vm.deal(senderAddr, CHANNEL_BALANCE);
+        vm.prank(senderAddr);
+        vm.expectRevert(PaymentChannel.ZeroAddress.selector);
+        new PaymentChannel{value: CHANNEL_BALANCE}(address(0), DURATION);
+    }
 }

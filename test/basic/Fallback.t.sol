@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import {Test} from "forge-std/Test.sol";
-import {Fallback} from "../../src/basic/Fallback.sol";
+import {Fallback, Proxy} from "../../src/basic/Fallback.sol";
 
 /// @title FallbackTest
 /// @notice Tests for Fallback contract
@@ -38,4 +38,9 @@ contract FallbackTest is Test {
     }
 
     receive() external payable {}
+
+    function test_ProxyRevertsOnZeroImplementation() public {
+        vm.expectRevert("Zero address");
+        new Proxy(address(0));
+    }
 }

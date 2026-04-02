@@ -76,6 +76,18 @@ contract DiscreteStakingRewardsTest is Test {
         rToken.approve(address(staking), type(uint256).max);
     }
 
+    function test_ConstructorRevertsOnZeroStakingToken() public {
+        vm.prank(deployer);
+        vm.expectRevert(DiscreteStakingRewards.ZeroAddress.selector);
+        new DiscreteStakingRewards(address(0), address(rToken));
+    }
+
+    function test_ConstructorRevertsOnZeroRewardToken() public {
+        vm.prank(deployer);
+        vm.expectRevert(DiscreteStakingRewards.ZeroAddress.selector);
+        new DiscreteStakingRewards(address(sToken), address(0));
+    }
+
     // ============ STAKE ============
 
     function test_Stake() public {
