@@ -8,23 +8,20 @@ pragma solidity ^0.8.26;
 contract Immutable {
     /// @notice Immutable uint256 set in constructor
     /// @dev Stored in contract bytecode, not storage. Set once at deployment.
-    uint256 public immutable MY_UINT;
+    uint256 public immutable myUint;
 
     /// @notice Immutable address set in constructor
-    address public immutable MY_ADDRESS;
+    address public immutable myAddress;
 
     /// @notice Immutable bytes32 set in constructor
     /// @dev bytes32 is a value type and can be immutable (unlike string)
-    bytes32 public immutable MY_BYTES32;
+    bytes32 public immutable myBytes32;
 
     /// @notice Constructor sets immutable values
-    /// @param _myUint The value for MY_UINT
-    /// @param _myAddress The value for MY_ADDRESS
-    /// @param _myBytes32 The value for MY_BYTES32
-    constructor(uint256 _myUint, address _myAddress, bytes32 _myBytes32) {
-        MY_UINT = _myUint;
-        MY_ADDRESS = _myAddress;
-        MY_BYTES32 = _myBytes32;
+    constructor(uint256 initialUint, address initialAddress, bytes32 initialBytes32) {
+        myUint = initialUint;
+        myAddress = initialAddress;
+        myBytes32 = initialBytes32;
     }
 
     /// @notice Returns all immutable values
@@ -33,7 +30,7 @@ contract Immutable {
         view
         returns (uint256, address, bytes32)
     {
-        return (MY_UINT, MY_ADDRESS, MY_BYTES32);
+        return (myUint, myAddress, myBytes32);
     }
 }
 
@@ -42,9 +39,11 @@ contract Immutable {
 contract ImmutableWithDefault {
     /// @notice Immutable with default value, can be changed in constructor
     /// @dev If constructor doesn't set it, keeps default value
-    uint256 public immutable VALUE = 100;
+    uint256 public immutable value = 100;
 
     constructor() {
-        // VALUE remains 100 - not reassigned
+        // value remains 100 - not reassigned
     }
 }
+
+

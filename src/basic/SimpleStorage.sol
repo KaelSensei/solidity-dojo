@@ -11,10 +11,9 @@ contract SimpleStorage {
     uint256 public num;
 
     /// @notice Sets the stored number
-    /// @param _num The new value to store
     /// @dev This triggers an SSTORE operation which modifies blockchain state
-    function set(uint256 _num) external {
-        num = _num;
+    function set(uint256 newNum) external {
+        num = newNum;
     }
 
     /// @notice Gets the stored number
@@ -25,3 +24,5 @@ contract SimpleStorage {
         return num;
     }
 }
+
+

@@ -43,3 +43,4 @@ contract PrivateData {
         return balances[user];
     }
 }
+

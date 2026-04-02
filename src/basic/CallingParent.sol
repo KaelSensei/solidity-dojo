@@ -66,3 +66,4 @@ contract CallingParent is ParentA, ParentB {
         return super.foo();
     }
 }
+

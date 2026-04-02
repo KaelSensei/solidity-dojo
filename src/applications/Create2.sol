@@ -19,32 +19,27 @@ contract Create2 {
     error ZeroBytecode();
 
     /// @notice Compute the address of a contract to be deployed
-    /// @param _salt Salt value used in deployment
-    /// @param _bytecodeHash Hash of the contract bytecode
     /// @return Address where the contract will be deployed
     function computeAddress(
-        bytes32 _salt,
-        bytes32 _bytecodeHash
+        bytes32 salt,
+        bytes32 bytecodeHash
     ) public view returns (address) {
-        return computeAddress(_salt, _bytecodeHash, address(this));
+        return computeAddress(salt, bytecodeHash, address(this));
     }
 
     /// @notice Compute the address of a contract to be deployed with a specific deployer
-    /// @param _salt Salt value used in deployment
-    /// @param _bytecodeHash Hash of the contract bytecode
-    /// @param _deployer Address of the deployer
     /// @return Address where the contract will be deployed
     function computeAddress(
-        bytes32 _salt,
-        bytes32 _bytecodeHash,
-        address _deployer
+        bytes32 salt,
+        bytes32 bytecodeHash,
+        address deployer
     ) public pure returns (address) {
         bytes32 hash = keccak256(
             abi.encodePacked(
                 bytes1(0xff),
-                _deployer,
-                _salt,
-                _bytecodeHash
+                deployer,
+                salt,
+                bytecodeHash
             )
         );
 
@@ -52,40 +47,35 @@ contract Create2 {
     }
 
     /// @notice Deploy a contract using CREATE2
-    /// @param _bytecode Contract creation bytecode
-    /// @param _salt Salt value for deterministic address
     /// @return Address of the deployed contract
     function deploy(
-        bytes memory _bytecode,
-        bytes32 _salt
+        bytes memory bytecode,
+        bytes32 salt
     ) public payable returns (address) {
-        return deploy(_bytecode, _salt, msg.value);
+        return deploy(bytecode, salt, msg.value);
     }
 
     /// @notice Deploy a contract using CREATE2 with specific value
-    /// @param _bytecode Contract creation bytecode
-    /// @param _salt Salt value for deterministic address
-    /// @param _value Ether to send to the deployed contract
     /// @return Address of the deployed contract
     function deploy(
-        bytes memory _bytecode,
-        bytes32 _salt,
-        uint256 _value
+        bytes memory bytecode,
+        bytes32 salt,
+        uint256 value
     ) public payable returns (address) {
-        if (_bytecode.length == 0) revert ZeroBytecode();
+        if (bytecode.length == 0) revert ZeroBytecode();
 
-        bytes32 bytecodeHash = keccak256(_bytecode);
+        bytes32 bytecodeHash = keccak256(bytecode);
 
-        address deployedAddress = computeAddress(_salt, bytecodeHash, address(this));
+        address deployedAddress = computeAddress(salt, bytecodeHash, address(this));
 
         // Deploy the contract
         address addr;
         assembly {
             addr := create2(
-                _value,
-                add(_bytecode, 0x20),
-                mload(_bytecode),
-                _salt
+                value,
+                add(bytecode, 0x20),
+                mload(bytecode),
+                salt
             )
 
             if iszero(extcodesize(addr)) {
@@ -95,20 +85,18 @@ contract Create2 {
             }
         }
 
-        emit Deployed(addr, bytecodeHash, _salt);
+        emit Deployed(addr, bytecodeHash, salt);
 
         return addr;
     }
 
     /// @notice Deploy a contract with constructor arguments
-    /// @param _bytecode Contract creation bytecode (with constructor)
-    /// @param _salt Salt value for deterministic address
     /// @return Address of the deployed contract
     function deployWithConstructor(
-        bytes memory _bytecode,
-        bytes32 _salt
+        bytes memory bytecode,
+        bytes32 salt
     ) public payable returns (address) {
-        return deploy(_bytecode, _salt, msg.value);
+        return deploy(bytecode, salt, msg.value);
     }
 
     /// @notice Get the bytecode for a simple contract
@@ -134,30 +122,28 @@ contract Create2 {
     }
 
     /// @notice Deploy a simple contract with a value
-    /// @param _salt Salt value
-    /// @param _value Ether to send
     /// @return Deployed address
     function deploySimple(
-        bytes32 _salt,
-        uint256 _value
+        bytes32 salt,
+        uint256 value
     ) public payable returns (address) {
-        return deploy(getSimpleBytecode(), _salt, _value);
+        return deploy(getSimpleBytecode(), salt, value);
     }
 
     /// @notice Deploy multiple contracts with different salts
-    /// @param _bytecode Contract bytecode
-    /// @param _salts Array of salt values
     /// @return Array of deployed addresses
     function deployMultiple(
-        bytes memory _bytecode,
-        bytes32[] memory _salts
+        bytes memory bytecode,
+        bytes32[] memory salts
     ) public payable returns (address[] memory) {
-        address[] memory addresses = new address[](_salts.length);
+        address[] memory addresses = new address[](salts.length);
 
-        for (uint256 i = 0; i < _salts.length; i++) {
-            addresses[i] = deploy(_bytecode, _salts[i]);
+        for (uint256 i = 0; i < salts.length; i++) {
+            addresses[i] = deploy(bytecode, salts[i]);
         }
 
         return addresses;
     }
 }
+
+

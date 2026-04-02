@@ -41,7 +41,6 @@ contract UniswapV2FlashSwap {
     /// @notice Emitted when flash swap is executed
     event FlashSwapExecuted(uint256 amountBorrowed, uint256 amountRepaid, uint256 profit);
 
-    /// @param _pair Address of Uniswap V2 pair
     constructor(address _pair) {
         pair = IUniswapV2Pair(_pair);
         tokenBorrow = pair.token0();
@@ -49,8 +48,6 @@ contract UniswapV2FlashSwap {
     }
 
     /// @notice Execute flash swap
-    /// @param amountBorrow Amount of token to borrow
-    /// @param data Arbitrary data passed to the callback
     function flashSwap(uint amountBorrow, bytes calldata data) external {
         require(amountBorrow > 0, "Amount must be greater than 0");
 
@@ -73,9 +70,6 @@ contract UniswapV2FlashSwap {
     }
 
     /// @notice Calculate expected output amount for a given input
-    /// @param amountIn Input amount
-    /// @param reserveIn Reserve of input token
-    /// @param reserveOut Reserve of output token
     /// @return amountOut Expected output amount (with 0.3% fee)
     function getAmountOut(
         uint amountIn,
@@ -93,9 +87,6 @@ contract UniswapV2FlashSwap {
     }
 
     /// @notice Calculate input amount needed for desired output
-    /// @param amountOut Desired output amount
-    /// @param reserveIn Reserve of input token
-    /// @param reserveOut Reserve of output token
     /// @return amountIn Required input amount
     function getAmountIn(
         uint amountOut,
@@ -119,3 +110,4 @@ contract UniswapV2FlashSwap {
         (reserve0, reserve1,) = pair.getReserves();
     }
 }
+

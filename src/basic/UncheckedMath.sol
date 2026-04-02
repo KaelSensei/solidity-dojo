@@ -34,7 +34,6 @@ contract UncheckedMath {
     }
 
     /// @notice Sum 1..n using unchecked loop increment (gas-efficient)
-    /// @param n Upper bound (inclusive)
     /// @return sum The result
     function sumWithUncheckedLoop(uint256 n) external pure returns (uint256 sum) {
         for (uint256 i = 1; i <= n;) {
@@ -51,3 +50,4 @@ contract UncheckedMath {
         }
     }
 }
+

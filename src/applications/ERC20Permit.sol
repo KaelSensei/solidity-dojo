@@ -13,7 +13,8 @@ contract ERC20Permit {
     string public symbol;
     uint8 public immutable decimals;
     uint256 public totalSupply;
-    address public immutable owner;
+    /// @notice Address allowed to mint (deployer)
+    address public immutable mintAuthority;
 
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
@@ -26,7 +27,7 @@ contract ERC20Permit {
 
     /// @notice EIP-712 domain separator, computed at deployment
     /// @dev Includes name, version, chainid, and contract address for domain binding
-    bytes32 public immutable DOMAIN_SEPARATOR;
+    bytes32 public immutable domainSeparator;
 
     /// @notice EIP-2612 permit typehash
     /// @dev keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
@@ -49,17 +50,14 @@ contract ERC20Permit {
 
     // ─── Constructor ────────────────────────────────────────────────────
 
-    /// @param _name Token name (also used in EIP-712 domain)
-    /// @param _symbol Token symbol
-    /// @param _decimals Token decimals
     constructor(string memory _name, string memory _symbol, uint8 _decimals) {
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
-        owner = msg.sender;
+        mintAuthority = msg.sender;
 
         // EIP-712 domain separator binds signatures to this specific contract and chain
-        DOMAIN_SEPARATOR = keccak256(
+        domainSeparator = keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                 keccak256(bytes(_name)),
@@ -73,8 +71,6 @@ contract ERC20Permit {
     // ─── ERC20 Functions ────────────────────────────────────────────────
 
     /// @notice Transfer tokens to a recipient
-    /// @param to Recipient address
-    /// @param amount Amount to transfer
     function transfer(address to, uint256 amount) external returns (bool) {
         if (to == address(0)) revert ZeroAddress();
         uint256 senderBal = balanceOf[msg.sender];
@@ -88,8 +84,6 @@ contract ERC20Permit {
     }
 
     /// @notice Approve a spender
-    /// @param spender Address to authorize
-    /// @param amount Maximum amount they can spend
     function approve(address spender, uint256 amount) external returns (bool) {
         allowance[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
@@ -97,9 +91,6 @@ contract ERC20Permit {
     }
 
     /// @notice Transfer tokens on behalf of an owner (requires prior approval)
-    /// @param from Token owner
-    /// @param to Recipient
-    /// @param amount Amount to transfer
     function transferFrom(address from, address to, uint256 amount) external returns (bool) {
         if (to == address(0)) revert ZeroAddress();
 
@@ -119,10 +110,8 @@ contract ERC20Permit {
     }
 
     /// @notice Mint new tokens (owner only)
-    /// @param to Recipient of minted tokens
-    /// @param amount Amount to mint
     function mint(address to, uint256 amount) external {
-        if (msg.sender != owner) revert NotOwner();
+        if (msg.sender != mintAuthority) revert NotOwner();
         if (to == address(0)) revert ZeroAddress();
         totalSupply += amount;
         balanceOf[to] += amount;
@@ -132,18 +121,11 @@ contract ERC20Permit {
     // ─── EIP-2612 Permit ────────────────────────────────────────────────
 
     /// @notice Approve a spender via an off-chain signature (EIP-2612)
-    /// @dev The signature must be from `_owner` and include the current nonce.
+    /// @dev The signature must be from the `owner` argument and include the current nonce.
     ///      This enables gasless approvals: a relayer can submit the permit on
     ///      behalf of the token holder.
-    /// @param _owner The token holder who signed the permit
-    /// @param spender The address being approved to spend
-    /// @param value The approval amount
-    /// @param deadline Timestamp after which the signature expires
-    /// @param v Recovery byte of the signature
-    /// @param r First 32 bytes of the signature
-    /// @param s Second 32 bytes of the signature
     function permit(
-        address _owner,
+        address owner,
         address spender,
         uint256 value,
         uint256 deadline,
@@ -158,27 +140,29 @@ contract ERC20Permit {
 
         // Build the EIP-712 struct hash for the Permit type
         bytes32 structHash = keccak256(
-            abi.encode(PERMIT_TYPEHASH, _owner, spender, value, nonces[_owner], deadline)
+            abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner], deadline)
         );
 
         // Build the full EIP-712 digest: "\x19\x01" || domainSeparator || structHash
         bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash)
+            abi.encodePacked("\x19\x01", domainSeparator, structHash)
         );
 
         // Recover signer from the signature
         address recoveredSigner = ecrecover(digest, v, r, s);
 
         // ecrecover returns address(0) for invalid signatures
-        if (recoveredSigner == address(0) || recoveredSigner != _owner) {
+        if (recoveredSigner == address(0) || recoveredSigner != owner) {
             revert InvalidSignature();
         }
 
         // Increment nonce to prevent replay
-        nonces[_owner]++;
+        nonces[owner]++;
 
         // Set the allowance
-        allowance[_owner][spender] = value;
-        emit Approval(_owner, spender, value);
+        allowance[owner][spender] = value;
+        emit Approval(owner, spender, value);
     }
 }
+
+

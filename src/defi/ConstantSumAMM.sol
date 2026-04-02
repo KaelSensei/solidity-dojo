@@ -42,8 +42,6 @@ contract ConstantSumAMM {
     error InsufficientShares();
     error TransferFailed();
 
-    /// @param _token0 Address of the first token
-    /// @param _token1 Address of the second token
     constructor(address _token0, address _token1) {
         token0 = IERC20SumAMM(_token0);
         token1 = IERC20SumAMM(_token1);
@@ -53,8 +51,6 @@ contract ConstantSumAMM {
     /// @dev Because x+y=k, amountOut = amountIn (minus fee). No slippage regardless of size.
     ///      This makes the pool vulnerable: if token prices diverge, the entire reserve of
     ///      the undervalued token gets drained by arbitrageurs.
-    /// @param tokenIn Address of the token being sold
-    /// @param amountIn Amount of tokenIn to sell
     /// @return amountOut Amount of the other token received
     function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
         if (amountIn == 0) revert ZeroAmount();
@@ -83,8 +79,6 @@ contract ConstantSumAMM {
     /// @notice Add liquidity to the pool
     /// @dev First depositor sets the ratio. Subsequent depositors get shares proportional
     ///      to their deposit relative to the total reserves (sum-based, not geometric mean).
-    /// @param amount0 Amount of token0 to deposit
-    /// @param amount1 Amount of token1 to deposit
     /// @return shares LP shares minted
     function addLiquidity(uint256 amount0, uint256 amount1) external returns (uint256 shares) {
         if (amount0 == 0 && amount1 == 0) revert ZeroAmount();
@@ -115,7 +109,6 @@ contract ConstantSumAMM {
     }
 
     /// @notice Remove liquidity from the pool
-    /// @param shares LP shares to burn
     /// @return amount0 Token0 returned
     /// @return amount1 Token1 returned
     function removeLiquidity(uint256 shares) external returns (uint256 amount0, uint256 amount1) {
@@ -146,3 +139,4 @@ contract ConstantSumAMM {
         reserve1 = token1.balanceOf(address(this));
     }
 }
+

@@ -12,7 +12,6 @@ contract Shadowing {
     address public owner = address(0x123);
 
     /// @notice Demonstrates parameter shadowing state variable
-    /// @param value Shadows the state variable 'value'
     /// @return The parameter value (not the state variable)
     function shadowWithParameter(uint256 value) public view returns (uint256) {
         // 'value' here refers to the parameter, not the state variable
@@ -28,9 +27,8 @@ contract Shadowing {
     }
 
     /// @notice Proper way - no shadowing
-    /// @param _newValue New value to set (prefixed to avoid shadowing)
-    function properNaming(uint256 _newValue) public returns (uint256) {
-        value = _newValue; // Clearly refers to state variable
+    function properNaming(uint256 newValue) public returns (uint256) {
+        value = newValue; // Clearly refers to state variable
         return value; // Returns updated state variable
     }
 
@@ -53,3 +51,5 @@ contract Shadowing {
         }
     }
 }
+
+

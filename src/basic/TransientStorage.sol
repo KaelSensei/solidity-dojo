@@ -39,11 +39,10 @@ contract TransientStorage {
     }
 
     /// @notice Protected function that could be vulnerable to reentrancy
-    /// @param _amount Amount to process
-    function protectedOperation(uint256 _amount) external nonReentrant {
+    function protectedOperation(uint256 amount) external nonReentrant {
         // Simulate some work
         // In a real scenario, this might involve external calls
-        emit OperationCompleted(msg.sender, _amount);
+        emit OperationCompleted(msg.sender, amount);
     }
 
     /// @notice Returns current lock status
@@ -78,3 +77,5 @@ contract TransientStorage {
         storageGas = gasBefore - gasleft();
     }
 }
+
+

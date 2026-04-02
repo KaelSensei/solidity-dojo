@@ -68,3 +68,4 @@ contract DerivedVisibility is Visibility {
         return internalFunc(); // Can call internal
     }
 }
+

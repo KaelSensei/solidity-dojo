@@ -43,8 +43,6 @@ contract ChainlinkPriceFeed {
     /// @notice Emitted when stale threshold is updated
     event StaleThresholdUpdated(uint256 newThreshold);
 
-    /// @param _priceFeed Address of Chainlink price feed
-    /// @param _staleThreshold Threshold in seconds for staleness
     constructor(address _priceFeed, uint256 _staleThreshold) {
         require(_priceFeed != address(0), "Invalid price feed address");
         require(_staleThreshold > 0, "Threshold must be positive");
@@ -114,12 +112,11 @@ contract ChainlinkPriceFeed {
     }
 
     /// @notice Set staleness threshold (only owner)
-    /// @param _threshold New staleness threshold in seconds
-    function setStaleThreshold(uint256 _threshold) external {
+    function setStaleThreshold(uint256 threshold) external {
         require(msg.sender == owner, "Only owner");
-        require(_threshold > 0, "Threshold must be positive");
-        staleThreshold = _threshold;
-        emit StaleThresholdUpdated(_threshold);
+        require(threshold > 0, "Threshold must be positive");
+        staleThreshold = threshold;
+        emit StaleThresholdUpdated(threshold);
     }
 
     /// @notice Get price feed description
@@ -132,3 +129,5 @@ contract ChainlinkPriceFeed {
         return priceFeed.version();
     }
 }
+
+

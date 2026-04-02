@@ -16,19 +16,19 @@ contract ImmutableTest is Test {
         immutableDefault = new ImmutableWithDefault();
     }
 
-    /// @notice Unit test: MY_UINT matches constructor arg
+    /// @notice Unit test: myUint matches constructor arg
     function test_myUint_matchesConstructor() public view {
-        assertEq(immutableContract.MY_UINT(), 42);
+        assertEq(immutableContract.myUint(), 42);
     }
 
-    /// @notice Unit test: MY_ADDRESS matches constructor arg
+    /// @notice Unit test: myAddress matches constructor arg
     function test_myAddress_matchesConstructor() public view {
-        assertEq(immutableContract.MY_ADDRESS(), TEST_ADDR);
+        assertEq(immutableContract.myAddress(), TEST_ADDR);
     }
 
-    /// @notice Unit test: MY_BYTES32 matches constructor arg
+    /// @notice Unit test: myBytes32 matches constructor arg
     function test_myBytes32_matchesConstructor() public view {
-        assertEq(immutableContract.MY_BYTES32(), TEST_BYTES);
+        assertEq(immutableContract.myBytes32(), TEST_BYTES);
     }
 
     /// @notice Unit test: getValues returns all immutables
@@ -43,20 +43,20 @@ contract ImmutableTest is Test {
     function test_independentInstances() public {
         Immutable second = new Immutable(999, address(0x5678), keccak256("other"));
 
-        assertEq(immutableContract.MY_UINT(), 42);
-        assertEq(second.MY_UINT(), 999);
-        assertEq(immutableContract.MY_ADDRESS(), TEST_ADDR);
-        assertEq(second.MY_ADDRESS(), address(0x5678));
+        assertEq(immutableContract.myUint(), 42);
+        assertEq(second.myUint(), 999);
+        assertEq(immutableContract.myAddress(), TEST_ADDR);
+        assertEq(second.myAddress(), address(0x5678));
     }
 
     /// @notice Fuzz test: constructor accepts any uint256 value
     function testFuzz_constructor(uint256 val) public {
         Immutable fuzz = new Immutable(val, address(0x1), bytes32(0));
-        assertEq(fuzz.MY_UINT(), val);
+        assertEq(fuzz.myUint(), val);
     }
 
     /// @notice Unit test: default immutable value is preserved
     function test_defaultValue_preserved() public view {
-        assertEq(immutableDefault.VALUE(), 100);
+        assertEq(immutableDefault.value(), 100);
     }
 }

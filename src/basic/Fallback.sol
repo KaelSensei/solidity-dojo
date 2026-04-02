@@ -59,3 +59,4 @@ contract Proxy {
 
     receive() external payable {}
 }
+

@@ -54,7 +54,6 @@ contract StorageLayout {
     /// @dev Element slot = keccak256(abi.encode(arraySlot)) + index
     ///      The EVM hashes the array's slot number to find the base,
     ///      then adds the index offset
-    /// @param index The array index
     /// @return slot The storage slot of arr[index]
     function getArrayElementSlot(uint256 index) external pure returns (bytes32 slot) {
         assembly {
@@ -75,7 +74,6 @@ contract StorageLayout {
     /// @dev Slot = keccak256(abi.encode(key, mappingSlot))
     ///      The EVM concatenates the key (left-padded to 32 bytes)
     ///      with the mapping's slot number, then hashes the 64 bytes
-    /// @param key The mapping key (address)
     /// @return slot The storage slot of map[key]
     function getMappingSlot(address key) external pure returns (bytes32 slot) {
         assembly {
@@ -93,7 +91,6 @@ contract StorageLayout {
 
     /// @notice Read the raw 32-byte contents of any storage slot
     /// @dev Uses sload to perform a direct storage read
-    /// @param slot The storage slot number to read
     /// @return data The 32-byte value stored at that slot
     function readSlot(uint256 slot) external view returns (bytes32 data) {
         assembly {
@@ -104,28 +101,23 @@ contract StorageLayout {
 
     /// @notice Set packed values a, b and full-slot value c
     /// @dev a and b will pack into slot 0; c occupies slot 1
-    /// @param _a Value for uint128 a (lower half of slot 0)
-    /// @param _b Value for uint128 b (upper half of slot 0)
-    /// @param _c Value for uint256 c (slot 1)
-    function setValues(uint128 _a, uint128 _b, uint256 _c) external {
+    function setValues(uint128 newA, uint128 newB, uint256 newC) external {
         assembly {
             // Build the packed slot 0 value:
-            // b occupies the upper 128 bits, a occupies the lower 128 bits
-            // Shift _b left by 128 bits, then OR with _a
-            let packed := or(shl(128, _b), _a)
+            // newB occupies the upper 128 bits, newA occupies the lower 128 bits
+            let packed := or(shl(128, newB), newA)
 
             // Write the packed value to slot 0
             sstore(0, packed)
 
-            // Write _c to slot 1 (c.slot)
-            sstore(c.slot, _c)
+            // Slot 1 holds state variable c (see layout above)
+            sstore(1, newC)
         }
     }
 
     /// @notice Push a value to the dynamic array
     /// @dev Increments length at the array's slot, then writes the value
     ///      at keccak256(arraySlot) + (newLength - 1)
-    /// @param val The value to append
     function pushToArray(uint256 val) external {
         assembly {
             // Load current array length from its slot
@@ -146,8 +138,6 @@ contract StorageLayout {
 
     /// @notice Set a value in the mapping
     /// @dev Computes keccak256(abi.encode(key, mappingSlot)) and stores value there
-    /// @param key The address key
-    /// @param val The value to store
     function setMapping(address key, uint256 val) external {
         assembly {
             // Store key at scratch space 0x00
@@ -164,3 +154,5 @@ contract StorageLayout {
         }
     }
 }
+
+

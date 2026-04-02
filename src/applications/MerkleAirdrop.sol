@@ -40,8 +40,6 @@ contract MerkleAirdrop {
     // ─── Constructor ────────────────────────────────────────────────────
 
     /// @notice Initialize the airdrop with a Merkle root and token
-    /// @param _merkleRoot Root hash of the Merkle tree
-    /// @param _token Address of the ERC20 token to distribute
     constructor(bytes32 _merkleRoot, address _token) {
         if (_token == address(0)) revert ZeroAddress();
         merkleRoot = _merkleRoot;
@@ -54,9 +52,6 @@ contract MerkleAirdrop {
     /// @dev The leaf is computed as keccak256(abi.encodePacked(account, amount)).
     ///      The proof must demonstrate that this leaf is part of the Merkle tree
     ///      whose root is stored in `merkleRoot`.
-    /// @param account The address claiming tokens (must match the leaf)
-    /// @param amount The amount encoded in the Merkle tree for this account
-    /// @param proof Array of sibling hashes forming the Merkle proof
     function claim(
         address account,
         uint256 amount,
@@ -82,7 +77,6 @@ contract MerkleAirdrop {
     }
 
     /// @notice Check if an account has already claimed
-    /// @param account The address to check
     /// @return True if the account has claimed
     function isClaimed(address account) external view returns (bool) {
         return _claimed[account];
@@ -93,8 +87,6 @@ contract MerkleAirdrop {
     /// @dev Verify a Merkle proof by walking up the tree
     ///      At each level, the current hash is combined with the proof element.
     ///      The smaller hash always goes first to ensure consistent ordering.
-    /// @param leaf The leaf node hash
-    /// @param proof Array of sibling hashes
     /// @return True if the computed root matches the stored merkleRoot
     function _verifyProof(
         bytes32 leaf,
@@ -116,3 +108,4 @@ contract MerkleAirdrop {
         return computedHash == merkleRoot;
     }
 }
+

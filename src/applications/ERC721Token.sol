@@ -63,8 +63,6 @@ contract ERC721Token {
     }
 
     /// @notice Mint a new token
-    /// @param to Recipient address
-    /// @param tokenId Token ID to mint
     function mint(address to, uint256 tokenId) external {
         if (msg.sender != owner) revert NotOwner();
         if (to == address(0)) revert ZeroAddress();
@@ -76,7 +74,6 @@ contract ERC721Token {
     }
 
     /// @notice Burn a token
-    /// @param tokenId Token ID to burn
     function burn(uint256 tokenId) external {
         address tokenOwner = ownerOf[tokenId];
         if (!_exists(tokenId)) revert TokenDoesNotExist(tokenId);
@@ -89,8 +86,6 @@ contract ERC721Token {
     }
 
     /// @notice Approve an address to transfer a specific token
-    /// @param to Address to approve
-    /// @param tokenId Token ID
     function approve(address to, uint256 tokenId) external {
         address tokenOwner = ownerOf[tokenId];
         if (msg.sender != tokenOwner && !isApprovedForAll[tokenOwner][msg.sender]) {
@@ -101,17 +96,12 @@ contract ERC721Token {
     }
 
     /// @notice Set or revoke operator approval for all tokens
-    /// @param operator Address to set approval for
-    /// @param approved Whether to approve or revoke
     function setApprovalForAll(address operator, bool approved) external {
         isApprovedForAll[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
 
     /// @notice Transfer a token (caller must be owner or approved)
-    /// @param from Current owner
-    /// @param to Recipient
-    /// @param tokenId Token ID
     function transferFrom(address from, address to, uint256 tokenId) public {
         if (!_exists(tokenId)) revert TokenDoesNotExist(tokenId);
         if (ownerOf[tokenId] != from) revert NotOwnerOrApproved();
@@ -143,9 +133,9 @@ contract ERC721Token {
     }
 
     /// @notice ERC165 interface support
-    /// @param interfaceId Interface identifier
     function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
         return interfaceId == 0x80ac58cd || // ERC721
                interfaceId == 0x01ffc9a7;   // ERC165
     }
 }
+

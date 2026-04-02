@@ -37,9 +37,6 @@ contract ERC20Token {
     error ZeroAddress();
     error NotOwner();
 
-    /// @param _name Token name
-    /// @param _symbol Token symbol
-    /// @param _decimals Token decimals
     constructor(string memory _name, string memory _symbol, uint8 _decimals) {
         name = _name;
         symbol = _symbol;
@@ -48,8 +45,6 @@ contract ERC20Token {
     }
 
     /// @notice Transfer tokens to a recipient
-    /// @param to Recipient address
-    /// @param amount Amount to transfer
     function transfer(address to, uint256 amount) external returns (bool) {
         if (to == address(0)) revert ZeroAddress();
         uint256 senderBal = balanceOf[msg.sender];
@@ -61,8 +56,6 @@ contract ERC20Token {
     }
 
     /// @notice Approve a spender to transfer tokens on your behalf
-    /// @param spender Address authorized to spend
-    /// @param amount Maximum amount they can spend
     function approve(address spender, uint256 amount) external returns (bool) {
         allowance[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
@@ -70,9 +63,6 @@ contract ERC20Token {
     }
 
     /// @notice Transfer tokens on behalf of the owner (requires prior approval)
-    /// @param from Token owner
-    /// @param to Recipient
-    /// @param amount Amount to transfer
     function transferFrom(address from, address to, uint256 amount) external returns (bool) {
         if (to == address(0)) revert ZeroAddress();
 
@@ -92,8 +82,6 @@ contract ERC20Token {
     }
 
     /// @notice Mint new tokens (owner only)
-    /// @param to Recipient of minted tokens
-    /// @param amount Amount to mint
     function mint(address to, uint256 amount) external {
         if (msg.sender != owner) revert NotOwner();
         if (to == address(0)) revert ZeroAddress();
@@ -103,7 +91,6 @@ contract ERC20Token {
     }
 
     /// @notice Burn tokens from caller's balance
-    /// @param amount Amount to burn
     function burn(uint256 amount) external {
         uint256 callerBal = balanceOf[msg.sender];
         if (callerBal < amount) revert InsufficientBalance(callerBal, amount);
@@ -112,3 +99,4 @@ contract ERC20Token {
         emit Transfer(msg.sender, address(0), amount);
     }
 }
+

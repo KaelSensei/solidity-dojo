@@ -49,10 +49,9 @@ contract EnumExample {
     }
 
     /// @notice Sets status from uint8
-    /// @param _status Raw uint8 value
     /// @dev Only valid enum values (0-2) should be used
-    function setFromUint(uint8 _status) external {
-        status = Status(_status);
+    function setFromUint(uint8 statusUint) external {
+        status = Status(statusUint);
         emit StatusChanged(status);
     }
 
@@ -61,3 +60,5 @@ contract EnumExample {
         return uint8(status);
     }
 }
+
+

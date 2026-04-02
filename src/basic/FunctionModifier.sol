@@ -27,14 +27,12 @@ contract FunctionModifier {
     }
 
     /// @notice Validates address is not zero
-    /// @param _addr Address to validate
     modifier validAddress(address _addr) {
         require(_addr != address(0), "Invalid address");
         _;
     }
 
     /// @notice Ensures minimum amount is sent
-    /// @param _amount Required minimum
     modifier minAmount(uint256 _amount) {
         require(msg.value >= _amount, "Insufficient amount");
         _;
@@ -49,7 +47,6 @@ contract FunctionModifier {
     }
 
     /// @notice Demonstrates modifier with multiple checks
-    /// @param _min Minimum value required
     modifier complexCheck(uint256 _min) {
         require(msg.value >= _min, "Below minimum");
         require(msg.sender != address(0), "Invalid sender");
@@ -76,9 +73,8 @@ contract FunctionModifier {
     }
 
     /// @notice Function requiring valid address
-    /// @param _recipient Address to validate
-    function sendToAddress(address _recipient) external validAddress(_recipient) view returns (address) {
-        return _recipient;
+    function sendToAddress(address recipient) external validAddress(recipient) view returns (address) {
+        return recipient;
     }
 
     /// @notice Function requiring minimum payment
@@ -93,12 +89,11 @@ contract FunctionModifier {
     }
 
     /// @notice Function with multiple modifiers
-    /// @param _recipient Address to send to
-    function complexOperation(address _recipient) 
+    function complexOperation(address recipient) 
         external 
         payable 
         onlyOwner 
-        validAddress(_recipient) 
+        validAddress(recipient) 
         minAmount(MIN_AMOUNT) 
         noReentrancy 
         returns (uint256) 
@@ -112,9 +107,8 @@ contract FunctionModifier {
     }
 
     /// @notice Change owner (owner only)
-    /// @param _newOwner New owner address
-    function changeOwner(address _newOwner) external onlyOwner validAddress(_newOwner) {
-        owner = _newOwner;
+    function changeOwner(address newOwner) external onlyOwner validAddress(newOwner) {
+        owner = newOwner;
     }
 
     /// @notice Get lock status
@@ -122,3 +116,5 @@ contract FunctionModifier {
         return locked;
     }
 }
+
+

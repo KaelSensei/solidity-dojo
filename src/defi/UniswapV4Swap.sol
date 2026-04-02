@@ -25,12 +25,6 @@ contract UniswapV4Swap {
     uint24 public constant FEE_HIGH = 100;   // 100 bps = 1%
 
     /// @notice Emitted when a swap occurs
-    /// @param sender The address that initiated the swap
-    /// @param recipient The address receiving the swapped tokens
-    /// @param tokenIn The token being swapped in
-    /// @param tokenOut The token being swapped out
-    /// @param amountIn The amount of tokenIn swapped
-    /// @param amountOut The amount of tokenOut received
     event Swap(
         address indexed sender,
         address indexed recipient,
@@ -41,23 +35,14 @@ contract UniswapV4Swap {
     );
 
     /// @notice Emitted when flash loan is executed
-    /// @param borrower The address that executed the flash loan
-    /// @param token The token borrowed
-    /// @param amount The amount borrowed
     event FlashLoan(address indexed borrower, address token, uint256 amount);
 
     /// @notice Initialize the contract with a PoolManager address
-    /// @param _poolManager The address of the PoolManager
     constructor(address _poolManager) {
         poolManager = _poolManager;
     }
 
     /// @notice Swap exact amount of input tokens for output tokens (single hop)
-    /// @param tokenIn The token to swap from
-    /// @param tokenOut The token to swap to
-    /// @param amountIn The exact amount of input tokens
-    /// @param amountOutMinimum Minimum amount of output tokens acceptable
-    /// @param recipient Address receiving the output tokens
     /// @return amountOut Actual amount of output tokens received
     function swapExactInputSingle(
         address tokenIn,
@@ -89,10 +74,6 @@ contract UniswapV4Swap {
     }
 
     /// @notice Swap exact amount of input tokens for output tokens (multi-hop)
-    /// @param path Array of token addresses [tokenIn, tokenMid, tokenOut]
-    /// @param amountIn The exact amount of input tokens
-    /// @param amountOutMinimum Minimum amount of output tokens acceptable
-    /// @param recipient Address receiving the output tokens
     /// @return amountOut Actual amount of output tokens received
     function swapExactInputMultiHop(
         address[] calldata path,
@@ -122,11 +103,6 @@ contract UniswapV4Swap {
     }
 
     /// @notice Swap output tokens for exact amount of input tokens (exact output)
-    /// @param tokenIn The token to swap from
-    /// @param tokenOut The token to swap to
-    /// @param amountOut The exact amount of output tokens desired
-    /// @param amountInMaximum Maximum amount of input tokens to spend
-    /// @param recipient Address receiving the output tokens
     /// @return amountIn Actual amount of input tokens spent
     function swapExactOutputSingle(
         address tokenIn,
@@ -145,9 +121,6 @@ contract UniswapV4Swap {
     }
 
     /// @notice Execute a flash loan
-    /// @param token The token to borrow
-    /// @param amount The amount to borrow
-    /// @param data Additional data to pass to the callback
     function flashLoan(
         address token,
         uint256 amount,
@@ -165,9 +138,6 @@ contract UniswapV4Swap {
 
     /// @notice Get the quote for a swap without executing it
     /// @dev This is a mock implementation - in production, quotes come from the PoolManager
-    /// @param amountIn The amount of input tokens
-    /// @param tokenIn The input token
-    /// @param tokenOut The output token
     /// @return amountOut The expected output amount
     /// @return fee The fee that would be applied
     function quoteSwap(
@@ -180,3 +150,4 @@ contract UniswapV4Swap {
         amountOut = amountAfterFee;
     }
 }
+

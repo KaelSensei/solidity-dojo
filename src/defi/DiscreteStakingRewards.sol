@@ -52,8 +52,6 @@ contract DiscreteStakingRewards {
     error NoRewards();
     error TransferFailed();
 
-    /// @param _stakingToken Address of the token users stake
-    /// @param _rewardToken Address of the token distributed as rewards
     constructor(address _stakingToken, address _rewardToken) {
         owner = msg.sender;
         stakingToken = _stakingToken;
@@ -66,7 +64,6 @@ contract DiscreteStakingRewards {
     }
 
     /// @notice Stake tokens to participate in reward distributions
-    /// @param amount Number of tokens to stake
     function stake(uint256 amount) external {
         if (amount == 0) revert ZeroAmount();
 
@@ -83,7 +80,6 @@ contract DiscreteStakingRewards {
 
     /// @notice Withdraw staked tokens
     /// @dev Settles pending rewards first so they are not lost.
-    /// @param amount Number of tokens to withdraw
     function withdraw(uint256 amount) external {
         if (amount == 0) revert ZeroAmount();
         if (stakedBalance[msg.sender] < amount) revert InsufficientBalance();
@@ -115,7 +111,6 @@ contract DiscreteStakingRewards {
     }
 
     /// @notice View pending (unclaimed) rewards for an account
-    /// @param account The address to check
     /// @return The total claimable reward amount
     function earned(address account) external view returns (uint256) {
         uint256 pendingFromIndex = stakedBalance[account] * (rewardIndex - userRewardIndex[account]) / 1e18;
@@ -125,7 +120,6 @@ contract DiscreteStakingRewards {
     /// @notice Distribute rewards among current stakers
     /// @dev Transfers reward tokens from the caller and immediately bumps the reward index.
     ///      If no one is staked, the rewards would be lost — we revert to prevent that.
-    /// @param amount Number of reward tokens to distribute
     function notifyReward(uint256 amount) external onlyOwner {
         if (amount == 0) revert ZeroAmount();
         if (totalStaked == 0) revert InsufficientBalance(); // No stakers to receive rewards
@@ -140,7 +134,6 @@ contract DiscreteStakingRewards {
 
     /// @dev Settle pending rewards for a user based on the current reward index.
     ///      Must be called before any stake/withdraw to ensure accurate accounting.
-    /// @param account The user to update
     function _updateRewards(address account) private {
         if (account == address(0)) return;
 
@@ -152,3 +145,4 @@ contract DiscreteStakingRewards {
         userRewardIndex[account] = rewardIndex;
     }
 }
+

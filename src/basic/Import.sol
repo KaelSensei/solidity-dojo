@@ -11,8 +11,8 @@ contract Import {
     Events public eventsContract;
 
     /// @notice Set events contract address
-    function setEventsContract(address _addr) external {
-        eventsContract = Events(_addr);
+    function setEventsContract(address addr) external {
+        eventsContract = Events(addr);
     }
 
     /// @notice Use imported contract
@@ -20,3 +20,5 @@ contract Import {
         return address(eventsContract);
     }
 }
+
+

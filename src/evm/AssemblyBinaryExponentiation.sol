@@ -8,8 +8,6 @@ pragma solidity ^0.8.26;
 /// @title Binary Exponentiation
 contract AssemblyBinaryExponentiation {
     /// @notice Calculate a^b using binary exponentiation
-    /// @param base Base number
-    /// @param exponent Exponent
     /// @return result base^exponent
     function pow(uint256 base, uint256 exponent) public pure returns (uint256 result) {
         assembly {
@@ -25,8 +23,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Calculate a^b using binary exponentiation
-    /// @param a Base
-    /// @param e Exponent
     /// @return result a^e using O(log(e)) operations
     function power(uint256 a, uint256 e) public pure returns (uint256 result) {
         assembly {
@@ -42,7 +38,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Square using assembly
-    /// @param x Value to square
     /// @return result x^2
     function square(uint256 x) public pure returns (uint256 result) {
         assembly {
@@ -51,7 +46,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Cube using assembly  
-    /// @param x Value to cube
     /// @return result x^3
     function cube(uint256 x) public pure returns (uint256 result) {
         assembly {
@@ -60,7 +54,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Power of 2: 2^n
-    /// @param n Exponent
     /// @return result 2^n
     function pow2(uint256 n) public pure returns (uint256 result) {
         assembly {
@@ -69,7 +62,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Power of 10: 10^n
-    /// @param n Exponent
     /// @return result 10^n
     function pow10(uint256 n) public pure returns (uint256 result) {
         assembly {
@@ -81,7 +73,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Log2 - floor of log base 2
-    /// @param x Value
     /// @return result Floor of log2(x)
     function log2(uint256 x) public pure returns (uint256 result) {
         require(x > 0, "Log of zero");
@@ -94,7 +85,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Check if power of 2
-    /// @param x Value to check
     /// @return True if x is power of 2
     function isPowerOfTwo(uint256 x) public pure returns (bool) {
         if (x == 0) return false;
@@ -102,7 +92,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Next power of 2 >= x
-    /// @param x Value
     /// @return result Next power of 2
     function nextPowerOfTwo(uint256 x) public pure returns (uint256 result) {
         if (x == 0) return 1;
@@ -123,7 +112,6 @@ contract AssemblyBinaryExponentiation {
     }
 
     /// @notice Integer square root using Newton's method
-    /// @param x Value
     /// @return result Floor(sqrt(x))
     function sqrt(uint256 x) public pure returns (uint256 result) {
         if (x == 0) return 0;
@@ -138,3 +126,4 @@ contract AssemblyBinaryExponentiation {
         }
     }
 }
+

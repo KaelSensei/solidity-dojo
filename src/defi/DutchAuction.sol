@@ -51,13 +51,6 @@ contract DutchAuction {
     /// @notice Emitted when bid is placed
     event BidPlaced(address bidder, uint256 bid, uint256 price);
 
-    /// @param _nft NFT contract address
-    /// @param _tokenId Token ID to sell
-    /// @param _seller Seller address
-    /// @param _startingPrice Starting price in wei
-    /// @param _discountRate Price decrease per second in wei
-    /// @param _duration Auction duration in seconds
-    /// @param _minimumPrice Minimum/floor price
     constructor(
         address _nft,
         uint256 _tokenId,
@@ -160,3 +153,4 @@ contract DutchAuction {
         );
     }
 }
+

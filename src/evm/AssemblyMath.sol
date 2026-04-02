@@ -6,8 +6,6 @@ pragma solidity ^0.8.26;
 /// @dev Yul is an intermediate language that compiles to EVM bytecode.
 contract AssemblyMath {
     /// @notice Adds two numbers using assembly
-    /// @param x First number
-    /// @param y Second number
     /// @return result Sum of x and y
     function addAssembly(uint256 x, uint256 y) external pure returns (uint256 result) {
         assembly {
@@ -22,8 +20,6 @@ contract AssemblyMath {
     }
 
     /// @notice Multiplies two numbers using assembly
-    /// @param x First number
-    /// @param y Second number
     /// @return result Product of x and y
     function mulAssembly(uint256 x, uint256 y) external pure returns (uint256 result) {
         assembly {
@@ -37,8 +33,6 @@ contract AssemblyMath {
     }
 
     /// @notice Calculates power using binary exponentiation in assembly
-    /// @param base Base number
-    /// @param exponent Exponent
     /// @return result base^exponent
     function powAssembly(uint256 base, uint256 exponent) external pure returns (uint256 result) {
         assembly {
@@ -57,8 +51,6 @@ contract AssemblyMath {
     }
 
     /// @notice Compares two numbers using assembly
-    /// @param x First number
-    /// @param y Second number
     /// @return isEqual True if x == y
     function eqAssembly(uint256 x, uint256 y) external pure returns (bool isEqual) {
         assembly {
@@ -67,8 +59,6 @@ contract AssemblyMath {
     }
 
     /// @notice Returns the larger of two numbers using assembly
-    /// @param x First number
-    /// @param y Second number
     /// @return max The larger number
     function maxAssembly(uint256 x, uint256 y) external pure returns (uint256 max) {
         assembly {
@@ -80,7 +70,6 @@ contract AssemblyMath {
     }
 
     /// @notice Calculates sum of array using assembly loop
-    /// @param arr Array of numbers
     /// @return sum Sum of all elements
     function sumArrayAssembly(uint256[] calldata arr) external pure returns (uint256 sum) {
         assembly {
@@ -102,3 +91,4 @@ contract AssemblyMath {
         }
     }
 }
+

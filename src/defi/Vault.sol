@@ -43,7 +43,6 @@ contract Vault {
     }
 
     /// @notice Deposit assets and receive shares
-    /// @param amount Amount of tokens to deposit
     /// @return shares Number of shares minted
     function deposit(uint256 amount) external returns (uint256 shares) {
         if (amount == 0) revert ZeroAmount();
@@ -66,7 +65,6 @@ contract Vault {
     }
 
     /// @notice Withdraw assets by burning shares
-    /// @param shares Number of shares to burn
     /// @return amount Amount of tokens returned
     function withdraw(uint256 shares) external returns (uint256 amount) {
         if (shares == 0) revert ZeroAmount();
@@ -95,3 +93,4 @@ contract Vault {
         return (shares * (totalAssets() + OFFSET)) / (totalShares + OFFSET);
     }
 }
+

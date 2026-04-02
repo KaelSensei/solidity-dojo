@@ -6,6 +6,8 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 
 ## Completed
 
+- [x] **Naming / NatSpec cleanup (2026-04)**: After Slither-oriented renames, fixed shadowing bugs (`value = value`, `num = num`), aligned bodies with new parameter names, removed drift-prone `/// @param` lines under `src/` (excluding `src/hacks/`), added `scripts/strip_natspec_params.py`, and updated tests (`ERC20Permit`, `GasGolf`, `Immutable`). Full suite green via `forge test` in Docker.
+
 ### ✅ Phase 1: Project Setup
 - [x] Copy training documentation to repo
 - [x] Create feature branch: `feature/solidity-by-example-dojo`

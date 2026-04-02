@@ -10,8 +10,8 @@ contract Implementation {
     address public owner;
 
     /// @notice Set value in storage
-    function setValue(uint256 _value) external {
-        value = _value;
+    function setValue(uint256 newValue) external {
+        value = newValue;
     }
 
     /// @notice Get value from storage
@@ -63,17 +63,19 @@ contract DelegatecallDemo {
     address public selfAddress;
 
     /// @notice Execute delegatecall to target
-    function executeDelegatecall(address _target, uint256 _value) external {
-        (bool success,) = _target.delegatecall(
-            abi.encodeWithSignature("setValue(uint256)", _value)
+    function executeDelegatecall(address target, uint256 newValue) external {
+        (bool success,) = target.delegatecall(
+            abi.encodeWithSignature("setValue(uint256)", newValue)
         );
         require(success, "Delegatecall failed");
     }
 
     /// @notice Set values showing delegatecall context
-    function setValue(uint256 _value) external {
-        value = _value;
+    function setValue(uint256 newValue) external {
+        value = newValue;
         sender = msg.sender; // In delegatecall, this is the original caller
         selfAddress = address(this); // In delegatecall, this is the proxy address
     }
 }
+
+

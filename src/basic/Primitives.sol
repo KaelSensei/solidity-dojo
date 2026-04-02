@@ -49,3 +49,4 @@ contract Primitives {
         return type(uint256).max;
     }
 }
+

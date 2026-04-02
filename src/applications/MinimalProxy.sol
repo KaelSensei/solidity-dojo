@@ -17,7 +17,6 @@ contract MinimalProxy {
     address public implementation;
 
     /// @notice Constructor sets the implementation address
-    /// @param _implementation Address of the implementation contract
     constructor(address _implementation) {
         implementation = _implementation;
     }
@@ -30,9 +29,8 @@ contract MinimalProxy {
     }
 
     /// @notice Deploy a minimal proxy with initialization
-    /// @param _initData Initialization data to call on the proxy
     /// @return proxy Address of the deployed proxy
-    function cloneWithInitialization(bytes memory _initData)
+    function cloneWithInitialization(bytes memory initData)
         public
         returns (address proxy)
     {
@@ -41,8 +39,8 @@ contract MinimalProxy {
             bytes32(0)
         );
         
-        if (_initData.length > 0) {
-            (bool success, ) = proxy.call(_initData);
+        if (initData.length > 0) {
+            (bool success, ) = proxy.call(initData);
             require(success, "Initialization failed");
         }
 
@@ -50,7 +48,6 @@ contract MinimalProxy {
     }
 
     /// @notice Deploy multiple clones
-    /// @param count Number of clones to deploy
     /// @return proxies Array of deployed proxy addresses
     function cloneMany(uint256 count)
         public
@@ -74,24 +71,22 @@ contract MinimalProxy {
     }
 
     /// @notice Predict the address of a clone with a specific salt
-    /// @param _salt Salt for deterministic address
     /// @return Predicted address of the clone
-    function predictCloneAddress(bytes32 _salt) public view returns (address) {
+    function predictCloneAddress(bytes32 salt) public view returns (address) {
         return Clones.predictDeterministicAddress(
             implementation,
-            _salt,
+            salt,
             address(this)
         );
     }
 
     /// @notice Deploy a deterministic clone using a salt
-    /// @param _salt Salt for deterministic address
     /// @return proxy Address of the deployed proxy
-    function cloneDeterministic(bytes32 _salt)
+    function cloneDeterministic(bytes32 salt)
         public
         returns (address proxy)
     {
-        proxy = Clones.cloneDeterministic(implementation, _salt);
+        proxy = Clones.cloneDeterministic(implementation, salt);
         emit ProxyDeployed(proxy, implementation);
     }
 
@@ -115,43 +110,39 @@ contract MinimalProxyFactory {
     );
 
     /// @notice Deploy a minimal proxy of the given implementation
-    /// @param _implementation Implementation contract address
     /// @return proxy Address of the deployed proxy
-    function deploy(address _implementation)
+    function deploy(address implementation)
         public
         returns (address proxy)
     {
-        proxy = _implementation.clone();
-        emit ProxyDeployed(proxy, _implementation, bytes32(0));
+        proxy = implementation.clone();
+        emit ProxyDeployed(proxy, implementation, bytes32(0));
     }
 
     /// @notice Deploy a minimal proxy with a specific salt
-    /// @param _implementation Implementation contract address
-    /// @param _salt Salt for deterministic address
     /// @return proxy Address of the deployed proxy
     function deployDeterministic(
-        address _implementation,
-        bytes32 _salt
+        address implementation,
+        bytes32 salt
     ) public returns (address proxy) {
-        proxy = _implementation.cloneDeterministic(_salt);
-        emit ProxyDeployed(proxy, _implementation, _salt);
+        proxy = implementation.cloneDeterministic(salt);
+        emit ProxyDeployed(proxy, implementation, salt);
     }
 
     /// @notice Predict the address of a clone
-    /// @param _implementation Implementation contract address
-    /// @param _salt Salt for deterministic address
     /// @return Predicted address of the clone
     function predictAddress(
-        address _implementation,
-        bytes32 _salt
+        address implementation,
+        bytes32 salt
     ) public view returns (address) {
-        return _implementation.predictDeterministicAddress(_salt);
+        return implementation.predictDeterministicAddress(salt);
     }
 
     /// @notice Check if a proxy has been deployed at address
-    /// @param _proxy Proxy address to check
     /// @return True if proxy is deployed (has code)
-    function isDeployed(address _proxy) public view returns (bool) {
-        return _proxy.code.length > 0;
+    function isDeployed(address proxyAddr) public view returns (bool) {
+        return proxyAddr.code.length > 0;
     }
 }
+
+

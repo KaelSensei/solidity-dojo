@@ -18,23 +18,22 @@ contract Deployer {
     error ZeroBytecode();
 
     /// @notice Deploy a contract with creation bytecode
-    /// @param _bytecode Creation bytecode (constructor + contract bytecode)
     /// @return deployedAddress Address of the deployed contract
-    function deploy(bytes memory _bytecode)
+    function deploy(bytes memory bytecode)
         public
         payable
         returns (address deployedAddress)
     {
-        if (_bytecode.length == 0) revert ZeroBytecode();
+        if (bytecode.length == 0) revert ZeroBytecode();
 
-        bytes32 bytecodeHash = keccak256(abi.encode(_bytecode));
+        bytes32 bytecodeHash = keccak256(abi.encode(bytecode));
         uint256 value = msg.value;
 
         assembly {
             deployedAddress := create(
                 value,
-                add(_bytecode, 0x20),
-                mload(_bytecode)
+                add(bytecode, 0x20),
+                mload(bytecode)
             )
 
             if iszero(extcodesize(deployedAddress)) {
@@ -48,30 +47,26 @@ contract Deployer {
     }
 
     /// @notice Deploy a contract and run initialization
-    /// @param _bytecode Creation bytecode
-    /// @param _initCode Initialization code to run after deployment
     /// @return deployedAddress Address of the deployed contract
     function deployAndInit(
-        bytes memory _bytecode,
-        bytes memory _initCode
+        bytes memory bytecode,
+        bytes memory initCode
     ) public payable returns (address deployedAddress) {
-        deployedAddress = deploy(_bytecode);
+        deployedAddress = deploy(bytecode);
 
-        if (_initCode.length > 0) {
-            (bool success, ) = deployedAddress.call(_initCode);
+        if (initCode.length > 0) {
+            (bool success, ) = deployedAddress.call(initCode);
             require(success, "Initialization failed");
         }
     }
 
     /// @notice Compute address before deployment
-    /// @param _bytecode Creation bytecode
-    /// @param _salt Salt value (for CREATE2)
     /// @return Predicted address
     function computeAddress(
-        bytes memory _bytecode,
-        bytes32 _salt
+        bytes memory bytecode,
+        bytes32 salt
     ) public view returns (address) {
-        bytes32 bytecodeHash = keccak256(abi.encode(_bytecode));
+        bytes32 bytecodeHash = keccak256(abi.encode(bytecode));
 
         return address(
             uint160(
@@ -80,7 +75,7 @@ contract Deployer {
                         abi.encodePacked(
                             bytes1(0xff),
                             address(this),
-                            _salt,
+                            salt,
                             bytecodeHash
                         )
                     )
@@ -90,24 +85,22 @@ contract Deployer {
     }
 
     /// @notice Deploy using CREATE2
-    /// @param _bytecode Creation bytecode
-    /// @param _salt Salt for deterministic address
     /// @return deployedAddress Address of deployed contract
     function deploy2(
-        bytes memory _bytecode,
-        bytes32 _salt
+        bytes memory bytecode,
+        bytes32 salt
     ) public payable returns (address deployedAddress) {
-        if (_bytecode.length == 0) revert ZeroBytecode();
+        if (bytecode.length == 0) revert ZeroBytecode();
 
-        bytes32 bytecodeHash = keccak256(abi.encode(_bytecode));
+        bytes32 bytecodeHash = keccak256(abi.encode(bytecode));
         uint256 value = msg.value;
 
         assembly {
             deployedAddress := create2(
                 value,
-                add(_bytecode, 0x20),
-                mload(_bytecode),
-                _salt
+                add(bytecode, 0x20),
+                mload(bytecode),
+                salt
             )
 
             if iszero(extcodesize(deployedAddress)) {
@@ -129,3 +122,5 @@ contract SimpleStorage {
         value = _value;
     }
 }
+
+

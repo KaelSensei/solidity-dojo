@@ -114,8 +114,6 @@ contract MultiSigWallet {
     error AlreadyConfirmed(address owner);
 
     /// @notice Constructor - sets initial owners and threshold
-    /// @param _owners Array of initial owner addresses
-    /// @param _threshold Required number of confirmations
     constructor(address[] memory _owners, uint256 _threshold) {
         if (_threshold == 0) revert ZeroThreshold();
         if (_owners.length < _threshold) revert TooFewOwners(_owners.length);
@@ -141,67 +139,61 @@ contract MultiSigWallet {
     error ZeroAddress();
 
     /// @notice Submit a new transaction
-    /// @param _to Target contract address
-    /// @param _value Ether value to send
-    /// @param _data Transaction data
     /// @return txIndex Index of the new transaction
     function submitTransaction(
-        address _to,
-        uint256 _value,
-        bytes memory _data
+        address to,
+        uint256 value,
+        bytes memory data
     ) public onlyOwner returns (uint256 txIndex) {
         txIndex = txCount;
 
         transactions[txIndex] = Transaction({
-            to: _to,
-            value: _value,
-            data: _data,
+            to: to,
+            value: value,
+            data: data,
             executed: false,
             numConfirmations: 0
         });
 
         txCount++;
 
-        emit SubmitTransaction(msg.sender, txIndex, _to, _value, _data);
+        emit SubmitTransaction(msg.sender, txIndex, to, value, data);
     }
 
     /// @notice Confirm a transaction
-    /// @param _txIndex Transaction index to confirm
     function confirmTransaction(
-        uint256 _txIndex
-    ) public onlyOwner txExists(_txIndex) notExecuted(_txIndex) notConfirmed(_txIndex) {
-        Transaction storage transaction = transactions[_txIndex];
+        uint256 txIndex
+    ) public onlyOwner txExists(txIndex) notExecuted(txIndex) notConfirmed(txIndex) {
+        Transaction storage transaction = transactions[txIndex];
         transaction.numConfirmations++;
-        confirmations[_txIndex][msg.sender] = true;
+        confirmations[txIndex][msg.sender] = true;
 
-        emit ConfirmTransaction(msg.sender, _txIndex);
+        emit ConfirmTransaction(msg.sender, txIndex);
     }
 
     /// @notice Revoke confirmation for a transaction
-    /// @param _txIndex Transaction index to revoke
     function revokeConfirmation(
-        uint256 _txIndex
-    ) public onlyOwner txExists(_txIndex) notExecuted(_txIndex) {
-        if (!confirmations[_txIndex][msg.sender]) revert NotConfirmed(msg.sender);
+        uint256 txIndex
+    ) public onlyOwner txExists(txIndex) notExecuted(txIndex) {
+        if (!confirmations[txIndex][msg.sender]) revert NotConfirmed(msg.sender);
 
-        Transaction storage transaction = transactions[_txIndex];
+        Transaction storage transaction = transactions[txIndex];
         transaction.numConfirmations--;
-        confirmations[_txIndex][msg.sender] = false;
+        confirmations[txIndex][msg.sender] = false;
 
-        emit RevokeConfirmation(msg.sender, _txIndex);
+        emit RevokeConfirmation(msg.sender, txIndex);
     }
 
     /// @notice Thrown when transaction is not confirmed by sender
     error NotConfirmed(address owner);
 
     /// @notice Execute a confirmed transaction
-    /// @param _txIndex Transaction index to execute
     function executeTransaction(
-        uint256 _txIndex
-    ) public onlyOwner txExists(_txIndex) notExecuted(_txIndex) {
-        Transaction storage transaction = transactions[_txIndex];
+        uint256 txIndex
+    ) public onlyOwner txExists(txIndex) notExecuted(txIndex) {
+        Transaction storage transaction = transactions[txIndex];
 
-        if (transaction.numConfirmations < threshold) revert InsufficientConfirmations(_txIndex);
+        if (transaction.numConfirmations < threshold) revert InsufficientConfirmations(txIndex);
 
         transaction.executed = true;
 
@@ -209,9 +201,9 @@ contract MultiSigWallet {
             transaction.data
         );
 
-        if (!success) revert TxExecutionFailed(_txIndex);
+        if (!success) revert TxExecutionFailed(txIndex);
 
-        emit ExecuteTransaction(msg.sender, _txIndex);
+        emit ExecuteTransaction(msg.sender, txIndex);
     }
 
     /// @notice Thrown when there are insufficient confirmations
@@ -224,14 +216,13 @@ contract MultiSigWallet {
     }
 
     /// @notice Get transaction details
-    /// @param _txIndex Transaction index
     /// @return to Target address
     /// @return value Ether value
     /// @return data Transaction data
     /// @return executed Whether transaction is executed
     /// @return numConfirmations Number of confirmations
     function getTransaction(
-        uint256 _txIndex
+        uint256 txIndex
     )
         public
         view
@@ -243,7 +234,7 @@ contract MultiSigWallet {
             uint256 numConfirmations
         )
     {
-        Transaction storage transaction = transactions[_txIndex];
+        Transaction storage transaction = transactions[txIndex];
         return (
             transaction.to,
             transaction.value,
@@ -254,8 +245,6 @@ contract MultiSigWallet {
     }
 
     /// @notice Get confirmation status for a transaction
-    /// @param _txIndex Transaction index
-    /// @param _owner Owner address to check
     /// @return Whether the owner has confirmed
     function getConfirmation(
         uint256 _txIndex,
@@ -267,3 +256,5 @@ contract MultiSigWallet {
     /// @notice Receive ether
     receive() external payable {}
 }
+
+

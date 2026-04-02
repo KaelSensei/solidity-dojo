@@ -12,8 +12,6 @@ contract MultiCall {
     event MulticallExecuted(uint256 count);
 
     /// @notice Execute multiple calls in a single transaction
-    /// @param targets Array of target addresses
-    /// @param data Array of calldata for each call
     /// @return results Array of return data from each call
     function multicall(address[] calldata targets, bytes[] calldata data)
         external
@@ -34,8 +32,6 @@ contract MultiCall {
     }
 
     /// @notice Execute multiple view/pure calls using staticcall (read-only)
-    /// @param targets Array of target addresses
-    /// @param data Array of calldata for each call
     /// @return results Array of return data from each call
     function staticMulticall(address[] calldata targets, bytes[] calldata data)
         external
@@ -72,3 +68,4 @@ contract MultiCallTarget {
         return a + b;
     }
 }
+

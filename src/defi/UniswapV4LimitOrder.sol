@@ -41,11 +41,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     address public immutable poolManager;
 
     /// @notice Emitted when a limit order is created
-    /// @param orderId The ID of the new order
-    /// @param owner The order creator
-    /// @param tokenIn The token being sold
-    /// @param tokenOut The token being bought
-    /// @param amountIn The amount being sold
     event OrderCreated(
         uint256 indexed orderId,
         address indexed owner,
@@ -55,10 +50,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     );
 
     /// @notice Emitted when a limit order is filled (partially or fully)
-    /// @param orderId The ID of the order
-    /// @param filler The address that filled the order
-    /// @param amountInFilled How much was filled
-    /// @param amountOutReceived How much was received
     event OrderFilled(
         uint256 indexed orderId,
         address indexed filler,
@@ -67,12 +58,9 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     );
 
     /// @notice Emitted when a limit order is cancelled
-    /// @param orderId The ID of the cancelled order
-    /// @param owner The order creator
     event OrderCancelled(uint256 indexed orderId, address indexed owner);
 
     /// @notice Initialize with PoolManager address
-    /// @param _poolManager The Uniswap V4 PoolManager address
     constructor(address _poolManager) {
         poolManager = _poolManager;
     }
@@ -80,13 +68,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     /// @notice Create a limit order
     /// @dev In V4, limit orders are implemented as hook-based positions
     /// that become executable when the pool price crosses the tick
-    /// @param tokenIn The token to sell
-    /// @param tokenOut The token to buy
-    /// @param amountIn The amount to sell
-    /// @param amountOutMin Minimum output (slippage protection)
-    /// @param tickLower Lower tick boundary
-    /// @param tickUpper Upper tick boundary
-    /// @param deadline Order expiration
     /// @return orderId The ID of the created order
     function createOrder(
         address tokenIn,
@@ -131,8 +112,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     /// @notice Fill a limit order (simulate execution when price crosses tick)
     /// @dev In V4, this would be called by a hook when the pool price
     /// crosses the order's tick range. Uses nonReentrant for safety.
-    /// @param orderId The order to fill
-    /// @param amountIn Amount to fill (can be partial)
     /// @return amountOut The amount of tokenOut received
     function fillOrder(uint256 orderId, uint256 amountIn) external nonReentrant returns (uint256 amountOut) {
         Order storage order = orders[orderId];
@@ -179,7 +158,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     }
 
     /// @notice Cancel an order
-    /// @param orderId The order to cancel
     function cancelOrder(uint256 orderId) external {
         Order storage order = orders[orderId];
 
@@ -203,7 +181,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     }
 
     /// @notice Get order details
-    /// @param orderId The order ID
     /// @return _owner Order owner
     /// @return _tokenIn Input token
     /// @return _tokenOut Output token
@@ -242,7 +219,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     }
 
     /// @notice Get remaining amount for an order
-    /// @param orderId The order ID
     /// @return remaining The amount still to be filled
     function getRemainingAmount(uint256 orderId) external view returns (uint256 remaining) {
         Order storage order = orders[orderId];
@@ -251,7 +227,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     }
 
     /// @notice Check if an order is fully filled
-    /// @param orderId The order ID
     /// @return True if fully filled
     function isOrderFullyFilled(uint256 orderId) external view returns (bool) {
         Order storage order = orders[orderId];
@@ -259,10 +234,10 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
     }
 
     /// @notice Calculate output for a given input (quote)
-    /// @param amountIn Input amount
     /// @return amountOut Output amount
     function quote(uint256 amountIn) external pure returns (uint256 amountOut) {
         // Simplified 1:1 with 0.3% fee
         amountOut = (amountIn * 997) / 1000;
     }
 }
+

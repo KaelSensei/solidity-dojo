@@ -50,10 +50,6 @@ contract CrowdFund {
 
     error TransferFailed();
 
-    /// @param _token Token address for contributions
-    /// @param _creator Campaign creator
-    /// @param _goal Funding goal
-    /// @param _duration Campaign duration in seconds
     constructor(
         address _token,
         address _creator,
@@ -160,3 +156,4 @@ contract CrowdFund {
         return pledges[pledger];
     }
 }
+

@@ -25,7 +25,6 @@ contract Payable {
     }
 
     /// @notice PAYABLE: Function with parameter that can receive ether
-    /// @param _memo Memo for the deposit
     function depositWithMemo(string calldata _memo) external payable {
         totalReceived += msg.value;
         emit EtherReceived(msg.sender, msg.value);
@@ -60,13 +59,13 @@ contract Payable {
     }
 
     /// @notice Withdraw to specific address
-    /// @param _to Address to send to
-    /// @param _amount Amount to send
-    function withdrawTo(address payable _to, uint256 _amount) external {
+    function withdrawTo(address payable to, uint256 amount) external {
         require(msg.sender == owner, "Not owner");
-        require(_amount <= address(this).balance, "Insufficient balance");
-        (bool success,) = _to.call{value: _amount}("");
+        require(amount <= address(this).balance, "Insufficient balance");
+        (bool success,) = to.call{value: amount}("");
         require(success, "Transfer failed");
-        emit EtherSent(_to, _amount);
+        emit EtherSent(to, amount);
     }
 }
+
+

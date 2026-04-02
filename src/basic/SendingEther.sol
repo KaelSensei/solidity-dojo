@@ -9,40 +9,32 @@ contract SendingEther {
     event Sent(address indexed to, uint256 amount, string method);
 
     /// @notice Send via transfer (reverts on failure, 2300 gas)
-    /// @param _to Recipient address
-    /// @param _amount Amount to send
-    function sendViaTransfer(address payable _to, uint256 _amount) external {
-        _to.transfer(_amount);
-        emit Sent(_to, _amount, "transfer");
+    function sendViaTransfer(address payable to, uint256 amount) external {
+        to.transfer(amount);
+        emit Sent(to, amount, "transfer");
     }
 
     /// @notice Send via send (returns bool, 2300 gas)
-    /// @param _to Recipient address
-    /// @param _amount Amount to send
-    function sendViaSend(address payable _to, uint256 _amount) external returns (bool) {
-        bool success = _to.send(_amount);
+    function sendViaSend(address payable to, uint256 amount) external returns (bool) {
+        bool success = to.send(amount);
         require(success, "Send failed");
-        emit Sent(_to, _amount, "send");
+        emit Sent(to, amount, "send");
         return success;
     }
 
     /// @notice Send via call (forwards all gas, returns bool)
-    /// @param _to Recipient address
-    /// @param _amount Amount to send
-    function sendViaCall(address payable _to, uint256 _amount) external returns (bool) {
-        (bool success,) = _to.call{value: _amount}("");
+    function sendViaCall(address payable to, uint256 amount) external returns (bool) {
+        (bool success,) = to.call{value: amount}("");
         require(success, "Call failed");
-        emit Sent(_to, _amount, "call");
+        emit Sent(to, amount, "call");
         return success;
     }
 
     /// @notice Recommended way: call with reentrancy protection
-    /// @param _to Recipient address
-    /// @param _amount Amount to send
-    function sendSafely(address payable _to, uint256 _amount) external {
-        (bool success,) = _to.call{value: _amount}("");
+    function sendSafely(address payable to, uint256 amount) external {
+        (bool success,) = to.call{value: amount}("");
         require(success, "Safe send failed");
-        emit Sent(_to, _amount, "safe call");
+        emit Sent(to, amount, "safe call");
     }
 
     receive() external payable {}
@@ -58,3 +50,5 @@ contract EtherReceiver {
         emit Received(msg.sender, msg.value);
     }
 }
+
+
