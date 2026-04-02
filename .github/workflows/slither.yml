@@ -62,6 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      security-events: write
 
     steps:
       - name: Checkout repository
@@ -86,6 +87,13 @@ jobs:
           slither-args: --filter-paths "src/basic,src/applications,src/defi,src/evm"
           sarif: slither-hacks.sarif
           fail-on: none
+
+      - name: Upload hacks SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        if: always() && hashFiles('slither-hacks.sarif') != ''
+        with:
+          sarif_file: ${{ steps.slither-hacks.outputs.sarif }}
+          category: slither-hacks
 
       - name: Upload hacks SARIF as artifact
         uses: actions/upload-artifact@v4
