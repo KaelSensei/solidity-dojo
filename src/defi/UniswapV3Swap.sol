@@ -64,6 +64,8 @@ contract UniswapV3Swap {
     /// @notice Emitted when swap completes
     event SwapCompleted(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut);
 
+    error TransferFailed();
+
     /// @param _router Address of Uniswap V3 Router
     constructor(address _router) {
         router = ISwapRouter(_router);
@@ -84,7 +86,7 @@ contract UniswapV3Swap {
         uint256 amountOutMinimum
     ) external returns (uint256 amountOut) {
         // Transfer tokens from caller
-        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        if (!IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
         
         // Approve router
         IERC20(tokenIn).approve(address(router), amountIn);
@@ -121,7 +123,7 @@ contract UniswapV3Swap {
         uint256 amountInMaximum
     ) external returns (uint256 amountIn) {
         // Transfer max tokens from caller
-        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountInMaximum);
+        if (!IERC20(tokenIn).transferFrom(msg.sender, address(this), amountInMaximum)) revert TransferFailed();
         
         // Approve router
         IERC20(tokenIn).approve(address(router), amountInMaximum);
@@ -142,7 +144,7 @@ contract UniswapV3Swap {
 
         // Refund unused tokens
         if (amountInMaximum > amountIn) {
-            IERC20(tokenIn).transfer(msg.sender, amountInMaximum - amountIn);
+            if (!IERC20(tokenIn).transfer(msg.sender, amountInMaximum - amountIn)) revert TransferFailed();
         }
 
         emit SwapCompleted(tokenIn, tokenOut, amountIn, amountOut);
@@ -160,7 +162,7 @@ contract UniswapV3Swap {
     ) external returns (uint256 amountOut) {
         // Transfer tokens from caller
         address tokenIn = extractTokenInFromPath(path);
-        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        if (!IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
         
         // Approve router
         IERC20(tokenIn).approve(address(router), amountIn);

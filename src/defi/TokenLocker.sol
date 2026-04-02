@@ -41,6 +41,7 @@ contract TokenLocker {
     error NotBeneficiary();
     error NotYetUnlocked();
     error AlreadyWithdrawn();
+    error TransferFailed();
 
     /// @notice Create a new token lock
     /// @dev Transfers tokens from the caller into this contract and records the lock.
@@ -61,7 +62,7 @@ contract TokenLocker {
         if (beneficiary == address(0)) revert ZeroAddress();
         if (unlockTime <= block.timestamp) revert UnlockTimeInPast();
 
-        IERC20Locker(token).transferFrom(msg.sender, address(this), amount);
+        if (!IERC20Locker(token).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
 
         lockId = locks.length;
         locks.push(Lock({
@@ -87,7 +88,7 @@ contract TokenLocker {
 
         lock.withdrawn = true;
 
-        IERC20Locker(lock.token).transfer(msg.sender, lock.amount);
+        if (!IERC20Locker(lock.token).transfer(msg.sender, lock.amount)) revert TransferFailed();
 
         emit Withdrawn(lockId, msg.sender, lock.amount);
     }

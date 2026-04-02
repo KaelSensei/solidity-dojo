@@ -48,6 +48,8 @@ contract CrowdFund {
     /// @notice Emitted when goal not met and pledges are refunded
     event Refunded(address pledger, uint256 amount);
 
+    error TransferFailed();
+
     /// @param _token Token address for contributions
     /// @param _creator Campaign creator
     /// @param _goal Funding goal
@@ -74,7 +76,7 @@ contract CrowdFund {
         require(amount > 0, "Cannot pledge 0");
         
         // Transfer tokens from pledger
-        token.transferFrom(msg.sender, address(this), amount);
+        if (!token.transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
         
         // Update state
         pledges[msg.sender] += amount;
@@ -93,7 +95,7 @@ contract CrowdFund {
         totalPledged -= amount;
         
         // Transfer tokens back to pledger
-        token.transfer(msg.sender, amount);
+        if (!token.transfer(msg.sender, amount)) revert TransferFailed();
         
         emit Unpledged(msg.sender, amount);
     }
@@ -108,7 +110,7 @@ contract CrowdFund {
         claimed = true;
         
         // Transfer all pledged tokens to creator
-        token.transfer(creator, totalPledged);
+        if (!token.transfer(creator, totalPledged)) revert TransferFailed();
         
         emit Claimed(creator, totalPledged);
     }
@@ -126,7 +128,7 @@ contract CrowdFund {
         totalPledged -= amount;
         
         // Transfer tokens back
-        token.transfer(msg.sender, amount);
+        if (!token.transfer(msg.sender, amount)) revert TransferFailed();
         
         emit Refunded(msg.sender, amount);
     }

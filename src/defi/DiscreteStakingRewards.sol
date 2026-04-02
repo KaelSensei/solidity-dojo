@@ -50,6 +50,7 @@ contract DiscreteStakingRewards {
     error InsufficientBalance();
     error NotOwner();
     error NoRewards();
+    error TransferFailed();
 
     /// @param _stakingToken Address of the token users stake
     /// @param _rewardToken Address of the token distributed as rewards
@@ -72,7 +73,7 @@ contract DiscreteStakingRewards {
         // Settle any pending rewards before changing the user's stake
         _updateRewards(msg.sender);
 
-        IERC20Staking(stakingToken).transferFrom(msg.sender, address(this), amount);
+        if (!IERC20Staking(stakingToken).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
 
         stakedBalance[msg.sender] += amount;
         totalStaked += amount;
@@ -93,7 +94,7 @@ contract DiscreteStakingRewards {
         stakedBalance[msg.sender] -= amount;
         totalStaked -= amount;
 
-        IERC20Staking(stakingToken).transfer(msg.sender, amount);
+        if (!IERC20Staking(stakingToken).transfer(msg.sender, amount)) revert TransferFailed();
 
         emit Withdrawn(msg.sender, amount);
     }
@@ -108,7 +109,7 @@ contract DiscreteStakingRewards {
 
         userRewards[msg.sender] = 0;
 
-        IERC20Staking(rewardToken).transfer(msg.sender, amount);
+        if (!IERC20Staking(rewardToken).transfer(msg.sender, amount)) revert TransferFailed();
 
         emit RewardClaimed(msg.sender, amount);
     }
@@ -129,7 +130,7 @@ contract DiscreteStakingRewards {
         if (amount == 0) revert ZeroAmount();
         if (totalStaked == 0) revert InsufficientBalance(); // No stakers to receive rewards
 
-        IERC20Staking(rewardToken).transferFrom(msg.sender, address(this), amount);
+        if (!IERC20Staking(rewardToken).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
 
         // Increase the global reward index: each staked token earns (amount / totalStaked)
         rewardIndex += (amount * 1e18) / totalStaked;

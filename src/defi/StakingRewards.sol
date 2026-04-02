@@ -33,7 +33,7 @@ library SafeERC20 {
     }
 
     function _callOptionalReturn(IERC20Minimal token, bytes memory data) private {
-        (bool success, bytes memory result) = address(token).call(data);
+        (bool success, ) = address(token).call(data);
         require(success, "SafeERC20: call failed");
     }
 }
@@ -162,7 +162,7 @@ contract StakingRewards {
     }
 
     /// @notice Stake with permit
-    function stakeWithPermit(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+    function stakeWithPermit(uint256 amount, uint256, uint8, bytes32, bytes32) external {
         // Note: In production, implement permit signature
         _stake(msg.sender, amount);
     }
@@ -175,7 +175,7 @@ contract StakingRewards {
         _updateReward(_user);
         
         // Transfer tokens from user
-        stakingToken.transferFrom(_user, address(this), amount);
+        stakingToken.safeTransferFrom(_user, address(this), amount);
         
         // Update state
         _balances[_user] += amount;
@@ -196,7 +196,7 @@ contract StakingRewards {
         _totalSupply -= amount;
         
         // Transfer tokens to user
-        stakingToken.transfer(msg.sender, amount);
+        stakingToken.safeTransfer(msg.sender, amount);
         
         emit Withdrawn(msg.sender, amount);
     }
@@ -208,7 +208,7 @@ contract StakingRewards {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
-            rewardsToken.transfer(msg.sender, reward);
+            rewardsToken.safeTransfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }
     }
@@ -247,12 +247,12 @@ contract StakingRewards {
         _balances[msg.sender] = 0;
         _totalSupply = 0;
         
-        stakingToken.transfer(msg.sender, amount);
+        stakingToken.safeTransfer(msg.sender, amount);
         
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
-            rewardsToken.transfer(msg.sender, reward);
+            rewardsToken.safeTransfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }
         

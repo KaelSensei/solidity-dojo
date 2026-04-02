@@ -31,6 +31,7 @@ contract Vault {
 
     error ZeroAmount();
     error InsufficientShares(uint256 available, uint256 requested);
+    error TransferFailed();
 
     constructor(address _token) {
         token = IERC20Vault(_token);
@@ -57,7 +58,7 @@ contract Vault {
             shares = (amount * (_totalShares + OFFSET)) / (_totalAssets + OFFSET);
         }
 
-        token.transferFrom(msg.sender, address(this), amount);
+        if (!token.transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
         totalShares += shares;
         sharesOf[msg.sender] += shares;
 
@@ -78,7 +79,7 @@ contract Vault {
         sharesOf[msg.sender] = userShares - shares;
         totalShares = _totalShares - shares;
 
-        token.transfer(msg.sender, amount);
+        if (!token.transfer(msg.sender, amount)) revert TransferFailed();
         emit Withdraw(msg.sender, shares, amount);
     }
 

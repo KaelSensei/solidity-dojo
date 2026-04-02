@@ -46,6 +46,7 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] Invariant tests: 64 runs, 2048 calls
 - [x] All contracts have NatSpec documentation
 - [x] Slither findings: enforce ERC20 `transfer` / `transferFrom` return checks in AMM examples
+- [x] Slither findings: enforce ERC20 `transfer` / `transferFrom` return checks in DeFi examples (vault, lockers, staking, crowdfunding, swaps)
 
 ### ✅ Phase 5: Remaining Basic Topics (29/29 COMPLETE)
 - [x] DataLocations - storage, memory, calldata
