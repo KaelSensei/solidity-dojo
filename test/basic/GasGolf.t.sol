@@ -21,7 +21,7 @@ contract GasGolfTest is Test {
         nums[4] = 99;
         nums[5] = 98;
 
-        uint256 unoptimized = golf.sumIfEvenAndLessThan99_UNOPTIMIZED(nums);
+        uint256 unoptimized = golf.sumIfEvenAndLessThan99Unoptimized(nums);
         uint256 optimized = golf.sumIfEvenAndLessThan99(nums);
         assertEq(unoptimized, optimized);
         assertEq(optimized, 2 + 4 + 98);
@@ -35,7 +35,7 @@ contract GasGolfTest is Test {
         }
 
         uint256 gasBefore = gasleft();
-        golf.sumIfEvenAndLessThan99_UNOPTIMIZED(nums);
+        golf.sumIfEvenAndLessThan99Unoptimized(nums);
         uint256 gasUnoptimized = gasBefore - gasleft();
 
         gasBefore = gasleft();
@@ -54,7 +54,7 @@ contract GasGolfTest is Test {
     function test_EmptyArrayUnoptimizedReverts() public {
         uint256[] memory nums = new uint256[](0);
         vm.expectRevert("Array must not be empty");
-        golf.sumIfEvenAndLessThan99_UNOPTIMIZED(nums);
+        golf.sumIfEvenAndLessThan99Unoptimized(nums);
     }
 
     function test_AllOddNumbers() public view {
@@ -81,7 +81,7 @@ contract GasGolfTest is Test {
             unchecked { ++i; }
         }
         assertEq(
-            golf.sumIfEvenAndLessThan99_UNOPTIMIZED(nums),
+            golf.sumIfEvenAndLessThan99Unoptimized(nums),
             golf.sumIfEvenAndLessThan99(nums)
         );
     }

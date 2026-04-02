@@ -1,0 +1,23 @@
+# https://docs.codecov.com/docs/codecov-yaml
+# PR comments and reliable uploads work best when the Codecov GitHub App is
+# installed on this repository (Settings → Integrations on codecov.io).
+
+codecov:
+  require_ci_to_pass: false
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: "reach,diff,flags,tree,footer"
+  behavior: default
+  require_changes: false
+
+github_checks:
+  annotations: true

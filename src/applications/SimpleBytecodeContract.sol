@@ -8,8 +8,6 @@ pragma solidity ^0.8.26;
 ///      bytecode is in memory, returning the new contract address (or 0 on failure).
 contract SimpleBytecodeContract {
     /// @notice Emitted when a contract is successfully deployed
-    /// @param addr The address of the newly deployed contract
-    /// @param value The ETH sent with the deployment
     event Deployed(address indexed addr, uint256 value);
 
     /// @notice Thrown when deployment fails (CREATE returns address(0))
@@ -19,7 +17,6 @@ contract SimpleBytecodeContract {
     /// @dev Uses the CREATE opcode via inline assembly. The bytecode must be
     ///      valid EVM init code: it runs once and returns the runtime bytecode
     ///      that will be stored at the new address.
-    /// @param bytecode The init bytecode to deploy
     /// @return addr The address of the deployed contract
     function deploy(bytes memory bytecode) external returns (address addr) {
         // create(value, offset, size)
@@ -38,7 +35,6 @@ contract SimpleBytecodeContract {
 
     /// @notice Deploy a contract from raw bytecode, sending ETH to the constructor
     /// @dev The deployed contract's constructor must be payable to accept ETH.
-    /// @param bytecode The init bytecode to deploy
     /// @return addr The address of the deployed contract
     function deployWithValue(bytes memory bytecode) external payable returns (address addr) {
         // create(value, offset, size) — msg.value is forwarded to the new contract
@@ -51,3 +47,4 @@ contract SimpleBytecodeContract {
         emit Deployed(addr, msg.value);
     }
 }
+

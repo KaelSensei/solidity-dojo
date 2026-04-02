@@ -49,4 +49,14 @@ contract TryCatchTest is Test {
         (bool success,) = tryCatch.tryLowLevelCall(address(externalContract), data);
         assertTrue(success);
     }
+
+    function test_Revert_constructor_zeroExternal() public {
+        vm.expectRevert("Zero address");
+        new TryCatch(address(0));
+    }
+
+    function test_Revert_tryLowLevelCall_zeroTarget() public {
+        vm.expectRevert("Zero address");
+        tryCatch.tryLowLevelCall(address(0), "");
+    }
 }

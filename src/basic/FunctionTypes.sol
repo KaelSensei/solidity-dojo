@@ -20,34 +20,30 @@ contract FunctionTypes {
 
     /// @notice EXTERNAL: Can only be called from outside the contract
     /// @dev Most gas efficient for external calls - args read from calldata
-    /// @param _value Value to return
     /// @return The input value
-    function externalFunction(uint256 _value) external pure returns (uint256) {
-        return _value * 2;
+    function externalFunction(uint256 value) external pure returns (uint256) {
+        return value * 2;
     }
 
     /// @notice PUBLIC: Can be called from inside or outside
     /// @dev Less efficient than external for external calls (copies args to memory)
-    /// @param _value Value to return
     /// @return The input value
-    function publicFunction(uint256 _value) public pure returns (uint256) {
-        return _value * 3;
+    function publicFunction(uint256 value) public pure returns (uint256) {
+        return value * 3;
     }
 
     /// @notice INTERNAL: Can only be called from this contract or derived contracts
     /// @dev Not visible externally
-    /// @param _value Value to process
     /// @return Processed value
-    function internalFunction(uint256 _value) internal pure returns (uint256) {
-        return _value + 10;
+    function internalFunction(uint256 value) internal pure returns (uint256) {
+        return value + 10;
     }
 
     /// @notice PRIVATE: Can only be called from this contract
     /// @dev Not visible even to derived contracts
-    /// @param _value Value to process
     /// @return Processed value
-    function privateFunction(uint256 _value) private pure returns (uint256) {
-        return _value + 20;
+    function privateFunction(uint256 value) private pure returns (uint256) {
+        return value + 20;
     }
 
     /// @notice Calls internal function to demonstrate it works
@@ -64,11 +60,9 @@ contract FunctionTypes {
 
     /// @notice PURE: Does not read or write state
     /// @dev Can only call other pure functions
-    /// @param _a First number
-    /// @param _b Second number
     /// @return Sum of a and b
-    function pureFunction(uint256 _a, uint256 _b) external pure returns (uint256) {
-        return _a + _b;
+    function pureFunction(uint256 a, uint256 b) external pure returns (uint256) {
+        return a + b;
     }
 
     /// @notice VIEW: Reads state but does not write
@@ -80,9 +74,8 @@ contract FunctionTypes {
 
     /// @notice DEFAULT: Can read and write state
     /// @dev No mutability keyword - can do anything except receive ether (without payable)
-    /// @param _newValue New value to store
-    function stateModifyingFunction(uint256 _newValue) external {
-        storedValue = _newValue;
+    function stateModifyingFunction(uint256 newValue) external {
+        storedValue = newValue;
     }
 
     /// @notice PAYABLE: Can receive ether
@@ -97,3 +90,5 @@ contract FunctionTypes {
         return storedValue;
     }
 }
+
+

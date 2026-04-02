@@ -29,21 +29,18 @@ contract EtherUnits {
     }
 
     /// @notice Converts gwei amount to wei
-    /// @param gweiAmount Amount in gwei
     /// @return weiAmount Amount in wei
     function gweiToWei(uint256 gweiAmount) external pure returns (uint256 weiAmount) {
         return gweiAmount * 1 gwei;
     }
 
     /// @notice Converts wei amount to ether
-    /// @param weiAmount Amount in wei
     /// @return etherAmount Amount in ether (as uint256, may lose precision)
     function weiToEther(uint256 weiAmount) external pure returns (uint256 etherAmount) {
         return weiAmount / 1 ether;
     }
 
     /// @notice Converts gwei amount to ether
-    /// @param gweiAmount Amount in gwei
     /// @return etherAmount Amount in ether
     function gweiToEther(uint256 gweiAmount) external pure returns (uint256 etherAmount) {
         return (gweiAmount * 1 gwei) / 1 ether;
@@ -64,3 +61,4 @@ contract EtherUnits {
         totalReceived += msg.value;
     }
 }
+

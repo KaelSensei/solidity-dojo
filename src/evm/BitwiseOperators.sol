@@ -8,8 +8,6 @@ pragma solidity ^0.8.26;
 /// @title Yul Bitwise Operations
 contract BitwiseOperators {
     /// @notice Bitwise AND
-    /// @param a First value
-    /// @param b Second value
     /// @return result Bitwise AND of a and b
     function and(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -18,8 +16,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Bitwise OR
-    /// @param a First value
-    /// @param b Second value
     /// @return result Bitwise OR of a and b
     function or(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -28,8 +24,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Bitwise XOR
-    /// @param a First value
-    /// @param b Second value
     /// @return result Bitwise XOR of a and b
     function xor(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -38,7 +32,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Bitwise NOT
-    /// @param a Value
     /// @return result Bitwise NOT of a
     function not(uint256 a) external pure returns (uint256 result) {
         assembly {
@@ -47,8 +40,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Left shift
-    /// @param a Value to shift
-    /// @param bits Number of bits
     /// @return result Left shifted value
     function shiftLeft(uint256 a, uint256 bits) external pure returns (uint256 result) {
         assembly {
@@ -57,8 +48,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Right shift
-    /// @param a Value to shift
-    /// @param bits Number of bits
     /// @return result Right shifted value
     function shiftRight(uint256 a, uint256 bits) external pure returns (uint256 result) {
         assembly {
@@ -67,8 +56,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Get bit at position
-    /// @param a Value
-    /// @param pos Bit position
     /// @return result Bit value (0 or 1)
     function getBit(uint256 a, uint256 pos) external pure returns (uint256 result) {
         assembly {
@@ -77,8 +64,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Set bit at position
-    /// @param a Value
-    /// @param pos Bit position
     /// @return result Value with bit set
     function setBit(uint256 a, uint256 pos) external pure returns (uint256 result) {
         assembly {
@@ -87,8 +72,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Clear bit at position
-    /// @param a Value
-    /// @param pos Bit position
     /// @return result Value with bit cleared
     function clearBit(uint256 a, uint256 pos) external pure returns (uint256 result) {
         assembly {
@@ -97,8 +80,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Toggle bit at position
-    /// @param a Value
-    /// @param pos Bit position
     /// @return result Value with bit toggled
     function toggleBit(uint256 a, uint256 pos) external pure returns (uint256 result) {
         assembly {
@@ -107,7 +88,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Count trailing zeros
-    /// @param a Value
     /// @return count Number of trailing zeros
     function trailingZeros(uint256 a) external pure returns (uint256 count) {
         if (a == 0) return 256;
@@ -121,7 +101,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Count leading zeros
-    /// @param a Value
     /// @return count Number of leading zeros
     function leadingZeros(uint256 a) external pure returns (uint256 count) {
         if (a == 0) return 256;
@@ -135,7 +114,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Count set bits (population count)
-    /// @param a Value
     /// @return count Number of 1 bits
     function popCount(uint256 a) external pure returns (uint256 count) {
         assembly {
@@ -147,7 +125,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Check if power of 2
-    /// @param a Value
     /// @return result True if power of 2
     function isPowerOfTwo(uint256 a) external pure returns (bool result) {
         if (a == 0) return false;
@@ -158,8 +135,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Rotate left
-    /// @param a Value
-    /// @param r Rotation amount
     /// @return result Rotated value
     function rotateLeft(uint256 a, uint256 r) external pure returns (uint256 result) {
         r = r % 256;
@@ -169,8 +144,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Rotate right
-    /// @param a Value
-    /// @param r Rotation amount
     /// @return result Rotated value
     function rotateRight(uint256 a, uint256 r) external pure returns (uint256 result) {
         r = r % 256;
@@ -180,7 +153,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Byteswap (reverse endianness)
-    /// @param a Value
     /// @return result Byte-reversed value
     function byteSwap(uint256 a) external pure returns (uint256 result) {
         assembly {
@@ -194,8 +166,6 @@ contract BitwiseOperators {
     }
 
     /// @notice Bit mask
-    /// @param pos Starting position
-    /// @param width Number of bits
     /// @return result Mask
     function bitMask(uint256 pos, uint256 width) external pure returns (uint256 result) {
         assembly {
@@ -204,3 +174,4 @@ contract BitwiseOperators {
         }
     }
 }
+

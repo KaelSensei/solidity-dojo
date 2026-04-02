@@ -11,12 +11,9 @@ contract CustomError {
     // ==================== CUSTOM ERRORS ====================
 
     /// @notice Thrown when sender is not authorized
-    /// @param sender The unauthorized sender address
     error Unauthorized(address sender);
 
     /// @notice Thrown when amount exceeds balance
-    /// @param requested Amount requested
-    /// @param available Amount available
     error InsufficientBalance(uint256 requested, uint256 available);
 
     /// @notice Thrown when amount is zero
@@ -31,13 +28,9 @@ contract CustomError {
     // ==================== EVENTS ====================
 
     /// @notice Emitted on successful deposit
-    /// @param sender Address depositing
-    /// @param amount Amount deposited
     event Deposit(address indexed sender, uint256 amount);
 
     /// @notice Emitted on successful withdrawal
-    /// @param recipient Address receiving
-    /// @param amount Amount withdrawn
     event Withdrawal(address indexed recipient, uint256 amount);
 
     // ==================== FUNCTIONS ====================
@@ -54,41 +47,38 @@ contract CustomError {
     }
 
     /// @notice Withdraw ether using custom errors
-    /// @param _amount Amount to withdraw
-    function withdraw(uint256 _amount) external {
-        if (_amount == 0) revert ZeroAmount();
+    function withdraw(uint256 amount) external {
+        if (amount == 0) revert ZeroAmount();
 
         uint256 balance = balances[msg.sender];
-        if (_amount > balance) {
-            revert InsufficientBalance(_amount, balance);
+        if (amount > balance) {
+            revert InsufficientBalance(amount, balance);
         }
 
-        balances[msg.sender] = balance - _amount;
+        balances[msg.sender] = balance - amount;
 
-        (bool success,) = payable(msg.sender).call{value: _amount}("");
+        (bool success,) = payable(msg.sender).call{value: amount}("");
         if (!success) revert("Transfer failed");
 
-        emit Withdrawal(msg.sender, _amount);
+        emit Withdrawal(msg.sender, amount);
     }
 
     /// @notice Transfer to another address using custom errors
-    /// @param _to Recipient address
-    /// @param _amount Amount to transfer
-    function transfer(address _to, uint256 _amount) external {
-        if (_to == address(0)) revert ZeroAddress();
-        if (_amount == 0) revert ZeroAmount();
+    function transfer(address to, uint256 amount) external {
+        if (to == address(0)) revert ZeroAddress();
+        if (amount == 0) revert ZeroAmount();
 
         uint256 senderBalance = balances[msg.sender];
-        if (_amount > senderBalance) {
-            revert InsufficientBalance(_amount, senderBalance);
+        if (amount > senderBalance) {
+            revert InsufficientBalance(amount, senderBalance);
         }
 
-        uint256 recipientBalance = balances[_to];
-        uint256 newRecipientBalance = recipientBalance + _amount;
+        uint256 recipientBalance = balances[to];
+        uint256 newRecipientBalance = recipientBalance + amount;
         if (newRecipientBalance < recipientBalance) revert Overflow();
 
-        balances[msg.sender] = senderBalance - _amount;
-        balances[_to] = newRecipientBalance;
+        balances[msg.sender] = senderBalance - amount;
+        balances[to] = newRecipientBalance;
     }
 
     /// @notice Admin function using custom error with parameter
@@ -99,19 +89,17 @@ contract CustomError {
     }
 
     /// @notice Compare gas: this uses require with string (more expensive)
-    /// @param _amount Amount to check
-    function checkWithRequire(uint256 _amount) external view {
+    function checkWithRequire(uint256 amount) external view {
         // This costs more gas when it reverts (stores error string in revert data)
-        require(balances[msg.sender] >= _amount, "Insufficient balance: not enough funds");
+        require(balances[msg.sender] >= amount, "Insufficient balance: not enough funds");
     }
 
     /// @notice Compare gas: this uses custom error (cheaper)
-    /// @param _amount Amount to check
-    function checkWithCustomError(uint256 _amount) external view {
+    function checkWithCustomError(uint256 amount) external view {
         uint256 balance = balances[msg.sender];
         // This costs less gas (just 4-byte selector + encoded params)
-        if (_amount > balance) {
-            revert InsufficientBalance(_amount, balance);
+        if (amount > balance) {
+            revert InsufficientBalance(amount, balance);
         }
     }
 
@@ -120,3 +108,5 @@ contract CustomError {
         emit Deposit(msg.sender, msg.value);
     }
 }
+
+

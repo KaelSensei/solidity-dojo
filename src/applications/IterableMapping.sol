@@ -18,9 +18,6 @@ library IterableMapping {
     }
 
     /// @notice Set a value for a key
-    /// @param self Mapping instance
-    /// @param key Key to set
-    /// @param value Value to set
     function set(
         It storage self,
         address key,
@@ -35,8 +32,6 @@ library IterableMapping {
     }
 
     /// @notice Get value for a key
-    /// @param self Mapping instance
-    /// @param key Key to query
     /// @return Value for the key
     function get(
         It storage self,
@@ -46,9 +41,6 @@ library IterableMapping {
     }
 
     /// @notice Get value for a key, or a default if not set
-    /// @param self Mapping instance
-    /// @param key Key to query
-    /// @param defaultValue Value to return if key not set
     /// @return Value for the key or default
     function getOr(
         It storage self,
@@ -59,8 +51,6 @@ library IterableMapping {
     }
 
     /// @notice Remove a key from the mapping
-    /// @param self Mapping instance
-    /// @param key Key to remove
     function remove(
         It storage self,
         address key
@@ -86,7 +76,6 @@ library IterableMapping {
     }
 
     /// @notice Get number of keys
-    /// @param self Mapping instance
     /// @return Number of keys
     function length(
         It storage self
@@ -95,8 +84,6 @@ library IterableMapping {
     }
 
     /// @notice Get key at index
-    /// @param self Mapping instance
-    /// @param index Index to query
     /// @return Key at the given index
     function keyAt(
         It storage self,
@@ -106,8 +93,6 @@ library IterableMapping {
     }
 
     /// @notice Get value at index
-    /// @param self Mapping instance
-    /// @param index Index to query
     /// @return Value at the given index
     function valueAt(
         It storage self,
@@ -118,8 +103,6 @@ library IterableMapping {
     }
 
     /// @notice Check if key exists
-    /// @param self Mapping instance
-    /// @param key Key to check
     /// @return True if key exists
     function contains(
         It storage self,
@@ -129,7 +112,6 @@ library IterableMapping {
     }
 
     /// @notice Get all keys as an array
-    /// @param self Mapping instance
     /// @return Array of all keys
     function getKeys(
         It storage self
@@ -153,22 +135,18 @@ contract IterableMap {
     event ValueRemoved(address indexed key);
 
     /// @notice Set a value for an address
-    /// @param key Address key
-    /// @param value Value to set
     function set(address key, uint256 value) external {
         map.set(key, value);
         emit ValueSet(key, value);
     }
 
     /// @notice Get value for an address
-    /// @param key Address key
     /// @return Value for the address
     function get(address key) external view returns (uint256) {
         return map.get(key);
     }
 
     /// @notice Remove a key
-    /// @param key Address key to remove
     function remove(address key) external {
         map.remove(key);
         emit ValueRemoved(key);
@@ -181,21 +159,18 @@ contract IterableMap {
     }
 
     /// @notice Get key at index
-    /// @param index Index
     /// @return Key at index
     function keyAt(uint256 index) external view returns (address) {
         return map.keyAt(index);
     }
 
     /// @notice Get value at index
-    /// @param index Index
     /// @return Value at index
     function valueAt(uint256 index) external view returns (uint256) {
         return map.valueAt(index);
     }
 
     /// @notice Check if key exists
-    /// @param key Key to check
     /// @return True if exists
     function contains(address key) external view returns (bool) {
         return map.contains(key);
@@ -207,3 +182,4 @@ contract IterableMap {
         return map.getKeys();
     }
 }
+

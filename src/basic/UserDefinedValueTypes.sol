@@ -35,8 +35,6 @@ contract UserDefinedValueTypes {
     }
 
     /// @notice Calculates total (price * quantity) maintaining type safety
-    /// @param price The price per unit
-    /// @param quantity The number of units
     /// @return total The total value
     function calculateTotal(Price price, Quantity quantity)
         external
@@ -57,3 +55,4 @@ contract UserDefinedValueTypes {
         return Price.unwrap(a) == Price.unwrap(b);
     }
 }
+

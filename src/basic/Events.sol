@@ -36,36 +36,29 @@ contract Events {
     }
 
     /// @notice Emits value changed event
-    /// @param _value New value
-    function emitValueChanged(uint256 _value) external {
-        emit ValueChanged(_value);
+    function emitValueChanged(uint256 value) external {
+        emit ValueChanged(value);
     }
 
     /// @notice Emits transfer event
-    /// @param _to Recipient
-    /// @param _amount Amount transferred
-    function emitTransfer(address _to, uint256 _amount) external {
-        emit Transfer(msg.sender, _to, _amount);
+    function emitTransfer(address to, uint256 amount) external {
+        emit Transfer(msg.sender, to, amount);
     }
 
     /// @notice Emits approval event
-    /// @param _spender Spender address
-    /// @param _value Approved amount
-    function emitApproval(address _spender, uint256 _value) external {
-        emit Approval(msg.sender, _spender, _value);
+    function emitApproval(address spender, uint256 value) external {
+        emit Approval(msg.sender, spender, value);
     }
 
     /// @notice Emits complex event
-    /// @param _message Message string
-    function emitComplex(string calldata _message) external {
+    function emitComplex(string calldata message) external {
         counter++;
-        emit ComplexEvent(msg.sender, counter, _message, block.timestamp);
+        emit ComplexEvent(msg.sender, counter, message, block.timestamp);
     }
 
     /// @notice Batch emit multiple events
-    /// @param _count Number of events to emit
-    function batchEmit(uint256 _count) external {
-        for (uint256 i = 0; i < _count; i++) {
+    function batchEmit(uint256 count) external {
+        for (uint256 i = 0; i < count; i++) {
             emit ValueChanged(i);
         }
     }
@@ -75,7 +68,9 @@ contract Events {
     event AnonymousEvent(uint256 value) anonymous;
 
     /// @notice Emits anonymous event
-    function emitAnonymous(uint256 _value) external {
-        emit AnonymousEvent(_value);
+    function emitAnonymous(uint256 value) external {
+        emit AnonymousEvent(value);
     }
 }
+
+

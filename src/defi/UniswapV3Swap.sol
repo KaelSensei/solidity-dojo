@@ -66,17 +66,11 @@ contract UniswapV3Swap {
 
     error TransferFailed();
 
-    /// @param _router Address of Uniswap V3 Router
     constructor(address _router) {
         router = ISwapRouter(_router);
     }
 
     /// @notice Execute exact input single hop swap
-    /// @param tokenIn Input token address
-    /// @param tokenOut Output token address
-    /// @param fee Fee tier
-    /// @param amountIn Amount of input token to swap
-    /// @param amountOutMinimum Minimum output amount (slippage protection)
     /// @return amountOut Actual output amount
     function swapExactInputSingle(
         address tokenIn,
@@ -109,11 +103,6 @@ contract UniswapV3Swap {
     }
 
     /// @notice Execute exact output single hop swap
-    /// @param tokenIn Input token address
-    /// @param tokenOut Output token address
-    /// @param fee Fee tier
-    /// @param amountOut Desired output amount
-    /// @param amountInMaximum Maximum input amount (slippage protection)
     /// @return amountIn Actual input amount
     function swapExactOutputSingle(
         address tokenIn,
@@ -151,9 +140,6 @@ contract UniswapV3Swap {
     }
 
     /// @notice Execute multi-hop swap via path encoding
-    /// @param path Encoded path (tokenIn -> fee -> tokenOut -> fee -> tokenOut...)
-    /// @param amountIn Amount of input token
-    /// @param amountOutMinimum Minimum output amount
     /// @return amountOut Output amount
     function swapExactInputMultiHop(
         bytes calldata path,
@@ -182,7 +168,6 @@ contract UniswapV3Swap {
     }
 
     /// @notice Extract input token from path
-    /// @param path Encoded swap path
     /// @return tokenIn Input token address
     function extractTokenInFromPath(bytes calldata path) public pure returns (address tokenIn) {
         require(path.length >= 20, "Invalid path");
@@ -190,9 +175,6 @@ contract UniswapV3Swap {
     }
 
     /// @notice Calculate minimum output for exact input swap
-    /// @param amountIn Input amount
-    /// @param fee Fee tier (in 10000 = 1%)
-    /// @param slippageBps Slippage tolerance in basis points
     /// @return minimumOut Minimum output amount
     function calculateMinOutput(uint256 amountIn, uint24 fee, uint256 slippageBps) external pure returns (uint256 minimumOut) {
         // Simplified: assume 1:1 for testing (in real use, would calculate from reserves)
@@ -201,3 +183,4 @@ contract UniswapV3Swap {
         minimumOut = (amountAfterFee * (10000 - slippageBps)) / 10000;
     }
 }
+

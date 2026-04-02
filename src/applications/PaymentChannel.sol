@@ -37,8 +37,6 @@ contract PaymentChannel {
 
     /// @notice Create a payment channel
     /// @dev The sender funds the channel by sending ETH with this constructor call.
-    /// @param _receiver The address that can close the channel
-    /// @param _duration How long (in seconds) before the sender can timeout
     constructor(address _receiver, uint256 _duration) payable {
         sender = msg.sender;
         receiver = _receiver;
@@ -50,8 +48,6 @@ contract PaymentChannel {
     /// @notice Close the channel, sending `amount` to the receiver
     /// @dev Only the receiver can call this. The signature must be from the sender.
     ///      Remaining funds are sent back to the sender.
-    /// @param amount The amount (in wei) the sender owes the receiver
-    /// @param signature The sender's signature over the amount
     function close(uint256 amount, bytes memory signature) external {
         if (msg.sender != receiver) revert NotReceiver();
         if (closed) revert ChannelAlreadyClosed();
@@ -90,7 +86,6 @@ contract PaymentChannel {
 
     /// @notice Compute the hash of the payment amount bound to this contract
     /// @dev Includes the contract address to prevent cross-contract replay attacks
-    /// @param amount The payment amount in wei
     /// @return The keccak256 hash
     function getHash(uint256 amount) public view returns (bytes32) {
         return keccak256(abi.encodePacked(address(this), amount));
@@ -99,15 +94,12 @@ contract PaymentChannel {
     /// @notice Add the Ethereum signed message prefix to a hash
     /// @dev This matches what wallets produce with personal_sign / eth_sign:
     ///      "\x19Ethereum Signed Message:\n32" + hash
-    /// @param hash The message hash
     /// @return The prefixed hash ready for ecrecover
     function getEthSignedHash(bytes32 hash) public pure returns (bytes32) {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
 
     /// @notice Verify that the sender signed the given amount
-    /// @param amount The payment amount
-    /// @param signature 65-byte ECDSA signature (r, s, v)
     /// @return True if the signature is valid and from the sender
     function verify(uint256 amount, bytes memory signature) external view returns (bool) {
         return _verify(amount, signature);
@@ -137,3 +129,4 @@ contract PaymentChannel {
         return recovered == sender;
     }
 }
+

@@ -29,8 +29,6 @@ contract Constants {
     }
 
     /// @notice Calculates percentage using basis points
-    /// @param amount The base amount
-    /// @param bps The percentage in basis points (e.g., 500 = 5%)
     /// @return The calculated percentage of amount
     function calculatePercentage(uint256 amount, uint256 bps) external pure returns (uint256) {
         return (amount * bps) / BASIS_POINTS;
@@ -49,3 +47,4 @@ contract NonConstant {
         return myUint;
     }
 }
+

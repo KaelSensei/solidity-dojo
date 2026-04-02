@@ -8,7 +8,6 @@ pragma solidity ^0.8.26;
 /// @title Yul Loop Operations
 contract AssemblyLoop {
     /// @notice Sum numbers from 0 to n-1 using assembly loop
-    /// @param n Upper limit (exclusive)
     /// @return sum Sum of 0 + 1 + 2 + ... + (n-1)
     function sumTo(uint256 n) external pure returns (uint256 sum) {
         assembly {
@@ -19,7 +18,6 @@ contract AssemblyLoop {
     }
 
     /// @notice Sum of even numbers up to n
-    /// @param n Upper limit
     /// @return sum Sum of even numbers from 0 to n
     function sumEvens(uint256 n) external pure returns (uint256 sum) {
         assembly {
@@ -30,7 +28,6 @@ contract AssemblyLoop {
     }
 
     /// @notice Find maximum in array
-    /// @param data Array of numbers
     /// @return max Maximum value
     function max(uint256[] calldata data) external pure returns (uint256 max) {
         if (data.length == 0) return 0;
@@ -48,7 +45,6 @@ contract AssemblyLoop {
     }
 
     /// @notice Find minimum in array
-    /// @param data Array of numbers
     /// @return min Minimum value
     function min(uint256[] calldata data) external pure returns (uint256 min) {
         if (data.length == 0) return 0;
@@ -66,8 +62,6 @@ contract AssemblyLoop {
     }
 
     /// @notice Count occurrences of value in array
-    /// @param data Array to search
-    /// @param value Value to count
     /// @return count Number of occurrences
     function countInArray(uint256[] calldata data, uint256 value) external pure returns (uint256 count) {
         assembly {
@@ -82,8 +76,6 @@ contract AssemblyLoop {
     }
 
     /// @notice Linear search in array
-    /// @param data Array to search
-    /// @param target Value to find
     /// @return index Index of target, or length if not found
     function findIndex(uint256[] calldata data, uint256 target) external pure returns (uint256 index) {
         assembly {
@@ -100,7 +92,6 @@ contract AssemblyLoop {
     }
 
     /// @notice While loop equivalent in assembly
-    /// @param n Initial value
     /// @return result Factorial of n
     function factorial(uint256 n) external pure returns (uint256 result) {
         assembly {
@@ -114,7 +105,6 @@ contract AssemblyLoop {
     }
 
     /// @notice Nested loops - multiplication table
-    /// @param n Size of table
     /// @return product n * n
     function nestedLoopSum(uint256 n) external pure returns (uint256 product) {
         assembly {
@@ -127,7 +117,6 @@ contract AssemblyLoop {
     }
 
     /// @notice Sum array elements
-    /// @param data Array to sum
     /// @return total Sum of all elements
     function sumArray(uint256[] calldata data) external pure returns (uint256 total) {
         assembly {
@@ -140,7 +129,6 @@ contract AssemblyLoop {
     }
 
     /// @notice Reverse array (returns sum to verify)
-    /// @param data Array to reverse-sum
     /// @return sum Sum of reversed indices
     function reverseSum(uint256[] calldata data) external pure returns (uint256 sum) {
         assembly {
@@ -154,3 +142,4 @@ contract AssemblyLoop {
         }
     }
 }
+

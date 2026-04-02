@@ -24,14 +24,9 @@ contract Constructor {
     bool public initialized;
 
     /// @notice Emitted when contract is deployed
-    /// @param deployer Address that deployed the contract
-    /// @param name Contract name
-    /// @param initialValue Initial value set
     event Deployed(address indexed deployer, string name, uint256 initialValue);
 
     /// @notice Constructor sets immutable values and initial state
-    /// @param _name Contract name
-    /// @param _initialValue Initial value
     constructor(string memory _name, uint256 _initialValue) {
         owner = msg.sender;
         name = _name;
@@ -46,10 +41,9 @@ contract Constructor {
     }
 
     /// @notice Updates the mutable value
-    /// @param _newValue New value to set
-    function setValue(uint256 _newValue) external {
+    function setValue(uint256 newValue) external {
         require(msg.sender == owner, "Not owner");
-        value = _newValue;
+        value = newValue;
     }
 
     /// @notice Returns all immutable values
@@ -69,12 +63,11 @@ contract ChildConstructor is Constructor {
     uint256 public immutable childValue;
 
     /// @notice Constructor passes args to parent
-    /// @param _name Passed to parent
-    /// @param _initialValue Passed to parent
-    /// @param _childValue Child's own value
     constructor(string memory _name, uint256 _initialValue, uint256 _childValue)
         Constructor(_name, _initialValue)
     {
         childValue = _childValue;
     }
 }
+
+

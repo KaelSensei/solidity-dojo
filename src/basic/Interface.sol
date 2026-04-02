@@ -69,13 +69,13 @@ contract TokenUser {
     }
 
     /// @notice Get token balance of an address
-    function getTokenBalance(address _account) external view returns (uint256) {
-        return token.balanceOf(_account);
+    function getTokenBalance(address account) external view returns (uint256) {
+        return token.balanceOf(account);
     }
 
     /// @notice Transfer tokens using interface
-    function transferTokens(address _to, uint256 _amount) external returns (bool) {
-        return token.transfer(_to, _amount);
+    function transferTokens(address to, uint256 amount) external returns (bool) {
+        return token.transfer(to, amount);
     }
 
     /// @notice Get token total supply
@@ -83,3 +83,5 @@ contract TokenUser {
         return token.totalSupply();
     }
 }
+
+

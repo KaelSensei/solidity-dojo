@@ -11,9 +11,8 @@ contract GasGolf {
     error EmptyArray();
 
     /// @notice UNOPTIMIZED — uses memory, checked loop, require string, repeated .length
-    /// @param nums Array of numbers
     /// @return total Sum of even numbers less than 99
-    function sumIfEvenAndLessThan99_UNOPTIMIZED(uint256[] memory nums) external pure returns (uint256 total) {
+    function sumIfEvenAndLessThan99Unoptimized(uint256[] memory nums) external pure returns (uint256 total) {
         require(nums.length > 0, "Array must not be empty");
         for (uint256 i = 0; i < nums.length; i++) {
             bool isEven = nums[i] % 2 == 0;
@@ -25,7 +24,6 @@ contract GasGolf {
     }
 
     /// @notice OPTIMIZED — calldata, cached length, unchecked, custom error, short-circuit
-    /// @param nums Array of numbers (calldata avoids memory copy)
     /// @return total Sum of even numbers less than 99
     function sumIfEvenAndLessThan99(uint256[] calldata nums) external pure returns (uint256 total) {
         uint256 len = nums.length;
@@ -39,3 +37,4 @@ contract GasGolf {
         }
     }
 }
+

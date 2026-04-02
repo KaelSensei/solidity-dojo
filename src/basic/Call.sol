@@ -11,46 +11,41 @@ contract Call {
     event CallFailed(address indexed target, bytes data);
 
     /// @notice Call a function by selector
-    /// @param _target Target contract address
-    /// @param _selector Function selector
-    function callBySelector(address _target, bytes4 _selector) external returns (bool, bytes memory) {
-        (bool success, bytes memory data) = _target.call(abi.encodePacked(_selector));
+    function callBySelector(address target, bytes4 selector) external returns (bool, bytes memory) {
+        require(target != address(0), "Zero address");
+        (bool success, bytes memory data) = target.call(abi.encodePacked(selector));
         if (success) {
-            emit CallSuccess(_target, abi.encodePacked(_selector), data);
+            emit CallSuccess(target, abi.encodePacked(selector), data);
         } else {
-            emit CallFailed(_target, abi.encodePacked(_selector));
+            emit CallFailed(target, abi.encodePacked(selector));
         }
         return (success, data);
     }
 
     /// @notice Call with specific value
-    /// @param _target Target address
-    /// @param _data Call data
-    /// @param _value Ether to send
-    function callWithValue(address _target, bytes calldata _data, uint256 _value) external payable returns (bool, bytes memory) {
-        (bool success, bytes memory result) = _target.call{value: _value}(_data);
+    function callWithValue(address target, bytes calldata data, uint256 value) external payable returns (bool, bytes memory) {
+        require(target != address(0), "Zero address");
+        (bool success, bytes memory result) = target.call{value: value}(data);
         require(success, "Call failed");
         return (success, result);
     }
 
     /// @notice Static call (no state changes)
-    /// @param _target Target address
-    /// @param _data Call data
-    function staticCall(address _target, bytes calldata _data) external view returns (bool, bytes memory) {
-        (bool success, bytes memory result) = _target.staticcall(_data);
+    function staticCall(address target, bytes calldata data) external view returns (bool, bytes memory) {
+        require(target != address(0), "Zero address");
+        (bool success, bytes memory result) = target.staticcall(data);
         return (success, result);
     }
 
     /// @notice Batch multiple calls
-    /// @param _targets Array of target addresses
-    /// @param _data Array of call data
-    function batchCall(address[] calldata _targets, bytes[] calldata _data) external returns (bool[] memory, bytes[] memory) {
-        require(_targets.length == _data.length, "Length mismatch");
-        bool[] memory successes = new bool[](_targets.length);
-        bytes[] memory results = new bytes[](_targets.length);
+    function batchCall(address[] calldata targets, bytes[] calldata data) external returns (bool[] memory, bytes[] memory) {
+        require(targets.length == data.length, "Length mismatch");
+        bool[] memory successes = new bool[](targets.length);
+        bytes[] memory results = new bytes[](targets.length);
 
-        for (uint256 i = 0; i < _targets.length; i++) {
-            (bool success, bytes memory result) = _targets[i].call(_data[i]);
+        for (uint256 i = 0; i < targets.length; i++) {
+            require(targets[i] != address(0), "Zero address");
+            (bool success, bytes memory result) = targets[i].call(data[i]);
             successes[i] = success;
             results[i] = result;
         }
@@ -66,8 +61,8 @@ contract TargetContract {
     uint256 public value;
     mapping(address => uint256) public balances;
 
-    function setValue(uint256 _value) external {
-        value = _value;
+    function setValue(uint256 newValue) external {
+        value = newValue;
     }
 
     function getValue() external view returns (uint256) {
@@ -78,3 +73,5 @@ contract TargetContract {
         balances[msg.sender] += msg.value;
     }
 }
+
+

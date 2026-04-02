@@ -29,7 +29,7 @@ contract StableSwapAMM {
     IERC20StableSwap public immutable token1;
 
     /// @notice Amplification coefficient (higher = flatter curve near peg)
-    uint256 public immutable A;
+    uint256 public immutable amplificationCoefficient;
 
     /// @notice Reserve of token0
     uint256 public reserve0;
@@ -54,56 +54,49 @@ contract StableSwapAMM {
     error ConvergenceFailed();
     error TransferFailed();
 
-    /// @param _token0 Address of the first token
-    /// @param _token1 Address of the second token
-    /// @param _A Amplification coefficient (e.g. 85 for typical stablecoin pools)
-    constructor(address _token0, address _token1, uint256 _A) {
-        token0 = IERC20StableSwap(_token0);
-        token1 = IERC20StableSwap(_token1);
-        A = _A;
+    constructor(address token0Addr, address token1Addr, uint256 ampCoeff) {
+        token0 = IERC20StableSwap(token0Addr);
+        token1 = IERC20StableSwap(token1Addr);
+        amplificationCoefficient = ampCoeff;
     }
 
     /// @notice Swap one token for the other using the StableSwap invariant
     /// @dev Computes D from current reserves, applies fee to input, then solves for new y.
     ///      amountOut = old_reserve_out - new_y.
-    /// @param tokenIn Address of the token being sold
-    /// @param amountIn Amount of tokenIn to sell
     /// @return amountOut Amount of the other token received
     function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
         if (amountIn == 0) revert ZeroAmount();
         if (tokenIn != address(token0) && tokenIn != address(token1)) revert InvalidToken();
 
         bool isToken0 = tokenIn == address(token0);
-        (IERC20StableSwap _tokenIn, IERC20StableSwap _tokenOut, uint256 _resIn, uint256 _resOut) = isToken0
+        (IERC20StableSwap tokenInErc, IERC20StableSwap tokenOutErc, uint256 resInAmt, uint256 resOutAmt) = isToken0
             ? (token0, token1, reserve0, reserve1)
             : (token1, token0, reserve1, reserve0);
 
-        if (!_tokenIn.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
+        if (!tokenInErc.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
 
         // Apply 0.3% fee to the input amount
         uint256 amountInWithFee = (amountIn * 997) / 1000;
 
         // Compute D from current reserves (before swap)
-        uint256 d = _getD(_resIn, _resOut);
+        uint256 d = _getD(resInAmt, resOutAmt);
 
         // New x after adding the input (with fee applied)
-        uint256 newResIn = _resIn + amountInWithFee;
+        uint256 newResIn = resInAmt + amountInWithFee;
 
         // Solve for the new y given the updated x and the same D
         uint256 newResOut = _getY(newResIn, d);
 
-        amountOut = _resOut - newResOut;
+        amountOut = resOutAmt - newResOut;
         if (amountOut == 0) revert InsufficientLiquidity();
 
-        if (!_tokenOut.transfer(msg.sender, amountOut)) revert TransferFailed();
+        if (!tokenOutErc.transfer(msg.sender, amountOut)) revert TransferFailed();
 
         _updateReserves();
         emit Swap(msg.sender, tokenIn, amountIn, amountOut);
     }
 
     /// @notice Add liquidity to the pool
-    /// @param amount0 Amount of token0 to deposit
-    /// @param amount1 Amount of token1 to deposit
     /// @return shares LP shares minted
     function addLiquidity(uint256 amount0, uint256 amount1) external returns (uint256 shares) {
         if (amount0 == 0 && amount1 == 0) revert ZeroAmount();
@@ -136,7 +129,6 @@ contract StableSwapAMM {
     }
 
     /// @notice Remove liquidity from the pool
-    /// @param shares LP shares to burn
     /// @return amount0 Token0 returned
     /// @return amount1 Token1 returned
     function removeLiquidity(uint256 shares) external returns (uint256 amount0, uint256 amount1) {
@@ -162,22 +154,20 @@ contract StableSwapAMM {
     }
 
     /// @notice Compute D (the StableSwap invariant) for given reserves using Newton's method
-    /// @dev Solves: A * 4 * S + D = A * D + D^3 / (4 * P)
+    /// @dev Solves: amplificationCoefficient * 4 * S + D = amplificationCoefficient * D + D^3 / (4 * P)
     ///      where S = x + y, P = x * y, for N = 2.
     ///      Rearranged for Newton's iteration:
-    ///        f(D)  = A*4*S + D - A*D - D^3/(4*P)  ... we want f(D) = 0  ... but easier to use
+    ///        f(D)  = amplificationCoefficient*4*S + D - amplificationCoefficient*D - D^3/(4*P)  ... we want f(D) = 0  ... but easier to use
     ///        the standard Curve formulation:
-    ///        D_{n+1} = (A * n * S + n * D_p) * D_n / ((A * n - 1) * D_n + (n+1) * D_p)
+    ///        D_{n+1} = (amplificationCoefficient * n * S + n * D_p) * D_n / ((amplificationCoefficient * n - 1) * D_n + (n+1) * D_p)
     ///        where D_p = D^n / (n^n * prod(x_i)) and n = 2
-    /// @param x Reserve of token0
-    /// @param y Reserve of token1
     /// @return d The invariant D
     function _getD(uint256 x, uint256 y) internal view returns (uint256 d) {
         uint256 s = x + y;
         if (s == 0) return 0;
 
         d = s; // Initial guess
-        uint256 ann = A * 2; // A * n where n = 2
+        uint256 ann = amplificationCoefficient * 2; // amplificationCoefficient * n where n = 2
 
         for (uint256 i = 0; i < 255; i++) {
             // D_p = D^2 / (2 * x) * D / (2 * y) = D^3 / (4 * x * y)
@@ -208,16 +198,14 @@ contract StableSwapAMM {
     /// @notice Compute y given x and D using Newton's method
     /// @dev Solves for y in the StableSwap invariant given fixed x and D.
     ///      y_{n+1} = (y_n^2 + c) / (2 * y_n + b)
-    ///      where c = D^3 / (4 * A * x) and b = D / (2*A) + x - D  ... but let's use the
+    ///      where c = D^3 / (4 * amplificationCoefficient * x) and b = D / (2*amplificationCoefficient) + x - D  ... but let's use the
     ///      standard Curve approach:
-    ///        y^2 + (S' + D/(A*n) - D) * y = D^(n+1) / (n^n * A * n * prod_other_x)
+    ///        y^2 + (S' + D/(amplificationCoefficient*n) - D) * y = D^(n+1) / (n^n * amplificationCoefficient * n * prod_other_x)
     ///      For n=2, one other token x:
     ///        y^2 + (x + D/(2A) - D) * y = D^3 / (4 * 2A * x)
-    /// @param x The known reserve (after swap input)
-    /// @param d The invariant D
     /// @return y The computed reserve for the other token
     function _getY(uint256 x, uint256 d) internal view returns (uint256 y) {
-        uint256 ann = A * 2; // A * n, n = 2
+        uint256 ann = amplificationCoefficient * 2; // amplificationCoefficient * n, n = 2
 
         // c = D^3 / (4 * x * ann)  — but compute step by step
         // c = D * D / (2 * x) * D / (2 * ann)  ... to keep intermediate sizes manageable
@@ -256,3 +244,5 @@ contract StableSwapAMM {
         reserve1 = token1.balanceOf(address(this));
     }
 }
+
+

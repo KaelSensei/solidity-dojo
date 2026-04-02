@@ -12,9 +12,9 @@ contract SimpleContract {
         value = _value;
     }
 
-    function setValue(uint256 _newValue) external {
+    function setValue(uint256 newValue) external {
         require(msg.sender == owner, "Not owner");
-        value = _newValue;
+        value = newValue;
     }
 }
 
@@ -28,21 +28,18 @@ contract ContractFactory {
     event ContractCreated(address indexed contractAddress, uint256 indexed index, uint256 value);
 
     /// @notice Create a new SimpleContract
-    /// @param _value Initial value for contract
-    function createContract(uint256 _value) external returns (SimpleContract) {
-        SimpleContract newContract = new SimpleContract(_value);
+    function createContract(uint256 value) external returns (SimpleContract) {
+        SimpleContract newContract = new SimpleContract(value);
         contracts.push(newContract);
-        emit ContractCreated(address(newContract), contracts.length - 1, _value);
+        emit ContractCreated(address(newContract), contracts.length - 1, value);
         return newContract;
     }
 
     /// @notice Create contract with salt (for deterministic address)
-    /// @param _value Initial value
-    /// @param _salt Salt for CREATE2
-    function createContractWithSalt(uint256 _value, bytes32 _salt) external returns (SimpleContract) {
-        SimpleContract newContract = new SimpleContract{salt: _salt}(_value);
+    function createContractWithSalt(uint256 value, bytes32 salt) external returns (SimpleContract) {
+        SimpleContract newContract = new SimpleContract{salt: salt}(value);
         contracts.push(newContract);
-        emit ContractCreated(address(newContract), contracts.length - 1, _value);
+        emit ContractCreated(address(newContract), contracts.length - 1, value);
         return newContract;
     }
 
@@ -52,15 +49,17 @@ contract ContractFactory {
     }
 
     /// @notice Get contract at index
-    function getContract(uint256 _index) external view returns (SimpleContract) {
-        require(_index < contracts.length, "Index out of bounds");
-        return contracts[_index];
+    function getContract(uint256 index) external view returns (SimpleContract) {
+        require(index < contracts.length, "Index out of bounds");
+        return contracts[index];
     }
 
     /// @notice Predict address before creation
-    function predictAddress(uint256 _value, bytes32 _salt) external view returns (address) {
-        bytes32 bytecodeHash = keccak256(abi.encodePacked(type(SimpleContract).creationCode, abi.encode(_value)));
-        bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), address(this), _salt, bytecodeHash));
+    function predictAddress(uint256 value, bytes32 salt) external view returns (address) {
+        bytes32 bytecodeHash = keccak256(abi.encodePacked(type(SimpleContract).creationCode, abi.encode(value)));
+        bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, bytecodeHash));
         return address(uint160(uint256(hash)));
     }
 }
+
+

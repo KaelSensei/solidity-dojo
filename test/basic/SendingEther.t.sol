@@ -48,5 +48,10 @@ contract SendingEtherTest is Test {
         assertEq(address(receiver).balance, balanceBefore + 1 ether);
     }
 
+    function test_Revert_sendViaCall_zeroRecipient() public {
+        vm.expectRevert("Zero address");
+        sender.sendViaCall(payable(address(0)), 1 ether);
+    }
+
     receive() external payable {}
 }

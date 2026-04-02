@@ -15,39 +15,32 @@ contract Mapping {
     mapping(address => mapping(address => bool)) public isApproved;
 
     /// @notice Sets the balance for an address
-    /// @param _addr The address to set balance for
-    /// @param _amount The balance amount
-    function set(address _addr, uint256 _amount) external {
-        balances[_addr] = _amount;
+    function set(address addr, uint256 amount) external {
+        balances[addr] = amount;
     }
 
     /// @notice Gets the balance for an address
-    /// @param _addr The address to query
     /// @return The balance (0 if never set)
-    function get(address _addr) external view returns (uint256) {
-        return balances[_addr];
+    function get(address addr) external view returns (uint256) {
+        return balances[addr];
     }
 
     /// @notice Removes a balance entry (resets to 0)
-    /// @param _addr The address to remove
     /// @dev delete resets to default value; gas refund may apply
-    function remove(address _addr) external {
-        delete balances[_addr];
+    function remove(address addr) external {
+        delete balances[addr];
     }
 
     /// @notice Sets approval for a spender on behalf of owner
-    /// @param _owner The owner address
-    /// @param _spender The spender address
-    /// @param _approved Whether spender is approved
-    function setApproval(address _owner, address _spender, bool _approved) external {
-        isApproved[_owner][_spender] = _approved;
+    function setApproval(address owner, address spender, bool approved) external {
+        isApproved[owner][spender] = approved;
     }
 
     /// @notice Checks if spender is approved by owner
-    /// @param _owner The owner address
-    /// @param _spender The spender address
     /// @return Whether spender is approved
-    function checkApproval(address _owner, address _spender) external view returns (bool) {
-        return isApproved[_owner][_spender];
+    function checkApproval(address owner, address spender) external view returns (bool) {
+        return isApproved[owner][spender];
     }
 }
+
+

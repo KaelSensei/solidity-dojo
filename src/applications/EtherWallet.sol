@@ -55,11 +55,12 @@ contract EtherWallet {
     }
 
     /// @notice Withdraws specific amount to owner
-    /// @param _amount Amount to withdraw
-    function withdrawAmount(uint256 _amount) external onlyOwner {
-        require(_amount <= address(this).balance, "Insufficient balance");
-        emit Withdraw(owner, _amount);
-        (bool success,) = owner.call{value: _amount}("");
+    function withdrawAmount(uint256 amount) external onlyOwner {
+        require(amount <= address(this).balance, "Insufficient balance");
+        emit Withdraw(owner, amount);
+        (bool success,) = owner.call{value: amount}("");
         require(success, "Transfer failed");
     }
 }
+
+

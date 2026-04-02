@@ -11,14 +11,13 @@ contract FunctionSelector {
     }
 
     /// @notice Compute selector for any function signature
-    /// @param _signature Function signature like "transfer(address,uint256)"
-    function computeSelector(string calldata _signature) external pure returns (bytes4) {
-        return bytes4(keccak256(bytes(_signature)));
+    function computeSelector(string calldata signature) external pure returns (bytes4) {
+        return bytes4(keccak256(bytes(signature)));
     }
 
     /// @notice Get selector from function call data
-    function getSelectorFromData(bytes calldata _data) external pure returns (bytes4) {
-        return bytes4(_data[:4]);
+    function getSelectorFromData(bytes calldata data) external pure returns (bytes4) {
+        return bytes4(data[:4]);
     }
 
     /// @notice Common selectors for reference
@@ -34,8 +33,8 @@ contract FunctionSelector {
     }
 
     /// @notice Test function to get selector from
-    function testFunction(uint256 _value, address _addr) external pure returns (uint256, address) {
-        return (_value, _addr);
+    function testFunction(uint256 value, address addr) external pure returns (uint256, address) {
+        return (value, addr);
     }
 
     /// @notice Get selector of this contract's function
@@ -53,3 +52,5 @@ contract FunctionSelector {
         return this.example2.selector;
     }
 }
+
+

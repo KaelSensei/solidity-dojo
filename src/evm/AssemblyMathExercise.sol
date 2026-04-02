@@ -8,8 +8,6 @@ pragma solidity ^0.8.26;
 /// @title Yul Math Exercises
 contract AssemblyMathExercise {
     /// @notice Subtract two numbers in assembly (a - b)
-    /// @param a First number
-    /// @param b Second number
     /// @return result a - b
     function subtract(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -18,8 +16,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Multiply two numbers in assembly (a * b)
-    /// @param a First number
-    /// @param b Second number
     /// @return result a * b
     function multiply(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -28,8 +24,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Divide two numbers in assembly (a / b)
-    /// @param a First number
-    /// @param b Second number
     /// @return result a / b (integer division)
     function divide(uint256 a, uint256 b) external pure returns (uint256 result) {
         require(b != 0, "Division by zero");
@@ -39,8 +33,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Modulo operation in assembly (a % b)
-    /// @param a First number
-    /// @param b Second number
     /// @return result a % b
     function modulo(uint256 a, uint256 b) external pure returns (uint256 result) {
         require(b != 0, "Modulo by zero");
@@ -50,9 +42,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Add modulo: (a + b) % mod
-    /// @param a First number
-    /// @param b Second number
-    /// @param modValue Modulus
     /// @return result (a + b) % modValue
     function addMod(uint256 a, uint256 b, uint256 modValue) external pure returns (uint256 result) {
         require(modValue != 0, "Modulo by zero");
@@ -62,9 +51,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Multiply modulo: (a * b) % mod
-    /// @param a First number
-    /// @param b Second number
-    /// @param modValue Modulus
     /// @return result (a * b) % modValue
     function mulMod(uint256 a, uint256 b, uint256 modValue) external pure returns (uint256 result) {
         require(modValue != 0, "Modulo by zero");
@@ -74,7 +60,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Increment operation
-    /// @param x Value to increment
     /// @return result x + 1
     function increment(uint256 x) external pure returns (uint256 result) {
         assembly {
@@ -83,7 +68,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Decrement operation
-    /// @param x Value to decrement
     /// @return result x - 1
     function decrement(uint256 x) external pure returns (uint256 result) {
         require(x > 0, "Underflow");
@@ -93,7 +77,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Square a number
-    /// @param x Value to square
     /// @return result x * x
     function square(uint256 x) external pure returns (uint256 result) {
         assembly {
@@ -102,7 +85,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Cube a number
-    /// @param x Value to cube
     /// @return result x * x * x
     function cube(uint256 x) external pure returns (uint256 result) {
         assembly {
@@ -112,8 +94,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Average of two numbers: (a + b) / 2
-    /// @param a First number
-    /// @param b Second number
     /// @return result Floor average
     function average(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -126,8 +106,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Minimum of two numbers
-    /// @param a First number
-    /// @param b Second number
     /// @return result min(a, b)
     function min(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -138,8 +116,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Maximum of two numbers
-    /// @param a First number
-    /// @param b Second number
     /// @return result max(a, b)
     function max(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -150,7 +126,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Check if a is even
-    /// @param a Number to check
     /// @return result 1 if even, 0 if odd
     function isEven(uint256 a) external pure returns (uint256 result) {
         assembly {
@@ -165,8 +140,6 @@ contract AssemblyMathExercise {
     }
 
     /// @notice Absolute difference
-    /// @param a First number
-    /// @param b Second number
     /// @return result |a - b|
     function absDiff(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -176,3 +149,4 @@ contract AssemblyMathExercise {
         }
     }
 }
+

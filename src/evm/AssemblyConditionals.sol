@@ -8,7 +8,6 @@ pragma solidity ^0.8.26;
 /// @title Yul Conditional Operations
 contract AssemblyConditionals {
     /// @notice Simple if statement in assembly
-    /// @param x Input value
     /// @return result 10 if x > 5, otherwise 5
     function simpleIf(uint256 x) external pure returns (uint256 result) {
         assembly {
@@ -20,7 +19,6 @@ contract AssemblyConditionals {
     }
 
     /// @notice If-else in assembly
-    /// @param x Input value
     /// @return result "positive" if x > 0, "zero" if x == 0 (encoded as uint256)
     function ifElse(uint256 x) external pure returns (uint256 result) {
         assembly {
@@ -33,7 +31,6 @@ contract AssemblyConditionals {
     }
 
     /// @notice Using switch in assembly
-    /// @param x Input value (0, 1, or 2)
     /// @return result 100 for 0, 200 for 1, 300 for 2, 0 otherwise
     function switchStatement(uint256 x) external pure returns (uint256 result) {
         assembly {
@@ -46,9 +43,6 @@ contract AssemblyConditionals {
     }
 
     /// @notice Ternary-like operation in assembly
-    /// @param condition Boolean condition
-    /// @param a Value if true
-    /// @param b Value if false
     /// @return result a if condition, b otherwise
     function ternary(bool condition, uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -61,8 +55,6 @@ contract AssemblyConditionals {
     }
 
     /// @notice Compare two values
-    /// @param a First value
-    /// @param b Second value
     /// @return isGreater 1 if a > b, 0 otherwise
     /// @return isEqual 1 if a == b, 0 otherwise
     /// @return isLess 1 if a < b, 0 otherwise
@@ -75,7 +67,6 @@ contract AssemblyConditionals {
     }
 
     /// @notice Absolute value without branching
-    /// @param x Input value
     /// @return result Absolute value of x
     function abs(int256 x) external pure returns (uint256 result) {
         assembly {
@@ -91,9 +82,6 @@ contract AssemblyConditionals {
     }
 
     /// @notice Clamp value between min and max
-    /// @param x Value to clamp
-    /// @param min Minimum value
-    /// @param max Maximum value
     /// @return result Clamped value
     function clamp(uint256 x, uint256 min, uint256 max) external pure returns (uint256 result) {
         assembly {
@@ -115,7 +103,6 @@ contract AssemblyConditionals {
     }
 
     /// @notice Check if even
-    /// @param x Input value
     /// @return result 1 if even, 0 if odd
     function isEven(uint256 x) external pure returns (uint256 result) {
         assembly {
@@ -128,7 +115,6 @@ contract AssemblyConditionals {
     }
 
     /// @notice Sign function
-    /// @param x Input value
     /// @return result 1 if positive, 0 if zero, 2 if negative
     function sign(int256 x) external pure returns (uint256 result) {
         assembly {
@@ -148,3 +134,4 @@ contract AssemblyConditionals {
         }
     }
 }
+

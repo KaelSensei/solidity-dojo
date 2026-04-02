@@ -16,3 +16,4 @@ contract HelloWorld {
     // pragma solidity ^0.8.26 pins to 0.8.26 or higher but below 0.9.0.
     // Pinning versions prevents unexpected behavior from compiler changes.
 }
+

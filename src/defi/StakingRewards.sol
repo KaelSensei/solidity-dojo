@@ -91,9 +91,6 @@ contract StakingRewards {
     /// @notice Emitted when rewards are paid out
     event RewardPaid(address indexed user, uint256 reward);
 
-    /// @param _stakingToken Address of staking token
-    /// @param _rewardsToken Address of rewards token
-    /// @param _rewardsDuration Duration of rewards period
     constructor(
         address _stakingToken,
         address _rewardsToken,
@@ -259,3 +256,4 @@ contract StakingRewards {
         emit Withdrawn(msg.sender, amount);
     }
 }
+

@@ -52,7 +52,6 @@ contract AssemblyVariable {
     }
 
     /// @notice Function local variables with assembly
-    /// @param x Input value
     /// @return result Doubled value
     function doubleWithAssembly(uint256 x) external pure returns (uint256 result) {
         assembly {
@@ -83,8 +82,6 @@ contract AssemblyVariable {
     }
 
     /// @notice Nested assembly with local variables
-    /// @param a First number
-    /// @param b Second number
     /// @return result The larger of the two
     function max(uint256 a, uint256 b) external pure returns (uint256 result) {
         assembly {
@@ -97,8 +94,6 @@ contract AssemblyVariable {
     }
 
     /// @notice Swap two values without temporary variable (in assembly)
-    /// @param a First value (will be swapped)
-    /// @param b Second value (will be swapped)
     /// @return x First value after swap
     /// @return y Second value after swap
     function swap(uint256 a, uint256 b) external pure returns (uint256 x, uint256 y) {
@@ -108,3 +103,4 @@ contract AssemblyVariable {
         }
     }
 }
+

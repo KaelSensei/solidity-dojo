@@ -21,38 +21,33 @@ contract Structs {
     event TodoToggled(uint256 indexed id, bool completed);
 
     /// @notice Creates a new todo
-    /// @param _text The todo text
-    function create(string calldata _text) external {
+    function create(string calldata text) external {
         todos.push(Todo({
-            text: _text,
+            text: text,
             completed: false
         }));
-        emit TodoCreated(todos.length - 1, _text);
+        emit TodoCreated(todos.length - 1, text);
     }
 
     /// @notice Gets a todo by index
-    /// @param _index The todo index
-    function get(uint256 _index) external view returns (Todo memory) {
-        require(_index < todos.length, "Index out of bounds");
-        return todos[_index];
+    function get(uint256 index) external view returns (Todo memory) {
+        require(index < todos.length, "Index out of bounds");
+        return todos[index];
     }
 
     /// @notice Updates todo text
-    /// @param _index The todo index
-    /// @param _text New text
-    function updateText(uint256 _index, string calldata _text) external {
-        require(_index < todos.length, "Index out of bounds");
-        Todo storage todo = todos[_index];
-        todo.text = _text;
+    function updateText(uint256 index, string calldata text) external {
+        require(index < todos.length, "Index out of bounds");
+        Todo storage todo = todos[index];
+        todo.text = text;
     }
 
     /// @notice Toggles completion status
-    /// @param _index The todo index
-    function toggleCompleted(uint256 _index) external {
-        require(_index < todos.length, "Index out of bounds");
-        Todo storage todo = todos[_index];
+    function toggleCompleted(uint256 index) external {
+        require(index < todos.length, "Index out of bounds");
+        Todo storage todo = todos[index];
         todo.completed = !todo.completed;
-        emit TodoToggled(_index, todo.completed);
+        emit TodoToggled(index, todo.completed);
     }
 
     /// @notice Gets the number of todos
@@ -61,9 +56,11 @@ contract Structs {
     }
 
     /// @notice Alternative syntax for creating struct
-    function createAlternative(string calldata _text) external {
+    function createAlternative(string calldata text) external {
         // Using positional arguments instead of named
-        todos.push(Todo(_text, false));
-        emit TodoCreated(todos.length - 1, _text);
+        todos.push(Todo(text, false));
+        emit TodoCreated(todos.length - 1, text);
     }
 }
+
+

@@ -11,7 +11,6 @@ contract BaseContract {
     string public name;
 
     /// @notice Constructor
-    /// @param _name Contract name
     constructor(string memory _name) {
         name = _name;
         baseValue = 100;
@@ -23,9 +22,8 @@ contract BaseContract {
     }
 
     /// @notice Function to set base value
-    /// @param _value New value
-    function setBaseValue(uint256 _value) public {
-        baseValue = _value;
+    function setBaseValue(uint256 value) public {
+        baseValue = value;
     }
 }
 
@@ -84,3 +82,5 @@ contract MultipleInheritance is BaseContract, AnotherBase {
         return getValue() + getAnotherValue();
     }
 }
+
+

@@ -59,8 +59,6 @@ contract ERC1155Token {
     // ─── View Functions ─────────────────────────────────────────────────
 
     /// @notice Get the balance of a single token for an account
-    /// @param account The address to query
-    /// @param id The token id
     /// @return The token balance
     function balanceOf(address account, uint256 id) external view returns (uint256) {
         return _balances[account][id];
@@ -68,8 +66,6 @@ contract ERC1155Token {
 
     /// @notice Get balances for multiple account/id pairs
     /// @dev Arrays must have the same length
-    /// @param accounts Array of addresses
-    /// @param ids Array of token ids
     /// @return balances Array of balances
     function balanceOfBatch(
         address[] calldata accounts,
@@ -86,8 +82,6 @@ contract ERC1155Token {
     }
 
     /// @notice Check if an operator is approved for an account
-    /// @param account The token owner
-    /// @param operator The address to check
     /// @return True if approved
     function isApprovedForAll(address account, address operator) external view returns (bool) {
         return _operatorApprovals[account][operator];
@@ -96,8 +90,6 @@ contract ERC1155Token {
     // ─── Write Functions ────────────────────────────────────────────────
 
     /// @notice Approve or revoke an operator for all your tokens
-    /// @param operator The address to approve or revoke
-    /// @param approved True to approve, false to revoke
     function setApprovalForAll(address operator, bool approved) external {
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -106,11 +98,6 @@ contract ERC1155Token {
     /// @notice Transfer a single token type
     /// @dev Caller must be the owner or an approved operator.
     ///      Skips ERC1155Receiver check (see contract-level @dev note).
-    /// @param from Source address
-    /// @param to Destination address
-    /// @param id Token id
-    /// @param amount Amount to transfer
-    /// @param data Additional data (unused, kept for interface compatibility)
     function safeTransferFrom(
         address from,
         address to,
@@ -140,11 +127,6 @@ contract ERC1155Token {
     /// @notice Transfer multiple token types in a single call
     /// @dev Caller must be the owner or an approved operator.
     ///      Skips ERC1155Receiver check (see contract-level @dev note).
-    /// @param from Source address
-    /// @param to Destination address
-    /// @param ids Array of token ids
-    /// @param amounts Array of amounts (must match ids length)
-    /// @param data Additional data (unused, kept for interface compatibility)
     function safeBatchTransferFrom(
         address from,
         address to,
@@ -178,9 +160,6 @@ contract ERC1155Token {
     }
 
     /// @notice Mint a single token type (owner only)
-    /// @param to Recipient address
-    /// @param id Token id
-    /// @param amount Amount to mint
     function mint(address to, uint256 id, uint256 amount) external {
         if (msg.sender != owner) revert NotOwner();
         if (to == address(0)) revert ZeroAddress();
@@ -190,9 +169,6 @@ contract ERC1155Token {
     }
 
     /// @notice Mint multiple token types in a single call (owner only)
-    /// @param to Recipient address
-    /// @param ids Array of token ids
-    /// @param amounts Array of amounts (must match ids length)
     function mintBatch(
         address to,
         uint256[] calldata ids,
@@ -209,3 +185,4 @@ contract ERC1155Token {
         emit TransferBatch(msg.sender, address(0), to, ids, amounts);
     }
 }
+

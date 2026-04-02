@@ -38,7 +38,6 @@ contract Variables {
     }
 
     /// @notice Demonstrates local variable usage
-    /// @param input A parameter (also a local variable)
     /// @return result The computed result
     function useLocalVar(uint256 input) external pure returns (uint256 result) {
         // Pure local computation - no storage interaction
@@ -58,3 +57,4 @@ contract Variables {
         stateVar = newValue;
     }
 }
+

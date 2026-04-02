@@ -54,12 +54,6 @@ contract EnglishAuction {
     /// @notice Emitted when auction is ended
     event Ended(address winner, uint256 amount);
 
-    /// @param _nft NFT contract address
-    /// @param _tokenId Token ID to sell
-    /// @param _seller Seller address
-    /// @param _startingBid Starting bid amount
-    /// @param _minBidIncrement Minimum bid increment
-    /// @param _duration Auction duration in seconds
     constructor(
         address _nft,
         uint256 _tokenId,
@@ -82,12 +76,12 @@ contract EnglishAuction {
     }
 
     /// @notice Start the auction
-    function start(uint256 _duration) external {
+    function start(uint256 duration) external {
         require(msg.sender == seller, "Only seller");
         require(!started, "Already started");
         
         started = true;
-        endAt = block.timestamp + _duration;
+        endAt = block.timestamp + duration;
         
         emit Started(block.timestamp, endAt);
     }
@@ -162,3 +156,5 @@ contract EnglishAuction {
         );
     }
 }
+
+

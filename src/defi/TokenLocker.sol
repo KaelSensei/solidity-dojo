@@ -46,10 +46,6 @@ contract TokenLocker {
     /// @notice Create a new token lock
     /// @dev Transfers tokens from the caller into this contract and records the lock.
     ///      The beneficiary can withdraw only after unlockTime.
-    /// @param token Address of the ERC20 token to lock
-    /// @param beneficiary Address that can withdraw the tokens
-    /// @param amount Number of tokens to lock
-    /// @param unlockTime Unix timestamp when the tokens become withdrawable
     /// @return lockId The ID of the newly created lock
     function createLock(
         address token,
@@ -78,7 +74,6 @@ contract TokenLocker {
 
     /// @notice Withdraw tokens from an expired lock
     /// @dev Only the beneficiary can call this, and only after the unlock time.
-    /// @param lockId The ID of the lock to withdraw from
     function withdraw(uint256 lockId) external {
         Lock storage lock = locks[lockId];
 
@@ -94,7 +89,6 @@ contract TokenLocker {
     }
 
     /// @notice Get the details of a lock
-    /// @param lockId The ID of the lock
     /// @return token The locked token address
     /// @return beneficiary The beneficiary address
     /// @return amount The locked amount
@@ -121,3 +115,4 @@ contract TokenLocker {
         return locks.length;
     }
 }
+

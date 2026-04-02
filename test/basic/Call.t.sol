@@ -56,5 +56,19 @@ contract CallTest is Test {
         assertEq(target.value(), 20); // Last call sets value to 20
     }
 
+    function test_Revert_callBySelector_zeroTarget() public {
+        vm.expectRevert("Zero address");
+        caller.callBySelector(address(0), bytes4(keccak256("getValue()")));
+    }
+
+    function test_Revert_batchCall_zeroTarget() public {
+        address[] memory targets = new address[](1);
+        targets[0] = address(0);
+        bytes[] memory data = new bytes[](1);
+        data[0] = "";
+        vm.expectRevert("Zero address");
+        caller.batchCall(targets, data);
+    }
+
     receive() external payable {}
 }

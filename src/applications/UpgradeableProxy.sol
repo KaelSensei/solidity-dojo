@@ -18,7 +18,6 @@ contract UpgradeableProxy {
     error NotAdmin();
     error InvalidImplementation();
 
-    /// @param _implementation Initial logic contract address
     constructor(address _implementation) {
         if (_implementation == address(0) || _implementation.code.length == 0) {
             revert InvalidImplementation();
@@ -29,12 +28,11 @@ contract UpgradeableProxy {
     }
 
     /// @notice Upgrade to a new implementation (admin only)
-    /// @param _newImpl Address of the new logic contract
-    function upgradeTo(address _newImpl) external {
+    function upgradeTo(address newImpl) external {
         if (msg.sender != _getAdmin()) revert NotAdmin();
-        if (_newImpl == address(0) || _newImpl.code.length == 0) revert InvalidImplementation();
-        _setImplementation(_newImpl);
-        emit Upgraded(_newImpl);
+        if (newImpl == address(0) || newImpl.code.length == 0) revert InvalidImplementation();
+        _setImplementation(newImpl);
+        emit Upgraded(newImpl);
     }
 
     /// @notice Returns the current implementation address
@@ -115,3 +113,5 @@ contract CounterV2 {
         return 2;
     }
 }
+
+

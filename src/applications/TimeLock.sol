@@ -53,10 +53,6 @@ contract TimeLock {
     }
 
     /// @notice Queue a transaction for delayed execution
-    /// @param target Target contract address
-    /// @param value ETH value to send
-    /// @param data Calldata to execute
-    /// @param executeTime Timestamp when the tx can be executed
     function queue(address target, uint256 value, bytes calldata data, uint256 executeTime)
         external
         onlyOwner
@@ -94,7 +90,6 @@ contract TimeLock {
     }
 
     /// @notice Cancel a queued transaction
-    /// @param txId Transaction ID to cancel
     function cancel(bytes32 txId) external onlyOwner {
         if (!queued[txId]) revert NotQueued(txId);
         delete queued[txId];
@@ -111,3 +106,5 @@ contract TimeLockTarget {
         value = _value;
     }
 }
+
+

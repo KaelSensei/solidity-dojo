@@ -33,7 +33,7 @@ contract ERC20PermitTest is Test {
             abi.encode(token.PERMIT_TYPEHASH(), _owner, spender, value, nonce, deadline)
         );
         bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", token.DOMAIN_SEPARATOR(), structHash)
+            abi.encodePacked("\x19\x01", token.domainSeparator(), structHash)
         );
         (v, r, s) = vm.sign(signerKey, digest);
     }

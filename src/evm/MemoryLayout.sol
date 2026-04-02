@@ -50,7 +50,6 @@ contract MemoryLayout {
     ///      2. Calculate new pointer (current + requested size)
     ///      3. Store new pointer at 0x40
     ///      4. Return the old pointer (start of allocated region)
-    /// @param size Number of bytes to allocate
     /// @return ptr Pointer to the start of the allocated memory region
     function allocateMemory(uint256 size) external pure returns (uint256 ptr) {
         assembly {
@@ -72,7 +71,6 @@ contract MemoryLayout {
     /// @notice Write a value to freshly allocated memory and read it back
     /// @dev Demonstrates mstore (write) and mload (read) on allocated memory.
     ///      Allocates 32 bytes, writes the value, then reads it back.
-    /// @param value The uint256 value to write and read
     /// @return result The value read back from memory (should equal input)
     function writeAndReadMemory(uint256 value) external pure returns (uint256 result) {
         assembly {
@@ -94,8 +92,6 @@ contract MemoryLayout {
     ///      - Following 32-byte slots: each value padded to 32 bytes
     ///      For two uint256 values, the layout is:
     ///        [length=64][value_a][value_b]
-    /// @param a First value to encode
-    /// @param b Second value to encode
     /// @return The ABI-encoded bytes
     function getAbiEncodedLayout(uint256 a, uint256 b) external pure returns (bytes memory) {
         // abi.encode writes to memory:
@@ -126,8 +122,6 @@ contract MemoryLayout {
     /// @notice Demonstrate that two sequential allocations don't overlap
     /// @dev Allocates two 32-byte regions and writes different values to each,
     ///      then reads both back to prove they occupy separate memory.
-    /// @param val1 Value to write in the first allocation
-    /// @param val2 Value to write in the second allocation
     /// @return read1 Value read from first allocation
     /// @return read2 Value read from second allocation
     function twoAllocations(uint256 val1, uint256 val2) external pure returns (uint256 read1, uint256 read2) {
@@ -160,3 +154,4 @@ contract MemoryLayout {
         }
     }
 }
+

@@ -11,7 +11,7 @@ Three GitHub Actions workflows run on every push and pull request:
 | Workflow | File | Purpose | Blocks PRs? |
 |----------|------|---------|-------------|
 | **Forge Tests** | `forge-tests.yml` | Run all 922 Foundry tests | ✅ Yes |
-| **Slither Analysis** | `slither.yml` | Static analysis for vulnerabilities | ✅ Yes (clean code only) |
+| **Slither Analysis** | `slither.yml` | Static analysis → SARIF / Code Scanning | ✅ Yes — if Slither or `forge install` fails |
 | **Coverage** | `coverage.yml` | Test coverage report → Codecov | ❌ No (informational) |
 
 ---
@@ -47,32 +47,33 @@ This repository has a `hacks/` folder containing **intentionally vulnerable cont
 
 Two jobs solve this cleanly:
 
-### Job 1 — `slither-clean` (blocks PRs)
+### Job 1 — `slither-clean` (SARIF → Code Scanning)
 
-Scans all production-quality contracts:
-- `src/basic/`
-- `src/applications/`
-- `src/defi/`
-- `src/evm/`
+Scans all production-quality contracts (excludes `src/hacks/`, `lib/`, `test/`, `script/` via `--filter-paths`):
 
-Configured with `fail-on: high` — any high-severity finding **blocks the PR**.
+- `src/basic/`, `src/applications/`, `src/defi/`, `src/evm/`
 
-Results are uploaded as SARIF and visible in **GitHub → Security → Code Scanning**:
-- Inline annotations on the affected lines
-- Persistent alert history
-- Severity filtering (high / medium / low / informational)
+Uses **`fail-on: none`** so Slither findings do not fail the step; reviewers use **GitHub Advanced Security** comments and the Security tab. The **job** still fails if compilation/analysis breaks (e.g. bad Solidity, `forge install` failure).
 
-### Job 2 — `slither-hacks` (never blocks)
+SARIF upload follows [crytic/slither-action](https://github.com/crytic/slither-action): use the action’s **`outputs.sarif`** path with `github/codeql-action/upload-sarif`, and **do not** combine `continue-on-error` on the Slither step with an unconditional upload — that can yield a failed **Code scanning results / Slither** check (e.g. missing or invalid upload).
 
-Scans only `src/hacks/` with `continue-on-error: true` and `fail-on: none`.
+Results appear under **GitHub → Security → Code Scanning** (category `slither-clean`).
 
-Purpose: document that vulnerabilities **are** intentionally present. If someone accidentally fixes a vulnerability in `hacks/`, the finding disappears from the report — a useful signal that the educational example has been compromised.
+### Job 2 — `slither-hacks` (artifact only, non-blocking)
 
-Results are uploaded to a separate SARIF category (`slither-hacks`) so they don't pollute the clean code findings.
+Scans roughly `src/hacks/` by filtering out the other `src/*` trees. Uses `continue-on-error: true` and `fail-on: none` so intentional vulnerable demos do not break CI.
+
+The SARIF file is attached as a **workflow artifact** (`slither-hacks-sarif`) for inspection — it is **not** uploaded to Code Scanning (keeps hacks findings out of the main alert stream).
+
+### Troubleshooting: “Code scanning results / Slither” / configuration issues
+
+1. Open the **Slither — clean contracts** job log: confirm Slither finished and `slither-clean.sarif` exists.
+2. Under **Settings → Code security and analysis → Code scanning**, ensure you do not have a **stale** third-party configuration pointing at a deleted workflow; use the [tool status](https://docs.github.com/en/code-security/code-scanning/managing-code-scanning-for-your-repository/about-the-tool-status-page) page if available.
+3. For **fork PRs**, `security-events: write` may be restricted; uploads only run reliably for PRs from the same repository unless you adopt a [fork-safe pattern](https://docs.github.com/en/code-security/code-scanning/troubleshooting-code-scanning/resource-not-accessible).
 
 ### Viewing results
 
-→ **GitHub Security → Code Scanning alerts**
+→ **GitHub Security → Code Scanning alerts**  
 `https://github.com/KaelSensei/solidity-dojo/security/code-scanning`
 
 ---
@@ -102,9 +103,19 @@ codecov-action → codecov.io
 - **PR annotations** — Codecov comments on PRs showing coverage diff
 - **Dashboard** at https://codecov.io/gh/KaelSensei/solidity-dojo with per-file breakdown
 
+### Codecov GitHub App (recommended)
+
+Codecov shows warnings such as *“install the Codecov app … to ensure uploads and comments are reliably processed”* when the repo is not linked via the official integration.
+
+1. Install the app for this org or repo: **[Codecov on GitHub Marketplace](https://github.com/marketplace/codecov)** (or **GitHub → Settings → Integrations → Applications → Codecov**).
+2. In **[codecov.io](https://codecov.io)** open this repository and confirm it is connected to **GitHub** (not “token only”).
+3. Re-run the **Coverage** workflow on a PR; uploads and PR comments should then be processed consistently.
+
+Repository YAML: root **`codecov.yml`** configures non-blocking status checks and PR comment layout.
+
 ### Required secret
 
-`CODECOV_TOKEN` must be set in **GitHub → Settings → Secrets → Actions**.
+`CODECOV_TOKEN` must be set in **GitHub → Settings → Secrets and variables → Actions** (still required for uploads from Actions unless you switch to [OIDC](https://docs.codecov.com/docs/github-oidc)).
 
 The coverage report is non-blocking — a drop in coverage does not fail the CI.
 

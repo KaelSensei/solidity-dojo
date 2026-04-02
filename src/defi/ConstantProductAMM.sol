@@ -45,8 +45,6 @@ contract ConstantProductAMM {
     }
 
     /// @notice Swap one token for another
-    /// @param tokenIn Address of token being sold
-    /// @param amountIn Amount of tokenIn to sell
     /// @return amountOut Amount of the other token received
     function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
         if (amountIn == 0) revert ZeroAmount();
@@ -74,8 +72,6 @@ contract ConstantProductAMM {
     }
 
     /// @notice Add liquidity to the pool
-    /// @param amount0 Amount of token0
-    /// @param amount1 Amount of token1
     /// @return shares LP shares minted
     function addLiquidity(uint256 amount0, uint256 amount1) external returns (uint256 shares) {
         if (amount0 == 0 || amount1 == 0) revert ZeroAmount();
@@ -107,7 +103,6 @@ contract ConstantProductAMM {
     }
 
     /// @notice Remove liquidity from the pool
-    /// @param shares LP shares to burn
     /// @return amount0 Token0 returned
     /// @return amount1 Token1 returned
     function removeLiquidity(uint256 shares) external returns (uint256 amount0, uint256 amount1) {
@@ -152,3 +147,4 @@ contract ConstantProductAMM {
         return a < b ? a : b;
     }
 }
+

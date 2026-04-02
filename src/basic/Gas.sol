@@ -94,3 +94,4 @@ contract Gas {
         gasUsed = gasBefore - gasleft();
     }
 }
+

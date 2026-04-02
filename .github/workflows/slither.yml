@@ -25,7 +25,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Install Foundry toolchain
         uses: foundry-rs/foundry-toolchain@v1
@@ -35,10 +37,11 @@ jobs:
       - name: Install Forge dependencies
         run: forge install
 
+      # fail-on: none so findings never fail the step; do NOT use continue-on-error here — if Slither
+      # crashes, we must skip SARIF upload or GitHub's "Code scanning results / Slither" check breaks.
       - name: Run Slither on clean contracts
-        uses: crytic/slither-action@v0.4.0
+        uses: crytic/slither-action@v0.4.1
         id: slither-clean
-        continue-on-error: true  # informational — teaching repo uses intentional patterns
         with:
           # slither --filter-paths expects a regex, not a comma-separated list
           slither-args: --filter-paths "(src/hacks|lib|test|script)(/|$)"
@@ -46,10 +49,10 @@ jobs:
           fail-on: none
 
       - name: Upload SARIF to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        if: success() && hashFiles('slither-clean.sarif') != ''
         with:
-          sarif_file: slither-clean.sarif
+          sarif_file: ${{ steps.slither-clean.outputs.sarif }}
           category: slither-clean
 
   # ── Job 2: Scan hacks/ (expected vulnerabilities) ───────────────────────────
@@ -59,10 +62,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      security-events: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Install Foundry toolchain
         uses: foundry-rs/foundry-toolchain@v1
@@ -73,7 +79,7 @@ jobs:
         run: forge install
 
       - name: Run Slither on hacks/ (informational only)
-        uses: crytic/slither-action@v0.4.0
+        uses: crytic/slither-action@v0.4.1
         id: slither-hacks
         continue-on-error: true
         with:
@@ -82,9 +88,17 @@ jobs:
           sarif: slither-hacks.sarif
           fail-on: none
 
+      - name: Upload hacks SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        if: always() && hashFiles('slither-hacks.sarif') != ''
+        with:
+          sarif_file: ${{ steps.slither-hacks.outputs.sarif }}
+          category: slither-hacks
+
       - name: Upload hacks SARIF as artifact
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && hashFiles('slither-hacks.sarif') != ''
         with:
           name: slither-hacks-sarif
           path: slither-hacks.sarif
+          if-no-files-found: ignore
