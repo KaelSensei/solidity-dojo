@@ -6,6 +6,7 @@ pragma solidity ^0.8.26;
 /// @dev All ETH amounts are internally stored in wei (10^18 wei = 1 ETH).
 ///      Solidity provides literal suffixes for readability.
 contract EtherUnits {
+    address public immutable owner;
     /// @notice Tracks total ether received by this contract
     uint256 public totalReceived;
 
@@ -59,6 +60,17 @@ contract EtherUnits {
     /// @notice Fallback function for calls with data
     fallback() external payable {
         totalReceived += msg.value;
+    }
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 }
 

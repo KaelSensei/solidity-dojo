@@ -5,6 +5,7 @@ pragma solidity ^0.8.26;
 /// @notice Demonstrates fallback and receive functions.
 /// @dev receive(): called on empty calldata. fallback(): called when no function matches.
 contract Fallback {
+    address public immutable owner = msg.sender;
     /// @notice Tracks calls
     uint256 public receiveCount;
     uint256 public fallbackCount;
@@ -32,6 +33,13 @@ contract Fallback {
     function getBalance() external view returns (uint256) {
         return address(this).balance;
     }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
+    }
 }
 
 /// @title Proxy
@@ -39,9 +47,11 @@ contract Fallback {
 contract Proxy {
     /// @notice Implementation address
     address public implementation;
+    address public immutable owner;
 
     constructor(address _implementation) {
         implementation = _implementation;
+        owner = msg.sender;
     }
 
     /// @notice FALLBACK: Delegate all calls to implementation
@@ -58,5 +68,12 @@ contract Proxy {
     }
 
     receive() external payable {}
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
+    }
 }
 

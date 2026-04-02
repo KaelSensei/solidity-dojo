@@ -11,8 +11,8 @@ contract CallTest is Test {
     TargetContract public target;
 
     function setUp() public {
-        caller = new Call();
         target = new TargetContract();
+        caller = new Call(address(target));
     }
 
     /// @notice Test call by selector
@@ -26,7 +26,7 @@ contract CallTest is Test {
     /// @notice Test call with value
     function test_CallWithValue() public {
         bytes memory data = abi.encodeWithSignature("deposit()");
-        (bool success,) = caller.callWithValue{value: 1 ether}(address(target), data, 1 ether);
+        (bool success,) = caller.callWithValue{value: 1 ether}(data, 1 ether);
         assertTrue(success);
         assertEq(target.balances(address(caller)), 1 ether);
     }
@@ -68,6 +68,11 @@ contract CallTest is Test {
         data[0] = "";
         vm.expectRevert("Zero address");
         caller.batchCall(targets, data);
+    }
+
+    function test_Revert_constructor_zeroValueTarget() public {
+        vm.expectRevert("Zero address");
+        new Call(address(0));
     }
 
     receive() external payable {}

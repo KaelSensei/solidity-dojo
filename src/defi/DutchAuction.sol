@@ -46,15 +46,17 @@ contract DutchAuction {
     address public buyer;
 
     /// @notice Emitted when auction ends
-    event AuctionEnded(address buyer, uint256 price, uint256 timestamp);
+    event AuctionEnded(address indexed buyer, uint256 price, uint256 timestamp);
     
     /// @notice Emitted when bid is placed
-    event BidPlaced(address bidder, uint256 bid, uint256 price);
+    event BidPlaced(address indexed bidder, uint256 bid, uint256 price);
+
+    /// @notice Pull-payment balances for refunds and seller proceeds
+    mapping(address => uint256) public pendingWithdrawals;
 
     constructor(
         address _nft,
         uint256 _tokenId,
-        address _seller,
         uint256 _startingPrice,
         uint256 _discountRate,
         uint256 _duration,
@@ -66,7 +68,7 @@ contract DutchAuction {
         
         nft = IERC721(_nft);
         tokenId = _tokenId;
-        seller = _seller;
+        seller = msg.sender;
         startingPrice = _startingPrice;
         discountRate = _discountRate;
         startsAt = block.timestamp;
@@ -74,7 +76,7 @@ contract DutchAuction {
         minimumPrice = _minimumPrice;
         
         // Transfer NFT to auction contract
-        nft.transferFrom(_seller, address(this), _tokenId);
+        nft.transferFrom(msg.sender, address(this), _tokenId);
     }
 
     /// @notice Get current price based on time elapsed
@@ -111,16 +113,23 @@ contract DutchAuction {
         
         // Transfer NFT to buyer
         nft.safeTransferFrom(address(this), msg.sender, tokenId);
-        
-        // Refund excess
+
+        // Pull-payment accounting (avoids direct ETH sends during purchase)
+        pendingWithdrawals[seller] += price;
         if (msg.value > price) {
-            payable(msg.sender).transfer(msg.value - price);
+            pendingWithdrawals[msg.sender] += (msg.value - price);
         }
-        
-        // Transfer payment to seller
-        payable(seller).transfer(price);
-        
+
         emit AuctionEnded(msg.sender, price, block.timestamp);
+    }
+
+    /// @notice Withdraw any refundable amount or seller proceeds
+    function withdraw() external {
+        uint256 amount = pendingWithdrawals[msg.sender];
+        require(amount > 0, "Nothing to withdraw");
+        pendingWithdrawals[msg.sender] = 0;
+        (bool ok,) = payable(msg.sender).call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 
     /// @notice End auction without sale (seller can reclaim)

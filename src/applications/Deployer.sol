@@ -5,6 +5,7 @@ pragma solidity ^0.8.26;
 /// @notice Factory contract that can deploy any contract given its creation bytecode.
 /// @dev Useful for deploying contracts with complex constructors.
 contract Deployer {
+    address public immutable owner;
     /// @notice Emitted when a contract is deployed
     event Deployed(
         address indexed deployedAddress,
@@ -16,6 +17,10 @@ contract Deployer {
 
     /// @notice Thrown when bytecode length is zero
     error ZeroBytecode();
+
+    constructor() {
+        owner = msg.sender;
+    }
 
     /// @notice Deploy a contract with creation bytecode
     /// @return deployedAddress Address of the deployed contract
@@ -110,6 +115,13 @@ contract Deployer {
         }
 
         emit Deployed(deployedAddress, bytecodeHash);
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 }
 

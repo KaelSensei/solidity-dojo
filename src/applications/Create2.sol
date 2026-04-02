@@ -5,6 +5,7 @@ pragma solidity ^0.8.26;
 /// @notice Factory contract using CREATE2 for deterministic addresses.
 /// @dev Allows deploying contracts at predictable addresses before deployment.
 contract Create2 {
+    address public immutable owner = msg.sender;
     /// @notice Emitted when a contract is deployed
     event Deployed(
         address indexed deployedAddress,
@@ -48,20 +49,22 @@ contract Create2 {
 
     /// @notice Deploy a contract using CREATE2
     /// @return Address of the deployed contract
-    function deploy(
-        bytes memory bytecode,
-        bytes32 salt
-    ) public payable returns (address) {
-        return deploy(bytecode, salt, msg.value);
+    function deploy(bytes memory bytecode, bytes32 salt) public payable returns (address) {
+        uint256 value;
+        assembly {
+            value := callvalue()
+        }
+        return _deploy(bytecode, salt, value);
     }
 
     /// @notice Deploy a contract using CREATE2 with specific value
     /// @return Address of the deployed contract
-    function deploy(
-        bytes memory bytecode,
-        bytes32 salt,
-        uint256 value
-    ) public payable returns (address) {
+    function deploy(bytes memory bytecode, bytes32 salt, uint256 value) public payable returns (address) {
+        require(msg.value == value, "Value mismatch");
+        return _deploy(bytecode, salt, value);
+    }
+
+    function _deploy(bytes memory bytecode, bytes32 salt, uint256 value) internal returns (address) {
         if (bytecode.length == 0) revert ZeroBytecode();
 
         bytes32 bytecodeHash = keccak256(bytecode);
@@ -96,7 +99,11 @@ contract Create2 {
         bytes memory bytecode,
         bytes32 salt
     ) public payable returns (address) {
-        return deploy(bytecode, salt, msg.value);
+        uint256 value;
+        assembly {
+            value := callvalue()
+        }
+        return _deploy(bytecode, salt, value);
     }
 
     /// @notice Get the bytecode for a simple contract
@@ -137,12 +144,21 @@ contract Create2 {
         bytes32[] memory salts
     ) public payable returns (address[] memory) {
         address[] memory addresses = new address[](salts.length);
+        uint256 perDeployment = msg.value / salts.length;
+        require(perDeployment * salts.length == msg.value, "Uneven msg.value");
 
         for (uint256 i = 0; i < salts.length; i++) {
-            addresses[i] = deploy(bytecode, salts[i]);
+            addresses[i] = _deploy(bytecode, salts[i], perDeployment);
         }
 
         return addresses;
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 }
 

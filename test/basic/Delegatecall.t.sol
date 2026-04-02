@@ -23,8 +23,8 @@ contract DelegatecallTest is Test {
     }
 
     function test_Revert_executeDelegatecall_zeroTarget() public {
-        vm.expectRevert("Zero address");
-        demo.executeDelegatecall(address(0), 1);
+        // no longer applicable: executeDelegatecall delegates to self only
+        vm.skip(true);
     }
 
     /// @notice Test delegatecall updates proxy storage
@@ -39,7 +39,7 @@ contract DelegatecallTest is Test {
 
     /// @notice Test delegatecall context
     function test_Delegatecall_Context() public {
-        demo.executeDelegatecall(address(demo), 100);
+        demo.executeDelegatecall(100);
         assertEq(demo.value(), 100);
         assertEq(demo.sender(), address(this));
     }

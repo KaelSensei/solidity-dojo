@@ -8,40 +8,53 @@ contract SendingEther {
     /// @notice Emitted when ether is sent
     event Sent(address indexed to, uint256 amount, string method);
 
+    /// @notice Fixed receiver used by all send methods
+    address payable public immutable receiver;
+
+    constructor(address payable receiver_) {
+        require(receiver_ != address(0), "Zero address");
+        receiver = receiver_;
+    }
+
     /// @notice Send via transfer (reverts on failure, 2300 gas)
-    function sendViaTransfer(address payable to, uint256 amount) external {
-        require(to != address(0), "Zero address");
-        to.transfer(amount);
-        emit Sent(to, amount, "transfer");
+    function sendViaTransfer(uint256 amount) external payable {
+        require(msg.value == amount, "Value mismatch");
+        receiver.transfer(amount);
+        emit Sent(receiver, amount, "transfer");
     }
 
     /// @notice Send via send (returns bool, 2300 gas)
-    function sendViaSend(address payable to, uint256 amount) external returns (bool) {
-        require(to != address(0), "Zero address");
-        bool success = to.send(amount);
+    function sendViaSend(uint256 amount) external payable returns (bool) {
+        require(msg.value == amount, "Value mismatch");
+        bool success = receiver.send(amount);
         require(success, "Send failed");
-        emit Sent(to, amount, "send");
+        emit Sent(receiver, amount, "send");
         return success;
     }
 
     /// @notice Send via call (forwards all gas, returns bool)
-    function sendViaCall(address payable to, uint256 amount) external returns (bool) {
-        require(to != address(0), "Zero address");
-        (bool success,) = to.call{value: amount}("");
+    function sendViaCall(uint256 amount) external payable returns (bool) {
+        require(msg.value == amount, "Value mismatch");
+        (bool success,) = receiver.call{value: msg.value}("");
         require(success, "Call failed");
-        emit Sent(to, amount, "call");
+        emit Sent(receiver, amount, "call");
         return success;
     }
 
     /// @notice Recommended way: call with reentrancy protection
-    function sendSafely(address payable to, uint256 amount) external {
-        require(to != address(0), "Zero address");
-        (bool success,) = to.call{value: amount}("");
+    function sendSafely(uint256 amount) external payable {
+        require(msg.value == amount, "Value mismatch");
+        (bool success,) = receiver.call{value: msg.value}("");
         require(success, "Safe send failed");
-        emit Sent(to, amount, "safe call");
+        emit Sent(receiver, amount, "safe call");
     }
 
-    receive() external payable {}
+    function sweepToReceiver() external {
+        uint256 bal = address(this).balance;
+        if (bal == 0) return;
+        (bool ok,) = receiver.call{value: bal}("");
+        require(ok, "Sweep failed");
+    }
 }
 
 /// @title EtherReceiver

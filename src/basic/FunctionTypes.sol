@@ -85,6 +85,13 @@ contract FunctionTypes {
         return storedValue;
     }
 
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
+    }
+
     /// @notice Returns current stored value
     function getStoredValue() external view returns (uint256) {
         return storedValue;

@@ -61,7 +61,7 @@ contract CustomErrorTest is Test {
         address recipient = makeAddr("recipient");
         customError.deposit{value: 100}();
         
-        customError.transfer(recipient, 30);
+        customError.transferBalance(recipient, 30);
         
         assertEq(customError.balances(address(this)), 70);
         assertEq(customError.balances(recipient), 30);
@@ -71,7 +71,7 @@ contract CustomErrorTest is Test {
     function test_Transfer_ZeroAddress_Reverts() public {
         customError.deposit{value: 100}();
         vm.expectRevert(CustomError.ZeroAddress.selector);
-        customError.transfer(address(0), 50);
+        customError.transferBalance(address(0), 50);
     }
 
     /// @notice Test unauthorized admin call reverts with address
