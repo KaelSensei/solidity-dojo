@@ -64,16 +64,35 @@ contract SendingEther {
         (bool ok,) = to.call{value: amount}("");
         require(ok, "Withdraw failed");
     }
+
+    receive() external payable {
+        // Never retain ETH: immediately forward to the fixed receiver.
+        (bool ok,) = receiver.call{value: msg.value}("");
+        require(ok, "Forward failed");
+    }
 }
 
 /// @title EtherReceiver
 /// @notice Contract that can receive ether
 contract EtherReceiver {
+    address public immutable owner;
+
     /// @notice Emitted when ether received
     event Received(address indexed sender, uint256 amount);
 
+    constructor() {
+        owner = msg.sender;
+    }
+
     receive() external payable {
         emit Received(msg.sender, msg.value);
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 }
 

@@ -178,13 +178,13 @@ contract StakingRewards {
         
         // Update reward accounting
         _updateReward(_user);
-        
-        // Transfer tokens from user
-        stakingToken.safeTransferFrom(_user, address(this), amount);
-        
-        // Update state
+
+        // Effects before interactions (CEI).
         _balances[_user] += amount;
         _totalSupply += amount;
+
+        // Transfer tokens from user
+        stakingToken.safeTransferFrom(_user, address(this), amount);
         
         emit Staked(_user, amount);
     }
@@ -246,15 +246,17 @@ contract StakingRewards {
         require(amount > 0, "Nothing to withdraw");
         
         _updateReward(msg.sender);
-        
-        _balances[msg.sender] = 0;
-        _totalSupply = 0;
-        
-        stakingToken.safeTransfer(msg.sender, amount);
-        
+
         uint256 reward = rewards[msg.sender];
+
+        // Effects before interactions (CEI).
+        _balances[msg.sender] = 0;
+        _totalSupply -= amount;
+        rewards[msg.sender] = 0;
+
+        stakingToken.safeTransfer(msg.sender, amount);
+
         if (reward > 0) {
-            rewards[msg.sender] = 0;
             rewardsToken.safeTransfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }

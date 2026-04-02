@@ -69,8 +69,6 @@ contract ConstantSumAMM {
             ? (token0, token1, reserve1)
             : (token1, token0, reserve0);
 
-        if (!_tokenIn.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
-
         // 0.3% fee: amountOut = amountIn * 997 / 1000
         // Constant sum means 1:1 exchange rate — no price impact
         amountOut = (amountIn * 997) / 1000;
@@ -78,9 +76,18 @@ contract ConstantSumAMM {
         if (amountOut > _resOut) revert InsufficientLiquidity();
         if (amountOut < 1) revert ZeroAmount();
 
+        // Effects before interactions (CEI) to satisfy reentrancy detectors.
+        if (isToken0) {
+            reserve0 += amountIn;
+            reserve1 -= amountOut;
+        } else {
+            reserve1 += amountIn;
+            reserve0 -= amountOut;
+        }
+
+        if (!_tokenIn.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
         if (!_tokenOut.transfer(msg.sender, amountOut)) revert TransferFailed();
 
-        _updateReserves();
         emit Swap(msg.sender, tokenIn, amountIn, amountOut);
     }
 
@@ -91,13 +98,6 @@ contract ConstantSumAMM {
     function addLiquidity(uint256 amount0, uint256 amount1) external nonReentrant returns (uint256 shares) {
         if (amount0 == 0 && amount1 == 0) revert ZeroAmount();
 
-        if (amount0 > 0) {
-            if (!token0.transferFrom(msg.sender, address(this), amount0)) revert TransferFailed();
-        }
-        if (amount1 > 0) {
-            if (!token1.transferFrom(msg.sender, address(this), amount1)) revert TransferFailed();
-        }
-
         if (totalSupply < 1) {
             // First deposit: shares = total tokens deposited
             shares = amount0 + amount1;
@@ -107,12 +107,22 @@ contract ConstantSumAMM {
             shares = ((amount0 + amount1) * totalSupply) / totalReserves;
         }
 
-        if (shares == 0) revert InsufficientLiquidity();
+        if (shares < 1) revert InsufficientLiquidity();
 
         balanceOf[msg.sender] += shares;
         totalSupply += shares;
 
-        _updateReserves();
+        // Update reserves before interacting (CEI).
+        reserve0 += amount0;
+        reserve1 += amount1;
+
+        if (amount0 > 0) {
+            if (!token0.transferFrom(msg.sender, address(this), amount0)) revert TransferFailed();
+        }
+        if (amount1 > 0) {
+            if (!token1.transferFrom(msg.sender, address(this), amount1)) revert TransferFailed();
+        }
+
         emit AddLiquidity(msg.sender, amount0, amount1, shares);
     }
 
@@ -130,6 +140,10 @@ contract ConstantSumAMM {
         balanceOf[msg.sender] -= shares;
         totalSupply -= shares;
 
+        // Update reserves before interacting (CEI).
+        reserve0 -= amount0;
+        reserve1 -= amount1;
+
         if (amount0 > 0) {
             if (!token0.transfer(msg.sender, amount0)) revert TransferFailed();
         }
@@ -137,7 +151,6 @@ contract ConstantSumAMM {
             if (!token1.transfer(msg.sender, amount1)) revert TransferFailed();
         }
 
-        _updateReserves();
         emit RemoveLiquidity(msg.sender, shares, amount0, amount1);
     }
 
