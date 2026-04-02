@@ -90,6 +90,11 @@ contract CrowdFundTest is Test {
         );
     }
 
+    function test_ConstructorRevertsOnZeroCreator() public {
+        vm.expectRevert("Invalid creator");
+        new CrowdFund(address(token), address(0), GOAL, DURATION);
+    }
+
     /// @notice Test can pledge to campaign
     function test_CanPledge() public {
         vm.startPrank(pledger1);

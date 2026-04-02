@@ -31,6 +31,7 @@ contract TimeLock {
     error TimestampNotPassed(uint256 executeTime, uint256 currentTime);
     error TimestampExpired(uint256 executeTime, uint256 expiryTime);
     error ExecutionFailed();
+    error ZeroAddress();
 
     constructor() {
         owner = msg.sender;
@@ -75,6 +76,8 @@ contract TimeLock {
         payable
         onlyOwner
     {
+        if (target == address(0)) revert ZeroAddress();
+
         bytes32 txId = getTxId(target, value, data, executeTime);
 
         if (!queued[txId]) revert NotQueued(txId);

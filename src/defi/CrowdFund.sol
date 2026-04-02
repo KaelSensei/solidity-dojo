@@ -57,6 +57,7 @@ contract CrowdFund {
         uint256 _duration
     ) {
         require(_token != address(0), "Invalid token");
+        require(_creator != address(0), "Invalid creator");
         require(_goal > 0, "Invalid goal");
         require(_duration > 0, "Invalid duration");
         

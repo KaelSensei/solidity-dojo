@@ -18,6 +18,7 @@ contract MinimalProxy {
 
     /// @notice Constructor sets the implementation address
     constructor(address _implementation) {
+        require(_implementation != address(0), "Zero address");
         implementation = _implementation;
     }
 

@@ -113,6 +113,11 @@ contract UniswapV4LimitOrderTest is Test {
         tokenB.mint(filler, 1000000e18);
     }
 
+    function test_ConstructorRevertsOnZeroPoolManager() public {
+        vm.expectRevert("Zero address");
+        new UniswapV4LimitOrder(address(0));
+    }
+
     /// @notice Test creating a limit order
     function test_CreateOrder() public {
         uint256 amountIn = 100e18;

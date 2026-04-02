@@ -155,6 +155,21 @@ contract UniswapV4FlashLoanTest is Test {
         token.mint(user, 1000000e18);
     }
 
+    function test_ConstructorRevertsOnZeroPoolManager() public {
+        vm.expectRevert("Zero address");
+        new UniswapV4FlashLoan(address(0));
+    }
+
+    function test_ExecuteFlashLoanRevertsOnZeroToken() public {
+        vm.expectRevert("Zero address");
+        flashLoan.executeFlashLoan(address(0), 1e18, "");
+    }
+
+    function test_ExecuteFlashLoanWithCallbackRevertsOnZeroToken() public {
+        vm.expectRevert("Zero address");
+        flashLoan.executeFlashLoanWithCallback(address(0), 1e18, address(0x1), "");
+    }
+
     /// @notice Test flash loan executes correctly
     /// @dev This is a mock - it calculates and emits fees but doesn't actually borrow tokens
     function test_FlashLoanExecutes() public {

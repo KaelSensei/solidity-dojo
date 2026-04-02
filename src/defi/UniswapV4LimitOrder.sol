@@ -62,6 +62,7 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
 
     /// @notice Initialize with PoolManager address
     constructor(address _poolManager) {
+        require(_poolManager != address(0), "Zero address");
         poolManager = _poolManager;
     }
 

@@ -32,12 +32,14 @@ contract PaymentChannel {
     error ChannelAlreadyClosed();
     error InvalidSignature();
     error TransferFailed();
+    error ZeroAddress();
 
     // ─── Constructor ────────────────────────────────────────────────────
 
     /// @notice Create a payment channel
     /// @dev The sender funds the channel by sending ETH with this constructor call.
     constructor(address _receiver, uint256 _duration) payable {
+        if (_receiver == address(0)) revert ZeroAddress();
         sender = msg.sender;
         receiver = _receiver;
         expiration = block.timestamp + _duration;
