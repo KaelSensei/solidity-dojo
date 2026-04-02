@@ -70,4 +70,10 @@ contract PayableTest is Test {
         assertEq(recipient.balance, 1 ether);
         assertEq(payableContract.getBalance(), 1 ether);
     }
+
+    function test_Revert_withdrawTo_zeroRecipient() public {
+        payableContract.deposit{value: 1 ether}();
+        vm.expectRevert("Zero address");
+        payableContract.withdrawTo(payable(address(0)), 1 ether);
+    }
 }

@@ -12,6 +12,7 @@ contract Call {
 
     /// @notice Call a function by selector
     function callBySelector(address target, bytes4 selector) external returns (bool, bytes memory) {
+        require(target != address(0), "Zero address");
         (bool success, bytes memory data) = target.call(abi.encodePacked(selector));
         if (success) {
             emit CallSuccess(target, abi.encodePacked(selector), data);
@@ -23,6 +24,7 @@ contract Call {
 
     /// @notice Call with specific value
     function callWithValue(address target, bytes calldata data, uint256 value) external payable returns (bool, bytes memory) {
+        require(target != address(0), "Zero address");
         (bool success, bytes memory result) = target.call{value: value}(data);
         require(success, "Call failed");
         return (success, result);
@@ -30,6 +32,7 @@ contract Call {
 
     /// @notice Static call (no state changes)
     function staticCall(address target, bytes calldata data) external view returns (bool, bytes memory) {
+        require(target != address(0), "Zero address");
         (bool success, bytes memory result) = target.staticcall(data);
         return (success, result);
     }
@@ -41,6 +44,7 @@ contract Call {
         bytes[] memory results = new bytes[](targets.length);
 
         for (uint256 i = 0; i < targets.length; i++) {
+            require(targets[i] != address(0), "Zero address");
             (bool success, bytes memory result) = targets[i].call(data[i]);
             successes[i] = success;
             results[i] = result;

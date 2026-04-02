@@ -19,6 +19,7 @@ contract Immutable {
 
     /// @notice Constructor sets immutable values
     constructor(uint256 initialUint, address initialAddress, bytes32 initialBytes32) {
+        require(initialAddress != address(0), "Zero address");
         myUint = initialUint;
         myAddress = initialAddress;
         myBytes32 = initialBytes32;

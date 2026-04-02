@@ -31,6 +31,7 @@ contract Proxy {
     address public implementation;
 
     constructor(address _implementation) {
+        require(_implementation != address(0), "Zero address");
         implementation = _implementation;
         owner = msg.sender;
     }
@@ -64,6 +65,7 @@ contract DelegatecallDemo {
 
     /// @notice Execute delegatecall to target
     function executeDelegatecall(address target, uint256 newValue) external {
+        require(target != address(0), "Zero address");
         (bool success,) = target.delegatecall(
             abi.encodeWithSignature("setValue(uint256)", newValue)
         );

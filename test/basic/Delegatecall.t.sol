@@ -17,6 +17,16 @@ contract DelegatecallTest is Test {
         demo = new DelegatecallDemo();
     }
 
+    function test_Revert_proxyConstructor_zeroImplementation() public {
+        vm.expectRevert("Zero address");
+        new Proxy(address(0));
+    }
+
+    function test_Revert_executeDelegatecall_zeroTarget() public {
+        vm.expectRevert("Zero address");
+        demo.executeDelegatecall(address(0), 1);
+    }
+
     /// @notice Test delegatecall updates proxy storage
     function test_Delegatecall_UpdatesProxyStorage() public {
         // Call through proxy

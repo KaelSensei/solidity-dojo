@@ -34,6 +34,7 @@ contract TryCatch {
     ExternalContract public externalContract;
 
     constructor(address _external) {
+        require(_external != address(0), "Zero address");
         externalContract = ExternalContract(_external);
     }
 
@@ -73,6 +74,7 @@ contract TryCatch {
 
     /// @notice Try/catch low-level call
     function tryLowLevelCall(address target, bytes calldata data) external returns (bool, bytes memory) {
+        require(target != address(0), "Zero address");
         (bool success, bytes memory result) = target.call(data);
         if (!success) {
             lastError = "Low-level call failed";

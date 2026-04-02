@@ -61,6 +61,7 @@ contract Payable {
     /// @notice Withdraw to specific address
     function withdrawTo(address payable to, uint256 amount) external {
         require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
         require(amount <= address(this).balance, "Insufficient balance");
         (bool success,) = to.call{value: amount}("");
         require(success, "Transfer failed");

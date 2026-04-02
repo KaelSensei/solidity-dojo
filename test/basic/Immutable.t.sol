@@ -16,6 +16,11 @@ contract ImmutableTest is Test {
         immutableDefault = new ImmutableWithDefault();
     }
 
+    function test_Revert_constructor_zeroAddress() public {
+        vm.expectRevert("Zero address");
+        new Immutable(1, address(0), bytes32(0));
+    }
+
     /// @notice Unit test: myUint matches constructor arg
     function test_myUint_matchesConstructor() public view {
         assertEq(immutableContract.myUint(), 42);

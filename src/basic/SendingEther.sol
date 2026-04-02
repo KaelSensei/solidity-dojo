@@ -10,12 +10,14 @@ contract SendingEther {
 
     /// @notice Send via transfer (reverts on failure, 2300 gas)
     function sendViaTransfer(address payable to, uint256 amount) external {
+        require(to != address(0), "Zero address");
         to.transfer(amount);
         emit Sent(to, amount, "transfer");
     }
 
     /// @notice Send via send (returns bool, 2300 gas)
     function sendViaSend(address payable to, uint256 amount) external returns (bool) {
+        require(to != address(0), "Zero address");
         bool success = to.send(amount);
         require(success, "Send failed");
         emit Sent(to, amount, "send");
@@ -24,6 +26,7 @@ contract SendingEther {
 
     /// @notice Send via call (forwards all gas, returns bool)
     function sendViaCall(address payable to, uint256 amount) external returns (bool) {
+        require(to != address(0), "Zero address");
         (bool success,) = to.call{value: amount}("");
         require(success, "Call failed");
         emit Sent(to, amount, "call");
@@ -32,6 +35,7 @@ contract SendingEther {
 
     /// @notice Recommended way: call with reentrancy protection
     function sendSafely(address payable to, uint256 amount) external {
+        require(to != address(0), "Zero address");
         (bool success,) = to.call{value: amount}("");
         require(success, "Safe send failed");
         emit Sent(to, amount, "safe call");
