@@ -9,6 +9,7 @@ A hands-on Solidity training ground based on solidity-by-example.org.
 - [x] **Naming / NatSpec cleanup (2026-04)**: After Slither-oriented renames, fixed shadowing bugs (`value = value`, `num = num`), aligned bodies with new parameter names, removed drift-prone `/// @param` lines under `src/` (excluding `src/hacks/`), added `scripts/strip_natspec_params.py`, and updated tests (`ERC20Permit`, `GasGolf`, `Immutable`). Full suite green via `forge test` in Docker.
 - [x] **Slither / Code Scanning (zero address)**: Added `require(... != address(0), "Zero address")` on low-level call entry points flagged in PR review (`Call`, `SendingEther`, `TryCatch`, `Payable.withdrawTo`, `Immutable` constructor, `Delegatecall` proxy + demo), with matching revert tests.
 - [x] **Codecov**: Upgraded `codecov/codecov-action` to v5, added root `codecov.yml` (informational checks, PR comment layout), documented installing the [Codecov GitHub App](https://github.com/marketplace/codecov) in `CI.md` for reliable uploads and PR comments.
+- [x] **Code Scanning / Slither workflow**: Fixed SARIF upload (use `steps.slither-clean.outputs.sarif`, `upload-sarif@v4`, `fetch-depth: 0`, remove `continue-on-error` on clean scan so failed runs do not upload empty SARIF; `crytic/slither-action@v0.4.1`). Corrected `CI.md` (hacks job = artifact only; accurate fail-on / troubleshooting).
 
 ### ✅ Phase 1: Project Setup
 - [x] Copy training documentation to repo
