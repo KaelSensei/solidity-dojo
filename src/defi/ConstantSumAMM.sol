@@ -40,6 +40,7 @@ contract ConstantSumAMM {
     error ZeroAmount();
     error InsufficientLiquidity();
     error InsufficientShares();
+    error TransferFailed();
 
     /// @param _token0 Address of the first token
     /// @param _token1 Address of the second token
@@ -64,7 +65,7 @@ contract ConstantSumAMM {
             ? (token0, token1, reserve1)
             : (token1, token0, reserve0);
 
-        _tokenIn.transferFrom(msg.sender, address(this), amountIn);
+        if (!_tokenIn.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
 
         // 0.3% fee: amountOut = amountIn * 997 / 1000
         // Constant sum means 1:1 exchange rate — no price impact
@@ -73,7 +74,7 @@ contract ConstantSumAMM {
         if (amountOut > _resOut) revert InsufficientLiquidity();
         if (amountOut == 0) revert ZeroAmount();
 
-        _tokenOut.transfer(msg.sender, amountOut);
+        if (!_tokenOut.transfer(msg.sender, amountOut)) revert TransferFailed();
 
         _updateReserves();
         emit Swap(msg.sender, tokenIn, amountIn, amountOut);
@@ -89,10 +90,10 @@ contract ConstantSumAMM {
         if (amount0 == 0 && amount1 == 0) revert ZeroAmount();
 
         if (amount0 > 0) {
-            token0.transferFrom(msg.sender, address(this), amount0);
+            if (!token0.transferFrom(msg.sender, address(this), amount0)) revert TransferFailed();
         }
         if (amount1 > 0) {
-            token1.transferFrom(msg.sender, address(this), amount1);
+            if (!token1.transferFrom(msg.sender, address(this), amount1)) revert TransferFailed();
         }
 
         if (totalSupply == 0) {
@@ -129,10 +130,10 @@ contract ConstantSumAMM {
         totalSupply -= shares;
 
         if (amount0 > 0) {
-            token0.transfer(msg.sender, amount0);
+            if (!token0.transfer(msg.sender, amount0)) revert TransferFailed();
         }
         if (amount1 > 0) {
-            token1.transfer(msg.sender, amount1);
+            if (!token1.transfer(msg.sender, amount1)) revert TransferFailed();
         }
 
         _updateReserves();

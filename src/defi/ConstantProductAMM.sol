@@ -37,6 +37,7 @@ contract ConstantProductAMM {
     error InsufficientLiquidity();
     error InsufficientShares();
     error InvalidRatio();
+    error TransferFailed();
 
     constructor(address _token0, address _token1) {
         token0 = IERC20AMM(_token0);
@@ -56,7 +57,7 @@ contract ConstantProductAMM {
             ? (token0, token1, reserve0, reserve1)
             : (token1, token0, reserve1, reserve0);
 
-        _tokenIn.transferFrom(msg.sender, address(this), amountIn);
+        if (!_tokenIn.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
 
         // 0.3% fee: amountInWithFee = amountIn * 997 / 1000
         uint256 amountInWithFee = (amountIn * 997) / 1000;
@@ -66,7 +67,7 @@ contract ConstantProductAMM {
 
         if (amountOut == 0) revert InsufficientLiquidity();
 
-        _tokenOut.transfer(msg.sender, amountOut);
+        if (!_tokenOut.transfer(msg.sender, amountOut)) revert TransferFailed();
 
         _updateReserves();
         emit Swap(msg.sender, tokenIn, amountIn, amountOut);
@@ -84,8 +85,8 @@ contract ConstantProductAMM {
             if (amount0 * reserve1 != amount1 * reserve0) revert InvalidRatio();
         }
 
-        token0.transferFrom(msg.sender, address(this), amount0);
-        token1.transferFrom(msg.sender, address(this), amount1);
+        if (!token0.transferFrom(msg.sender, address(this), amount0)) revert TransferFailed();
+        if (!token1.transferFrom(msg.sender, address(this), amount1)) revert TransferFailed();
 
         if (totalSupply == 0) {
             shares = _sqrt(amount0 * amount1);
@@ -121,8 +122,8 @@ contract ConstantProductAMM {
         balanceOf[msg.sender] -= shares;
         totalSupply -= shares;
 
-        token0.transfer(msg.sender, amount0);
-        token1.transfer(msg.sender, amount1);
+        if (!token0.transfer(msg.sender, amount0)) revert TransferFailed();
+        if (!token1.transfer(msg.sender, amount1)) revert TransferFailed();
 
         _updateReserves();
         emit RemoveLiquidity(msg.sender, shares, amount0, amount1);
