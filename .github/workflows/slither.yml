@@ -40,7 +40,7 @@ jobs:
         id: slither-clean
         continue-on-error: true  # informational — teaching repo uses intentional patterns
         with:
-          slither-args: --filter-paths "src/hacks"
+          slither-args: --filter-paths "src/hacks,lib,test,script"
           sarif: slither-clean.sarif
           fail-on: none
 
