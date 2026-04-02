@@ -15,6 +15,8 @@ jobs:
   coverage:
     name: "Forge Coverage → Codecov"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -47,7 +49,7 @@ jobs:
             || echo "lcov --remove returned non-zero (ok if nothing to remove)"
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: lcov.info
           flags: foundry

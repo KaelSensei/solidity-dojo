@@ -102,9 +102,19 @@ codecov-action → codecov.io
 - **PR annotations** — Codecov comments on PRs showing coverage diff
 - **Dashboard** at https://codecov.io/gh/KaelSensei/solidity-dojo with per-file breakdown
 
+### Codecov GitHub App (recommended)
+
+Codecov shows warnings such as *“install the Codecov app … to ensure uploads and comments are reliably processed”* when the repo is not linked via the official integration.
+
+1. Install the app for this org or repo: **[Codecov on GitHub Marketplace](https://github.com/marketplace/codecov)** (or **GitHub → Settings → Integrations → Applications → Codecov**).
+2. In **[codecov.io](https://codecov.io)** open this repository and confirm it is connected to **GitHub** (not “token only”).
+3. Re-run the **Coverage** workflow on a PR; uploads and PR comments should then be processed consistently.
+
+Repository YAML: root **`codecov.yml`** configures non-blocking status checks and PR comment layout.
+
 ### Required secret
 
-`CODECOV_TOKEN` must be set in **GitHub → Settings → Secrets → Actions**.
+`CODECOV_TOKEN` must be set in **GitHub → Settings → Secrets and variables → Actions** (still required for uploads from Actions unless you switch to [OIDC](https://docs.codecov.com/docs/github-oidc)).
 
 The coverage report is non-blocking — a drop in coverage does not fail the CI.
 
