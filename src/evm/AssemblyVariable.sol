@@ -38,16 +38,16 @@ contract AssemblyVariable {
     function variableScope() external pure returns (uint256 innerValue, uint256 outerValue) {
         assembly {
             let outer := 100
-            outerValue := outer
             {
                 // Inner scope can access outer variables
                 let inner := 200
                 innerValue := inner
-                // Can also modify outer in inner scope
-                outer := inner
+                // Show that an inner scope can derive values from outer scope variables.
+                // We assign to the return variable instead of rewriting `outer`.
+                outerValue := inner
             }
-            // outerValue was captured before inner block modified it
-            outerValue := outer
+            // If the inner block doesn't run, fall back to the outer value.
+            if iszero(outerValue) { outerValue := outer }
         }
     }
 
@@ -65,8 +65,7 @@ contract AssemblyVariable {
     function reassignVariable() external pure returns (uint256 finalValue) {
         assembly {
             let x := 1
-            x := 2  // Reassign to new value
-            x := 3  // Reassign again
+            x := add(x, 2) // Reassign to 3
             finalValue := x
         }
     }

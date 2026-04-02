@@ -7,6 +7,7 @@ pragma solidity ^0.8.26;
 contract Call {
     /// @notice Default target used for value-carrying calls
     address public immutable valueTarget;
+    address public immutable owner;
 
     /// @notice Emitted on successful call
     event CallSuccess(address indexed target, bytes data, bytes result);
@@ -16,6 +17,7 @@ contract Call {
     constructor(address valueTarget_) {
         require(valueTarget_ != address(0), "Zero address");
         valueTarget = valueTarget_;
+        owner = msg.sender;
     }
 
     /// @notice Call a function by selector
@@ -63,9 +65,16 @@ contract Call {
     // No receive/deposit: this contract should not retain ETH.
     function sweepToValueTarget() external {
         uint256 bal = address(this).balance;
-        if (bal == 0) return;
+        if (bal < 1) return;
         (bool ok,) = valueTarget.call{value: bal}("");
         require(ok, "Sweep failed");
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 }
 

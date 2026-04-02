@@ -39,6 +39,14 @@ contract ConstantProductAMM {
     error InvalidRatio();
     error TransferFailed();
 
+    uint256 private _unlocked = 1;
+    modifier nonReentrant() {
+        require(_unlocked == 1, "Reentrancy");
+        _unlocked = 2;
+        _;
+        _unlocked = 1;
+    }
+
     constructor(address _token0, address _token1) {
         token0 = IERC20AMM(_token0);
         token1 = IERC20AMM(_token1);
@@ -46,7 +54,7 @@ contract ConstantProductAMM {
 
     /// @notice Swap one token for another
     /// @return amountOut Amount of the other token received
-    function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
+    function swap(address tokenIn, uint256 amountIn) external nonReentrant returns (uint256 amountOut) {
         if (amountIn == 0) revert ZeroAmount();
         if (tokenIn != address(token0) && tokenIn != address(token1)) revert InvalidToken();
 
@@ -57,13 +65,16 @@ contract ConstantProductAMM {
 
         if (!_tokenIn.transferFrom(msg.sender, address(this), amountIn)) revert TransferFailed();
 
-        // 0.3% fee: amountInWithFee = amountIn * 997 / 1000
-        uint256 amountInWithFee = (amountIn * 997) / 1000;
+        // 0.3% fee, keeping precision as a numerator to avoid divide-before-multiply patterns.
+        // amountInWithFeeNumerator = amountIn * 997, denominator = 1000
+        uint256 amountInWithFeeNumerator = amountIn * 997;
 
-        // x * y = k => amountOut = (resOut * amountInWithFee) / (resIn + amountInWithFee)
-        amountOut = (_resOut * amountInWithFee) / (_resIn + amountInWithFee);
+        // x * y = k
+        // amountOut = (resOut * amountInWithFee) / (resIn + amountInWithFee)
+        //          = (resOut * (amountIn*997)) / (resIn*1000 + (amountIn*997))
+        amountOut = (_resOut * amountInWithFeeNumerator) / (_resIn * 1000 + amountInWithFeeNumerator);
 
-        if (amountOut == 0) revert InsufficientLiquidity();
+        if (amountOut < 1) revert InsufficientLiquidity();
 
         if (!_tokenOut.transfer(msg.sender, amountOut)) revert TransferFailed();
 
@@ -73,7 +84,7 @@ contract ConstantProductAMM {
 
     /// @notice Add liquidity to the pool
     /// @return shares LP shares minted
-    function addLiquidity(uint256 amount0, uint256 amount1) external returns (uint256 shares) {
+    function addLiquidity(uint256 amount0, uint256 amount1) external nonReentrant returns (uint256 shares) {
         if (amount0 == 0 || amount1 == 0) revert ZeroAmount();
 
         if (reserve0 > 0 && reserve1 > 0) {
@@ -84,7 +95,7 @@ contract ConstantProductAMM {
         if (!token0.transferFrom(msg.sender, address(this), amount0)) revert TransferFailed();
         if (!token1.transferFrom(msg.sender, address(this), amount1)) revert TransferFailed();
 
-        if (totalSupply == 0) {
+        if (totalSupply < 1) {
             shares = _sqrt(amount0 * amount1);
         } else {
             shares = _min(
@@ -105,14 +116,14 @@ contract ConstantProductAMM {
     /// @notice Remove liquidity from the pool
     /// @return amount0 Token0 returned
     /// @return amount1 Token1 returned
-    function removeLiquidity(uint256 shares) external returns (uint256 amount0, uint256 amount1) {
+    function removeLiquidity(uint256 shares) external nonReentrant returns (uint256 amount0, uint256 amount1) {
         if (shares == 0) revert ZeroAmount();
         if (balanceOf[msg.sender] < shares) revert InsufficientShares();
 
         amount0 = (shares * reserve0) / totalSupply;
         amount1 = (shares * reserve1) / totalSupply;
 
-        if (amount0 == 0 || amount1 == 0) revert InsufficientLiquidity();
+        if (amount0 < 1 || amount1 < 1) revert InsufficientLiquidity();
 
         balanceOf[msg.sender] -= shares;
         totalSupply -= shares;

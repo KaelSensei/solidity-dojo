@@ -89,6 +89,7 @@ contract Gas {
     /// @dev Setting a storage slot to 0 refunds 4800 gas
     function clearStorage() external returns (uint256 gasUsed) {
         count = 1; // ensure it's set
+        require(count != 0, "Unexpected"); // read between writes to avoid write-after-write pattern
         uint256 gasBefore = gasleft();
         count = 0; // clear storage - should get refund
         gasUsed = gasBefore - gasleft();

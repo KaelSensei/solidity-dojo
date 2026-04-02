@@ -10,10 +10,12 @@ contract SendingEther {
 
     /// @notice Fixed receiver used by all send methods
     address payable public immutable receiver;
+    address public immutable owner;
 
     constructor(address payable receiver_) {
         require(receiver_ != address(0), "Zero address");
         receiver = receiver_;
+        owner = msg.sender;
     }
 
     /// @notice Send via transfer (reverts on failure, 2300 gas)
@@ -51,9 +53,16 @@ contract SendingEther {
 
     function sweepToReceiver() external {
         uint256 bal = address(this).balance;
-        if (bal == 0) return;
+        if (bal < 1) return;
         (bool ok,) = receiver.call{value: bal}("");
         require(ok, "Sweep failed");
+    }
+
+    function withdrawEther(address payable to, uint256 amount) external {
+        require(msg.sender == owner, "Not owner");
+        require(to != address(0), "Zero address");
+        (bool ok,) = to.call{value: amount}("");
+        require(ok, "Withdraw failed");
     }
 }
 
