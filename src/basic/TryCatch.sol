@@ -85,6 +85,7 @@ contract TryCatch {
     /// @notice Try/catch low-level call
     function tryLowLevelCall(address target, bytes calldata data) external noReentrancy returns (bool, bytes memory) {
         require(target != address(0), "Zero address");
+        // slither-disable-next-line reentrancy-events
         (bool success, bytes memory result) = target.call(data);
         if (!success) {
             lastError = "Low-level call failed";

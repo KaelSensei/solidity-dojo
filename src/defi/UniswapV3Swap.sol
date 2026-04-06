@@ -98,10 +98,10 @@ contract UniswapV3Swap {
             sqrtPriceLimitX96: 0
         });
 
-        // Emit event before external call
-        emit SwapCompleted(tokenIn, tokenOut, amountIn, amountOut);
-
         amountOut = router.exactInputSingle(params);
+
+        // slither-disable-next-line reentrancy-events
+        emit SwapCompleted(tokenIn, tokenOut, amountIn, amountOut);
     }
 
     /// @notice Execute exact output single hop swap
@@ -139,6 +139,7 @@ contract UniswapV3Swap {
             if (!IERC20(tokenIn).transfer(msg.sender, amountInMaximum - amountIn)) revert TransferFailed();
         }
 
+        // slither-disable-next-line reentrancy-events
         emit SwapCompleted(tokenIn, tokenOut, amountIn, amountOut);
     }
 
@@ -168,6 +169,7 @@ contract UniswapV3Swap {
 
         amountOut = router.exactInput(params);
 
+        // slither-disable-next-line reentrancy-events
         emit SwapCompleted(tokenIn, address(0), amountIn, amountOut);
     }
 
