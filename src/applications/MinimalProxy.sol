@@ -39,13 +39,14 @@ contract MinimalProxy {
             implementation,
             bytes32(0)
         );
-        
+
+        // Emit event before external call
+        emit ProxyDeployed(proxy, implementation);
+
         if (initData.length > 0) {
             (bool success, ) = proxy.call(initData);
             require(success, "Initialization failed");
         }
-
-        emit ProxyDeployed(proxy, implementation);
     }
 
     /// @notice Deploy multiple clones

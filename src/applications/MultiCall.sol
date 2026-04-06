@@ -20,6 +20,9 @@ contract MultiCall {
         uint256 len = targets.length;
         require(len == data.length, "Length mismatch");
 
+        // Emit event before external calls
+        emit MulticallExecuted(len);
+
         results = new bytes[](len);
         for (uint256 i; i < len;) {
             (bool success, bytes memory result) = targets[i].call(data[i]);
@@ -27,8 +30,6 @@ contract MultiCall {
             results[i] = result;
             unchecked { ++i; }
         }
-
-        emit MulticallExecuted(len);
     }
 
     /// @notice Execute multiple view/pure calls using staticcall (read-only)
