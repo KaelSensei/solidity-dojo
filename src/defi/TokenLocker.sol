@@ -86,9 +86,10 @@ contract TokenLocker {
 
         lock.withdrawn = true;
 
-        if (!IERC20Locker(lock.token).transfer(msg.sender, lock.amount)) revert TransferFailed();
-
+        // Emit event before external call
         emit Withdrawn(lockId, msg.sender, lock.amount);
+
+        if (!IERC20Locker(lock.token).transfer(msg.sender, lock.amount)) revert TransferFailed();
     }
 
     /// @notice Get the details of a lock
