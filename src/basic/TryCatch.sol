@@ -30,12 +30,22 @@ contract TryCatch {
     uint256 public lastErrorCode;
     /// @notice Last success value
     uint256 public lastSuccessValue;
+    /// @notice Reentrancy lock
+    bool private locked;
 
     ExternalContract public externalContract;
 
     constructor(address _external) {
         require(_external != address(0), "Zero address");
         externalContract = ExternalContract(_external);
+    }
+
+    /// @notice Reentrancy guard modifier
+    modifier noReentrancy() {
+        require(!locked, "No reentrancy");
+        locked = true;
+        _;
+        locked = false;
     }
 
     /// @notice Try/catch with string error
@@ -73,7 +83,7 @@ contract TryCatch {
     }
 
     /// @notice Try/catch low-level call
-    function tryLowLevelCall(address target, bytes calldata data) external returns (bool, bytes memory) {
+    function tryLowLevelCall(address target, bytes calldata data) external noReentrancy returns (bool, bytes memory) {
         require(target != address(0), "Zero address");
         (bool success, bytes memory result) = target.call(data);
         if (!success) {

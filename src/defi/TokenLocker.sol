@@ -68,9 +68,10 @@ contract TokenLocker {
             withdrawn: false
         }));
 
-        if (!IERC20Locker(token).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
-
+        // Emit event before external call
         emit LockCreated(lockId, token, beneficiary, amount, unlockTime);
+
+        if (!IERC20Locker(token).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
     }
 
     /// @notice Withdraw tokens from an expired lock
@@ -85,9 +86,10 @@ contract TokenLocker {
 
         lock.withdrawn = true;
 
-        if (!IERC20Locker(lock.token).transfer(msg.sender, lock.amount)) revert TransferFailed();
-
+        // Emit event before external call
         emit Withdrawn(lockId, msg.sender, lock.amount);
+
+        if (!IERC20Locker(lock.token).transfer(msg.sender, lock.amount)) revert TransferFailed();
     }
 
     /// @notice Get the details of a lock

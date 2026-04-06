@@ -28,27 +28,30 @@ contract SendingEther {
     /// @notice Send via send (returns bool, 2300 gas)
     function sendViaSend(uint256 amount) external payable returns (bool) {
         require(msg.value == amount, "Value mismatch");
+        // Emit event before external call
+        emit Sent(receiver, amount, "send");
         bool success = receiver.send(amount);
         require(success, "Send failed");
-        emit Sent(receiver, amount, "send");
         return success;
     }
 
     /// @notice Send via call (forwards all gas, returns bool)
     function sendViaCall(uint256 amount) external payable returns (bool) {
         require(msg.value == amount, "Value mismatch");
+        // Emit event before external call
+        emit Sent(receiver, amount, "call");
         (bool success,) = receiver.call{value: msg.value}("");
         require(success, "Call failed");
-        emit Sent(receiver, amount, "call");
         return success;
     }
 
     /// @notice Recommended way: call with reentrancy protection
     function sendSafely(uint256 amount) external payable {
         require(msg.value == amount, "Value mismatch");
+        // Emit event before external call
+        emit Sent(receiver, amount, "safe call");
         (bool success,) = receiver.call{value: msg.value}("");
         require(success, "Safe send failed");
-        emit Sent(receiver, amount, "safe call");
     }
 
     function sweepToReceiver() external {

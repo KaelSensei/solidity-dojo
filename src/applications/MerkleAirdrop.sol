@@ -69,11 +69,12 @@ contract MerkleAirdrop {
         // Mark as claimed before transfer (checks-effects-interactions)
         _claimed[account] = true;
 
+        // Emit event before external call
+        emit Claimed(account, amount);
+
         // Transfer tokens
         bool success = token.transfer(account, amount);
         if (!success) revert TransferFailed();
-
-        emit Claimed(account, amount);
     }
 
     /// @notice Check if an account has already claimed

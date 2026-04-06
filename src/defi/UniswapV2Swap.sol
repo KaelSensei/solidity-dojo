@@ -60,14 +60,14 @@ contract UniswapV2FlashSwap {
         uint amount0Out = token0 == tokenBorrow ? amountBorrow : 0;
         uint amount1Out = token0 == tokenBorrow ? 0 : amountBorrow;
 
+        // Emit event before external call
+        emit FlashSwapExecuted(amountBorrow, amountBorrow, 0);
+
         // Send borrowed tokens to the caller
         pair.swap(amount0Out, amount1Out, msg.sender, data);
 
         // After the caller executes their logic, check if we got repaid
         uint256 balanceRepaid = IERC20(tokenRepay).balanceOf(address(this));
-
-        // Emit event with results
-        emit FlashSwapExecuted(amountBorrow, amountBorrow, 0);
     }
 
     /// @notice Calculate expected output amount for a given input

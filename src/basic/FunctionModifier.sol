@@ -14,6 +14,9 @@ contract FunctionModifier {
     /// @notice Minimum amount required for certain operations
     uint256 public constant MIN_AMOUNT = 0.01 ether;
 
+    /// @notice Emitted when owner is changed
+    event OwnerChanged(address indexed previousOwner, address indexed newOwner);
+
     constructor() {
         owner = msg.sender;
     }
@@ -108,7 +111,9 @@ contract FunctionModifier {
 
     /// @notice Change owner (owner only)
     function changeOwner(address newOwner) external onlyOwner validAddress(newOwner) {
+        address previousOwner = owner;
         owner = newOwner;
+        emit OwnerChanged(previousOwner, newOwner);
     }
 
     function withdrawEther(address payable to, uint256 amount) external onlyOwner validAddress(to) {

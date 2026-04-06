@@ -197,13 +197,14 @@ contract MultiSigWallet {
 
         transaction.executed = true;
 
+        // Emit event before external call
+        emit ExecuteTransaction(msg.sender, txIndex);
+
         (bool success, ) = transaction.to.call{value: transaction.value}(
             transaction.data
         );
 
         if (!success) revert TxExecutionFailed(txIndex);
-
-        emit ExecuteTransaction(msg.sender, txIndex);
     }
 
     /// @notice Thrown when there are insufficient confirmations

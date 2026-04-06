@@ -57,10 +57,11 @@ contract CustomError {
 
         balances[msg.sender] = balance - amount;
 
+        // Emit event before external call
+        emit Withdrawal(msg.sender, amount);
+
         (bool success,) = payable(msg.sender).call{value: amount}("");
         if (!success) revert("Transfer failed");
-
-        emit Withdrawal(msg.sender, amount);
     }
 
     /// @notice Transfer balance to another address using custom errors
