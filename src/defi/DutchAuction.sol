@@ -120,10 +120,11 @@ contract DutchAuction {
             pendingWithdrawals[msg.sender] += (msg.value - price);
         }
         
+        // Emit event before external call
+        emit AuctionEnded(msg.sender, price, block.timestamp);
+
         // Transfer NFT to buyer
         nft.safeTransferFrom(address(this), msg.sender, tokenId);
-
-        emit AuctionEnded(msg.sender, price, block.timestamp);
     }
 
     /// @notice Withdraw any refundable amount or seller proceeds

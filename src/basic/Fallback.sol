@@ -46,7 +46,7 @@ contract Fallback {
 /// @notice Simple proxy using fallback
 contract Proxy {
     /// @notice Implementation address
-    address public implementation;
+    address public immutable implementation;
     address public immutable owner;
 
     constructor(address _implementation) {
