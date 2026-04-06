@@ -23,11 +23,13 @@ contract Call {
     /// @notice Call a function by selector
     function callBySelector(address target, bytes4 selector) external returns (bool, bytes memory) {
         require(target != address(0), "Zero address");
-        (bool success, bytes memory data) = target.call(abi.encodePacked(selector));
+        bytes memory encodedSelector = abi.encodePacked(selector);
+        (bool success, bytes memory data) = target.call(encodedSelector);
+        // Emit event before returning (avoid reentrancy concerns)
         if (success) {
-            emit CallSuccess(target, abi.encodePacked(selector), data);
+            emit CallSuccess(target, encodedSelector, data);
         } else {
-            emit CallFailed(target, abi.encodePacked(selector));
+            emit CallFailed(target, encodedSelector);
         }
         return (success, data);
     }
