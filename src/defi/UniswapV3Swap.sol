@@ -98,9 +98,10 @@ contract UniswapV3Swap {
             sqrtPriceLimitX96: 0
         });
 
-        amountOut = router.exactInputSingle(params);
-
+        // Emit event before external call
         emit SwapCompleted(tokenIn, tokenOut, amountIn, amountOut);
+
+        amountOut = router.exactInputSingle(params);
     }
 
     /// @notice Execute exact output single hop swap

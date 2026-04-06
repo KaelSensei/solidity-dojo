@@ -28,9 +28,10 @@ contract SendingEther {
     /// @notice Send via send (returns bool, 2300 gas)
     function sendViaSend(uint256 amount) external payable returns (bool) {
         require(msg.value == amount, "Value mismatch");
+        // Emit event before external call
+        emit Sent(receiver, amount, "send");
         bool success = receiver.send(amount);
         require(success, "Send failed");
-        emit Sent(receiver, amount, "send");
         return success;
     }
 

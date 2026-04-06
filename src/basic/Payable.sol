@@ -53,9 +53,10 @@ contract Payable {
     function withdraw() external {
         require(msg.sender == owner, "Not owner");
         uint256 balance = address(this).balance;
+        // Emit event before external call
+        emit EtherSent(owner, balance);
         (bool success,) = payable(owner).call{value: balance}("");
         require(success, "Transfer failed");
-        emit EtherSent(owner, balance);
     }
 
     /// @notice Withdraw to specific address
@@ -63,9 +64,10 @@ contract Payable {
         require(msg.sender == owner, "Not owner");
         require(to != address(0), "Zero address");
         require(amount <= address(this).balance, "Insufficient balance");
+        // Emit event before external call
+        emit EtherSent(to, amount);
         (bool success,) = to.call{value: amount}("");
         require(success, "Transfer failed");
-        emit EtherSent(to, amount);
     }
 }
 

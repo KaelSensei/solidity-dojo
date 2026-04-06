@@ -88,15 +88,16 @@ contract CrowdFund {
     function unpledge(uint256 amount) external {
         require(amount > 0, "Cannot unpledge 0");
         require(pledges[msg.sender] >= amount, "Insufficient pledge");
-        
+
         // Update state
         pledges[msg.sender] -= amount;
         totalPledged -= amount;
-        
+
+        // Emit event before external call
+        emit Unpledged(msg.sender, amount);
+
         // Transfer tokens back to pledger
         if (!token.transfer(msg.sender, amount)) revert TransferFailed();
-        
-        emit Unpledged(msg.sender, amount);
     }
 
     /// @notice Claim funds if goal is met (only creator)
