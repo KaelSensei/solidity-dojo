@@ -87,13 +87,7 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
         require(tickLower < tickUpper, "Invalid tick range");
         require(amountIn > 0, "Amount must be > 0");
 
-        // Transfer tokens from user (they must approve first)
-        require(
-            IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn),
-            "Transfer failed"
-        );
-
-        // Create order
+        // Create order first (effects before interactions)
         orderId = ++orderCounter;
         orders[orderId] = Order({
             owner: msg.sender,
@@ -108,7 +102,14 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
             deadline: deadline
         });
 
+        // Emit event before transfer
         emit OrderCreated(orderId, msg.sender, tokenIn, tokenOut, amountIn);
+
+        // Transfer tokens from user (they must approve first)
+        require(
+            IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn),
+            "Transfer failed"
+        );
     }
 
     /// @notice Fill a limit order (simulate execution when price crosses tick)
@@ -171,6 +172,9 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
         // Mark as cancelled
         order.cancelled = true;
 
+        // Emit event before external call
+        emit OrderCancelled(orderId, msg.sender);
+
         // Return remaining tokens to owner
         uint256 remaining = order.amountIn - order.filledAmountIn;
         if (remaining > 0) {
@@ -179,8 +183,6 @@ contract UniswapV4LimitOrder is ReentrancyGuard {
                 "Refund failed"
             );
         }
-
-        emit OrderCancelled(orderId, msg.sender);
     }
 
     /// @notice Get order details
