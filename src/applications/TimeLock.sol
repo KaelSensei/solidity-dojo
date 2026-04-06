@@ -89,10 +89,11 @@ contract TimeLock {
 
         delete queued[txId];
 
+        // Emit event before external call
+        emit Execute(txId, target, value, data, executeTime);
+
         (bool success,) = target.call{value: value}(data);
         if (!success) revert ExecutionFailed();
-
-        emit Execute(txId, target, value, data, executeTime);
     }
 
     /// @notice Cancel a queued transaction

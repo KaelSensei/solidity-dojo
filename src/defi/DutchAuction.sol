@@ -140,13 +140,14 @@ contract DutchAuction {
     function endAuction() external {
         require(msg.sender == seller, "Only seller");
         require(!ended, "Already ended");
-        
+
         ended = true;
-        
+
+        // Emit event before external call
+        emit AuctionEnded(address(0), 0, block.timestamp);
+
         // Return NFT to seller
         nft.safeTransferFrom(address(this), seller, tokenId);
-        
-        emit AuctionEnded(address(0), 0, block.timestamp);
     }
 
     /// @notice Get auction info
