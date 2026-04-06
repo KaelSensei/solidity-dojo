@@ -124,9 +124,12 @@ contract EnglishAuction {
         require(!ended, "Already ended");
         // slither-disable-next-line timestamp
         require(block.timestamp >= endAt, "Not yet ended");
-        
+
         ended = true;
-        
+
+        // Emit event before external calls
+        emit Ended(highestBidder, highestBid);
+
         if (highestBidder != address(0)) {
             // Pull-payment for seller proceeds (avoids direct ETH send in end())
             pendingWithdrawals[seller] += highestBid;
@@ -137,8 +140,6 @@ contract EnglishAuction {
             // No bids - return NFT to seller
             nft.safeTransferFrom(address(this), seller, tokenId);
         }
-        
-        emit Ended(highestBidder, highestBid);
     }
 
     /// @notice Get auction status

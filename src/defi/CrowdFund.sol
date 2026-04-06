@@ -77,10 +77,11 @@ contract CrowdFund {
         pledges[msg.sender] += amount;
         totalPledged += amount;
 
+        // Emit event before external call
+        emit Pledged(msg.sender, amount);
+
         // Transfer tokens from pledger
         if (!token.transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
-        
-        emit Pledged(msg.sender, amount);
     }
 
     /// @notice Unpledge (withdraw) tokens from campaign
@@ -105,13 +106,14 @@ contract CrowdFund {
         require(block.timestamp >= deadline, "Campaign ongoing");
         require(!claimed, "Already claimed");
         require(totalPledged >= goal, "Goal not met");
-        
+
         claimed = true;
-        
+
+        // Emit event before external call
+        emit Claimed(creator, totalPledged);
+
         // Transfer all pledged tokens to creator
         if (!token.transfer(creator, totalPledged)) revert TransferFailed();
-        
-        emit Claimed(creator, totalPledged);
     }
 
     /// @notice Get refund if goal not met (only after deadline)
@@ -119,18 +121,19 @@ contract CrowdFund {
         // slither-disable-next-line timestamp
         require(block.timestamp >= deadline, "Campaign ongoing");
         require(totalPledged < goal, "Goal met");
-        
+
         uint256 amount = pledges[msg.sender];
         require(amount > 0, "Nothing to refund");
-        
+
         // Clear pledge
         pledges[msg.sender] = 0;
         totalPledged -= amount;
-        
+
+        // Emit event before external call
+        emit Refunded(msg.sender, amount);
+
         // Transfer tokens back
         if (!token.transfer(msg.sender, amount)) revert TransferFailed();
-        
-        emit Refunded(msg.sender, amount);
     }
 
     /// @notice Get campaign status
